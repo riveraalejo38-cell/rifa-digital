@@ -52,7 +52,7 @@ export default function LoginPage() {
       }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <h1 style={{ color: "#ffd700", fontSize: "28px", fontWeight: "900", margin: "0 0 4px" }}>
-            INCASUERTE
+            COLRIFAS
           </h1>
           <p style={{ color: "#6b7280", fontSize: "14px", margin: 0 }}>
             Panel de Control
