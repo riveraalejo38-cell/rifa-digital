@@ -14,7 +14,7 @@ export default function BoletaPage() {
   const [guardado, setGuardado] = useState(false);
 
   const fotos = [
-    { src: "/camion.jpeg", alt: "Foton 2025" },
+   { src: "/Camion.jpeg", alt: "Foton 2025" },
     { src: "/moto1.png", alt: "Honda XR 190" },
     { src: "/moto2.png", alt: "Yamaha NMAX" },
   ];
