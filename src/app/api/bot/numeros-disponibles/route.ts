@@ -12,35 +12,46 @@ export async function GET(request: Request) {
   }
 
   try {
-    const numeros: string[] = [];
+    const raffle = await prisma.raffle.findFirst({
+      where: { isActive: true },
+      select: { id: true },
+    });
+
+    if (!raffle) {
+      return NextResponse.json({ error: 'No hay rifa activa' }, { status: 404 });
+    }
+
+    const numeros: number[] = [];
 
     for (let i = 0; i <= 9; i++) {
       const tickets = await prisma.ticket.findMany({
         where: {
+          raffleId: raffle.id,
           status: 'AVAILABLE',
-          number: { startsWith: i.toString() },
+          number: {
+            gte: i * 1000,
+            lte: i * 1000 + 999,
+          },
         },
         take: 20,
         select: { number: true },
       });
 
-      const mezclados = tickets
+      const shuffled = tickets
         .sort(() => Math.random() - 0.5)
         .slice(0, 5);
 
-      mezclados.forEach((t) => numeros.push(t.number));
+      shuffled.forEach((t) => numeros.push(t.number));
     }
 
-    const mensaje = numeros
-      .sort()
-      .reduce((acc: Record<string, string[]>, num) => {
-        const rango = `${num[0]}000 - ${num[0]}999`;
-        if (!acc[rango]) acc[rango] = [];
-        acc[rango].push(num);
-        return acc;
-      }, {});
+    const grouped = numeros.sort((a, b) => a - b).reduce((acc: Record<string, string[]>, num) => {
+      const rangeKey = `${Math.floor(num / 1000) * 1000} - ${Math.floor(num / 1000) * 1000 + 999}`;
+      if (!acc[rangeKey]) acc[rangeKey] = [];
+      acc[rangeKey].push(num.toString().padStart(4, '0'));
+      return acc;
+    }, {});
 
-    const mensaje_whatsapp = Object.entries(mensaje)
+    const mensaje_whatsapp = Object.entries(grouped)
       .map(([rango, nums]) => `📌 *${rango}:* ${nums.join(' · ')}`)
       .join('\n');
 
