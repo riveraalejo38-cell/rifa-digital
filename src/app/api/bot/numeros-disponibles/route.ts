@@ -52,14 +52,14 @@ export async function GET(request: Request) {
   numeros.sort((a, b) => a - b);
 
   const grouped = numeros.reduce((acc: Record<string, string[]>, num) => {
-    const key = `${Math.floor(num / 1000) * 1000} - ${Math.floor(num / 1000) * 1000 + 999}`;
+    const key = `${String(Math.floor(num / 1000) * 1000).padStart(4,'0')} - ${String(Math.floor(num / 1000) * 1000 + 999).padStart(4,'0')}`;
     if (!acc[key]) acc[key] = [];
     acc[key].push(num.toString().padStart(4, '0'));
     return acc;
   }, {});
 
   const mensaje_whatsapp = Object.entries(grouped)
-    .map(([rango, nums]) => `📌 *${rango}:* ${nums.join(' · ')}`)
+    .map(([rango, nums]) => `*${rango}:* ${nums.join(' - ')}`)
     .join('\n');
 
   return NextResponse.json({ disponibles: numeros, total: numeros.length, mensaje_whatsapp, actualizado: new Date().toISOString() });
