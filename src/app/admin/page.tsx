@@ -54,9 +54,7 @@ export default function AdminPage() {
   const fetchTickets = async (q = "", f = filtro, vend = vendedorFiltro) => {
     setLoading(true);
     const searchNum = q.startsWith("0") ? parseInt(q).toString() : q;
-
     let result: any[] = [];
-
     if (f === "SIN_DISPONIBLES") {
       const statuses = ["RESERVED", "PARTIAL", "PAID"];
       const responses = await Promise.all(
@@ -72,13 +70,11 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) result = data.tickets;
     }
-
     if (vend) {
       result = result.filter((t: any) =>
         t.client?.notes?.toLowerCase().includes(vend.toLowerCase())
       );
     }
-
     setTickets(result);
     setLoading(false);
   };
@@ -174,12 +170,14 @@ export default function AdminPage() {
     return { label: "○ Disponible", bg: "rgba(148,163,184,0.15)", color: "#94A3B8" };
   };
 
+  const totalOcupadas = stats.reserved + stats.partial + stats.paid;
+
   const filtros = [
-    { key: "SIN_DISPONIBLES", label: "Todas" },
-    { key: "AVAILABLE", label: "Disponibles" },
-    { key: "RESERVED", label: "Separadas" },
-    { key: "PARTIAL", label: "Con abono" },
-    { key: "PAID", label: "Pagadas" },
+    { key: "SIN_DISPONIBLES", label: "Todas", count: totalOcupadas },
+    { key: "AVAILABLE", label: "Disponibles", count: stats.available },
+    { key: "RESERVED", label: "Separadas", count: stats.reserved },
+    { key: "PARTIAL", label: "Con abono", count: stats.partial },
+    { key: "PAID", label: "Pagadas", count: stats.paid },
   ];
 
   return (
@@ -263,18 +261,31 @@ export default function AdminPage() {
             style={{ flex: 1, minWidth: "260px", background: "#1E293B", border: "1px solid rgba(212,168,67,0.2)", borderRadius: "12px", padding: "13px 18px", color: "#E2E8F0", fontSize: "14px", outline: "none", fontFamily: "inherit", fontWeight: "500" }}
           />
           <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
-            {filtros.map((f) => (
-              <button key={f.key} onClick={() => handleFiltro(f.key)}
-                style={{
-                  background: filtro === f.key && !vendedorFiltro ? "linear-gradient(135deg, #D4A843, #B8860B)" : "#1E293B",
-                  border: filtro === f.key && !vendedorFiltro ? "none" : "1px solid rgba(212,168,67,0.2)",
-                  borderRadius: "10px", padding: "10px 16px",
-                  color: filtro === f.key && !vendedorFiltro ? "#0F172A" : "#94A3B8",
-                  fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
-                }}>
-                {f.label}
-              </button>
-            ))}
+            {filtros.map((f) => {
+              const activo = filtro === f.key && !vendedorFiltro;
+              return (
+                <button key={f.key} onClick={() => handleFiltro(f.key)}
+                  style={{
+                    background: activo ? "linear-gradient(135deg, #D4A843, #B8860B)" : "#1E293B",
+                    border: activo ? "none" : "1px solid rgba(212,168,67,0.2)",
+                    borderRadius: "10px", padding: "10px 14px",
+                    color: activo ? "#0F172A" : "#94A3B8",
+                    fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
+                    display: "flex", alignItems: "center", gap: "7px",
+                  }}>
+                  {f.label}
+                  <span style={{
+                    background: activo ? "rgba(0,0,0,0.15)" : "rgba(212,168,67,0.15)",
+                    color: activo ? "#0F172A" : "#D4A843",
+                    borderRadius: "999px",
+                    padding: "1px 7px",
+                    fontSize: "11px",
+                    fontWeight: "800",
+                    fontFamily: "'DM Mono', monospace",
+                  }}>{f.count}</span>
+                </button>
+              );
+            })}
 
             {/* Dropdown Vendedor */}
             <div ref={vendedorMenuRef} style={{ position: "relative" }}>
@@ -282,7 +293,7 @@ export default function AdminPage() {
                 style={{
                   background: vendedorFiltro ? "linear-gradient(135deg, #D4A843, #B8860B)" : "#1E293B",
                   border: vendedorFiltro ? "none" : "1px solid rgba(212,168,67,0.2)",
-                  borderRadius: "10px", padding: "10px 16px",
+                  borderRadius: "10px", padding: "10px 14px",
                   color: vendedorFiltro ? "#0F172A" : "#94A3B8",
                   fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
                   display: "flex", alignItems: "center", gap: "6px",
