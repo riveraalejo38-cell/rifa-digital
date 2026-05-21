@@ -22,7 +22,7 @@ model Raffle {
   description    String?
   prize          String
   ticketPrice    Decimal   @db.Decimal(12, 2)
-  totalTickets   Int       @default(20250)
+  totalTickets   Int       @default(10000)
   drawDate       DateTime
   isActive       Boolean   @default(true)
   externalResult String?
