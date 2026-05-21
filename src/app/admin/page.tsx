@@ -54,22 +54,32 @@ export default function AdminPage() {
   const fetchTickets = async (q = "", f = filtro, vend = vendedorFiltro) => {
     setLoading(true);
     const searchNum = q.startsWith("0") ? parseInt(q).toString() : q;
-    const statusParam = f === "SIN_DISPONIBLES" ? "" : f;
-    const url = `/api/admin/tickets?search=${searchNum}${statusParam ? `&status=${statusParam}` : ""}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.success) {
-      let result = data.tickets;
-      if (f === "SIN_DISPONIBLES") {
-        result = result.filter((t: any) => t.status !== "AVAILABLE");
+
+    let result: any[] = [];
+
+    if (f === "SIN_DISPONIBLES") {
+      const statuses = ["RESERVED", "PARTIAL", "PAID"];
+      const responses = await Promise.all(
+        statuses.map(s => fetch(`/api/admin/tickets?search=${searchNum}&status=${s}`).then(r => r.json()))
+      );
+      for (const data of responses) {
+        if (data.success) result = [...result, ...data.tickets];
       }
-      if (vend) {
-        result = result.filter((t: any) =>
-          t.client?.notes?.toLowerCase().includes(vend.toLowerCase())
-        );
-      }
-      setTickets(result);
+      result.sort((a, b) => a.number - b.number);
+    } else {
+      const url = `/api/admin/tickets?search=${searchNum}&status=${f}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) result = data.tickets;
     }
+
+    if (vend) {
+      result = result.filter((t: any) =>
+        t.client?.notes?.toLowerCase().includes(vend.toLowerCase())
+      );
+    }
+
+    setTickets(result);
     setLoading(false);
   };
 
@@ -302,7 +312,7 @@ export default function AdminPage() {
         {vendedorFiltro && (
           <div style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontSize: "13px", color: "#D4A843", fontWeight: "600" }}>
-              🧑‍💼 Mostrando boletas de: <strong>{vendedorFiltro}</strong>
+              🧑‍💼 Boletas de: <strong>{vendedorFiltro}</strong>
             </span>
             <span style={{ fontSize: "12px", color: "#475569" }}>— {tickets.length} boleta(s)</span>
             <button onClick={limpiarVendedor} style={{ background: "none", border: "none", color: "#F87171", fontSize: "12px", cursor: "pointer", fontWeight: "600" }}>✕ Quitar</button>
