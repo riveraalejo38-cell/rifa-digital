@@ -62,11 +62,11 @@ export default function AdminPage() {
 
   const handleAsignar = async (tipo: "RESERVED" | "PARTIAL" | "PAID") => {
     if (!clientName || !clientPhone) {
-      setMessage("❌ Nombre y teléfono son obligatorios");
+      setMessage("Nombre y teléfono son obligatorios");
       return;
     }
     if (tipo === "PARTIAL" && !abonoAmount) {
-      setMessage("❌ Ingresa el monto abonado");
+      setMessage("Ingresa el monto abonado");
       return;
     }
     setSaving(true);
@@ -77,7 +77,7 @@ export default function AdminPage() {
         body: JSON.stringify({ name: clientName, phone: clientPhone, city: clientCity }),
       });
       const dataClient = await resClient.json();
-      if (!dataClient.success) { setMessage("❌ Error al crear cliente"); setSaving(false); return; }
+      if (!dataClient.success) { setMessage("Error al crear cliente"); setSaving(false); return; }
 
       const abono = tipo === "PAID" ? TICKET_PRICE : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
 
@@ -95,10 +95,10 @@ export default function AdminPage() {
         await Promise.all([fetchStats(), fetchTickets(search)]);
         setShowModal(false);
       } else {
-        setMessage("❌ " + dataTicket.error);
+        setMessage(dataTicket.error || "Error al asignar");
       }
     } catch {
-      setMessage("❌ Error de conexión");
+      setMessage("Error de conexión");
     }
     setSaving(false);
   };
@@ -124,58 +124,69 @@ export default function AdminPage() {
   const formatPeso = (value: number) => "$" + value.toLocaleString("es-CO");
 
   const getStatusBadge = (ticket: any) => {
-    if (ticket.status === "PAID") return { label: "✅ Pagada", bg: "#D1FAE5", color: "#2D6A4F" };
+    if (ticket.status === "PAID") return { label: "✅ Pagada", bg: "#D1FAE5", color: "#059669" };
     if (ticket.status === "PARTIAL") return { label: "⏳ Abono", bg: "#FEF3C7", color: "#D97706" };
-    if (ticket.status === "RESERVED") return { label: "● Reservada", bg: "#DBEAFE", color: "#3B5998" };
+    if (ticket.status === "RESERVED") return { label: "● Reservada", bg: "#DBEAFE", color: "#0284C7" };
     return { label: "○ Disponible", bg: "#F3F4F6", color: "#6B7280" };
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F2F4F7", fontFamily: "'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#F7F9FC", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
+        * { box-sizing: border-box; }
+        input:focus { outline: none; }
+        select:focus { outline: none; }
+        button:active { transform: scale(0.98); }
+        tr:hover { background: #F7F9FC; }
+      `}</style>
 
       {/* Header */}
-      <div style={{ background: "#1C1C2E", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: "#FFFFFF", letterSpacing: "2px" }}>COLRIFAS</h1>
-          <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>Panel Administrador</p>
+      <div style={{ background: "#1A1F2E", borderBottom: "1px solid #2D3348", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <img src="/logo-rg.jpeg.jpeg" alt="RG Proyectos" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
+          <div>
+            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#D4A843", letterSpacing: "0.5px" }}>RG Proyectos</p>
+            <p style={{ margin: 0, fontSize: "11px", color: "#64748B", fontWeight: "500" }}>Panel Administrador</p>
+          </div>
         </div>
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-          <a href="/admin/vendedores" style={{ color: "#2A9D8F", fontSize: "13px", textDecoration: "none", fontWeight: "600" }}>👥 Vendedores</a>
-          <a href="/api/auth/logout" style={{ color: "#6B7280", fontSize: "13px", textDecoration: "none" }}>Cerrar sesión</a>
+          <a href="/admin/vendedores" style={{ color: "#0EA5E9", fontSize: "13px", textDecoration: "none", fontWeight: "600", padding: "6px 14px", borderRadius: "8px", border: "1px solid #1E3A5F" }}>👥 Vendedores</a>
+          <a href="/api/auth/logout" style={{ color: "#64748B", fontSize: "13px", textDecoration: "none", fontWeight: "500", padding: "6px 14px", borderRadius: "8px", border: "1px solid #2D3348" }}>Cerrar sesión</a>
         </div>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "24px 16px" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "28px 20px" }}>
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "12px", marginBottom: "16px" }}>
           {[
-            { label: "Total boletas", value: stats.total.toLocaleString(), color: "#1C1C2E" },
-            { label: "Disponibles", value: stats.available.toLocaleString(), color: "#2D6A4F" },
-            { label: "Reservadas", value: stats.reserved.toLocaleString(), color: "#3B5998" },
-            { label: "Con abono", value: stats.partial.toLocaleString(), color: "#D97706" },
-            { label: "Pagadas", value: stats.paid.toLocaleString(), color: "#7C3AED" },
+            { label: "Total boletas", value: stats.total.toLocaleString(), color: "#0F172A", bg: "#F7F9FC", border: "#E2E8F0" },
+            { label: "Disponibles", value: stats.available.toLocaleString(), color: "#059669", bg: "#F0FDF4", border: "#BBF7D0" },
+            { label: "Reservadas", value: stats.reserved.toLocaleString(), color: "#0284C7", bg: "#EFF6FF", border: "#BFDBFE" },
+            { label: "Con abono", value: stats.partial.toLocaleString(), color: "#D97706", bg: "#FFFBEB", border: "#FDE68A" },
+            { label: "Pagadas", value: stats.paid.toLocaleString(), color: "#7C3AED", bg: "#F5F3FF", border: "#DDD6FE" },
           ].map((s) => (
-            <div key={s.label} style={{ background: "#FFFFFF", borderRadius: "12px", padding: "16px", textAlign: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>{s.label}</p>
-              <p style={{ margin: "6px 0 0", fontSize: "24px", fontWeight: "800", color: s.color }}>{s.value}</p>
+            <div key={s.label} style={{ background: s.bg, borderRadius: "16px", padding: "18px", textAlign: "center", border: `1.5px solid ${s.border}` }}>
+              <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600", letterSpacing: "0.5px" }}>{s.label.toUpperCase()}</p>
+              <p style={{ margin: "8px 0 0", fontSize: "28px", fontWeight: "800", color: s.color, fontFamily: "'DM Mono', monospace" }}>{s.value}</p>
             </div>
           ))}
         </div>
 
         {/* Recaudo */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "24px" }}>
-          <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>Total recaudado (pagadas)</p>
-            <p style={{ margin: "6px 0 0", fontSize: "20px", fontWeight: "800", color: "#2D6A4F" }}>{formatPeso(stats.paid * TICKET_PRICE)}</p>
+          <div style={{ background: "#FFFFFF", borderRadius: "16px", padding: "18px", border: "1.5px solid #E2E8F0" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600", letterSpacing: "0.5px" }}>TOTAL RECAUDADO</p>
+            <p style={{ margin: "6px 0 0", fontSize: "22px", fontWeight: "800", color: "#059669", fontFamily: "'DM Mono', monospace" }}>{formatPeso(stats.paid * TICKET_PRICE)}</p>
           </div>
-          <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>Total abonos recibidos</p>
-            <p style={{ margin: "6px 0 0", fontSize: "20px", fontWeight: "800", color: "#D97706" }}>{formatPeso(stats.recaudado)}</p>
+          <div style={{ background: "#FFFFFF", borderRadius: "16px", padding: "18px", border: "1.5px solid #E2E8F0" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600", letterSpacing: "0.5px" }}>TOTAL ABONOS</p>
+            <p style={{ margin: "6px 0 0", fontSize: "22px", fontWeight: "800", color: "#D97706", fontFamily: "'DM Mono', monospace" }}>{formatPeso(stats.recaudado)}</p>
           </div>
-          <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>Meta total rifa</p>
-            <p style={{ margin: "6px 0 0", fontSize: "20px", fontWeight: "800", color: "#9CA3AF" }}>{formatPeso(stats.total * TICKET_PRICE)}</p>
+          <div style={{ background: "#FFFFFF", borderRadius: "16px", padding: "18px", border: "1.5px solid #E2E8F0" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600", letterSpacing: "0.5px" }}>META TOTAL</p>
+            <p style={{ margin: "6px 0 0", fontSize: "22px", fontWeight: "800", color: "#94A3B8", fontFamily: "'DM Mono', monospace" }}>{formatPeso(stats.total * TICKET_PRICE)}</p>
           </div>
         </div>
 
@@ -185,63 +196,63 @@ export default function AdminPage() {
           placeholder="🔍 Buscar por número (ej: 0102), nombre o teléfono..."
           value={search}
           onChange={handleSearch}
-          style={{ width: "100%", background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "14px 18px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "16px" }}
+          style={{ width: "100%", background: "#FFFFFF", border: "1.5px solid #E2E8F0", borderRadius: "14px", padding: "14px 18px", color: "#0F172A", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "16px", fontFamily: "inherit", fontWeight: "500" }}
         />
 
         {/* Tabla */}
-        <div style={{ background: "#FFFFFF", borderRadius: "16px", overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "#FFFFFF", borderRadius: "20px", overflow: "hidden", border: "1.5px solid #E2E8F0" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#F2F4F7", color: "#6B7280", fontSize: "12px" }}>
+              <tr style={{ background: "#F7F9FC", borderBottom: "1.5px solid #E2E8F0" }}>
                 {["Número", "Estado", "Cliente", "Teléfono", "Ciudad", "Vendedor", "Abono / Resta", "Acciones"].map((h) => (
-                  <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontWeight: "600" }}>{h}</th>
+                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontWeight: "700", fontSize: "11px", color: "#94A3B8", letterSpacing: "0.8px" }}>{h.toUpperCase()}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>Cargando...</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: "center", padding: "40px", color: "#94A3B8", fontSize: "14px" }}>Cargando...</td></tr>
               ) : tickets.length === 0 ? (
-                <tr><td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>No se encontraron boletas</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: "center", padding: "40px", color: "#94A3B8", fontSize: "14px" }}>No se encontraron boletas</td></tr>
               ) : tickets.map((ticket: any) => {
                 const abonado = ticket.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || Number(ticket.amountPaid) || 0;
                 const resta = TICKET_PRICE - abonado;
                 const badge = getStatusBadge(ticket);
                 return (
-                  <tr key={ticket.id} style={{ borderTop: "1px solid #F2F4F7" }}>
-                    <td style={{ padding: "12px 16px", fontFamily: "monospace", fontWeight: "700", color: "#1C1C2E", fontSize: "16px" }}>
+                  <tr key={ticket.id} style={{ borderTop: "1px solid #F1F5F9" }}>
+                    <td style={{ padding: "14px 16px", fontFamily: "'DM Mono', monospace", fontWeight: "700", color: "#0F172A", fontSize: "16px" }}>
                       {String(ticket.number).padStart(4, "0")}
                     </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span style={{ background: badge.bg, color: badge.color, padding: "3px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: "700" }}>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span style={{ background: badge.bg, color: badge.color, padding: "4px 10px", borderRadius: "999px", fontSize: "11px", fontWeight: "700" }}>
                         {badge.label}
                       </span>
                     </td>
-                    <td style={{ padding: "12px 16px", color: "#1C1C2E", fontSize: "13px" }}>{ticket.client?.name || "-"}</td>
-                    <td style={{ padding: "12px 16px", color: "#6B7280", fontSize: "13px" }}>{ticket.client?.phone || "-"}</td>
-                    <td style={{ padding: "12px 16px", color: "#6B7280", fontSize: "13px" }}>{ticket.client?.city || "-"}</td>
-                    <td style={{ padding: "12px 16px", color: "#6B7280", fontSize: "13px" }}>{ticket.client?.notes?.replace("Vendedor: ", "").split(" (")[0] || "-"}</td>
-                    <td style={{ padding: "12px 16px", fontSize: "12px" }}>
+                    <td style={{ padding: "14px 16px", color: "#0F172A", fontSize: "13px", fontWeight: "500" }}>{ticket.client?.name || "-"}</td>
+                    <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.client?.phone || "-"}</td>
+                    <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.client?.city || "-"}</td>
+                    <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.client?.notes?.replace("Vendedor: ", "").split(" (")[0] || "-"}</td>
+                    <td style={{ padding: "14px 16px", fontSize: "12px" }}>
                       {ticket.status === "PARTIAL" ? (
-                        <span style={{ color: "#D97706" }}>{formatPeso(abonado)} <span style={{ color: "#DC2626" }}>· Resta {formatPeso(resta)}</span></span>
+                        <span style={{ color: "#D97706", fontWeight: "600" }}>{formatPeso(abonado)} <span style={{ color: "#EF4444" }}>· Resta {formatPeso(resta)}</span></span>
                       ) : ticket.status === "PAID" ? (
-                        <span style={{ color: "#2D6A4F" }}>{formatPeso(TICKET_PRICE)} ✓</span>
+                        <span style={{ color: "#059669", fontWeight: "700" }}>{formatPeso(TICKET_PRICE)} ✓</span>
                       ) : "-"}
                     </td>
-                    <td style={{ padding: "12px 16px" }}>
+                    <td style={{ padding: "14px 16px" }}>
                       <div style={{ display: "flex", gap: "6px" }}>
                         {ticket.status !== "AVAILABLE" && (
-                          <button onClick={() => copiarLink(ticket.token)} style={{ background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "6px", padding: "5px 10px", color: "#3B5998", fontSize: "12px", cursor: "pointer" }}>
+                          <button onClick={() => copiarLink(ticket.token)} style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: "8px", padding: "5px 10px", color: "#0284C7", fontSize: "12px", cursor: "pointer", fontWeight: "600" }}>
                             {copied === ticket.token ? "✓" : "🔗"}
                           </button>
                         )}
                         {ticket.status !== "PAID" && (
-                          <button onClick={() => openModal(ticket)} style={{ background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: "6px", padding: "5px 10px", color: "#92400E", fontSize: "12px", cursor: "pointer", fontWeight: "700" }}>
+                          <button onClick={() => openModal(ticket)} style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: "8px", padding: "5px 10px", color: "#D97706", fontSize: "12px", cursor: "pointer", fontWeight: "700" }}>
                             {ticket.status === "AVAILABLE" ? "Asignar" : "Abonar"}
                           </button>
                         )}
                         {ticket.status !== "AVAILABLE" && (
-                          <button onClick={() => liberarBoleta(ticket.id)} style={{ background: "#FEF2F2", border: "1px solid #FCA5A5", borderRadius: "6px", padding: "5px 10px", color: "#DC2626", fontSize: "12px", cursor: "pointer", fontWeight: "700" }}>
+                          <button onClick={() => liberarBoleta(ticket.id)} style={{ background: "#FEF2F2", border: "1.5px solid #FCA5A5", borderRadius: "8px", padding: "5px 10px", color: "#EF4444", fontSize: "12px", cursor: "pointer", fontWeight: "700" }}>
                             Liberar
                           </button>
                         )}
@@ -261,38 +272,38 @@ export default function AdminPage() {
           <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
               <div>
-                <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF", letterSpacing: "2px" }}>BOLETA</p>
-                <h2 style={{ margin: "4px 0 0", fontSize: "36px", fontWeight: "900", color: "#1C1C2E", fontFamily: "monospace", letterSpacing: "4px" }}>
+                <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", letterSpacing: "2px", fontWeight: "600" }}>BOLETA</p>
+                <h2 style={{ margin: "4px 0 0", fontSize: "40px", fontWeight: "900", color: "#0F172A", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>
                   {String(selectedTicket.number).padStart(4, "0")}
                 </h2>
-                <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#6B7280" }}>Valor total: {formatPeso(TICKET_PRICE)}</p>
+                <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#94A3B8" }}>Valor total: {formatPeso(TICKET_PRICE)}</p>
               </div>
-              <button onClick={() => setShowModal(false)} style={{ background: "#F2F4F7", border: "none", borderRadius: "8px", padding: "8px 12px", color: "#6B7280", cursor: "pointer", fontSize: "16px" }}>✕</button>
+              <button onClick={() => setShowModal(false)} style={{ background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "10px", padding: "8px 12px", color: "#64748B", cursor: "pointer", fontSize: "16px" }}>✕</button>
             </div>
 
             {step === "form" && (
               <>
                 <input type="text" placeholder="Nombre del cliente" value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 14px", color: "#0F172A", fontSize: "14px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit", fontWeight: "500" }}
                 />
                 <input type="text" placeholder="Teléfono" value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 14px", color: "#0F172A", fontSize: "14px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit", fontWeight: "500" }}
                 />
                 <input type="text" placeholder="Ciudad" value={clientCity}
                   onChange={(e) => setClientCity(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "16px" }}
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 14px", color: "#0F172A", fontSize: "14px", outline: "none", boxSizing: "border-box", marginBottom: "16px", fontFamily: "inherit", fontWeight: "500" }}
                 />
-                {message && <p style={{ color: "#DC2626", fontSize: "13px", marginBottom: "10px" }}>{message}</p>}
+                {message && <p style={{ color: "#EF4444", fontSize: "13px", marginBottom: "10px", fontWeight: "500" }}>⚠ {message}</p>}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                  <button onClick={() => handleAsignar("RESERVED")} disabled={saving} style={{ background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "14px", color: "#4B5563", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
+                  <button onClick={() => handleAsignar("RESERVED")} disabled={saving} style={{ background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "14px", color: "#64748B", fontWeight: "600", cursor: "pointer", fontSize: "13px", fontFamily: "inherit" }}>
                     Solo separar
                   </button>
-                  <button onClick={() => setStep("abono")} disabled={saving} style={{ background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: "10px", padding: "14px", color: "#92400E", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
+                  <button onClick={() => setStep("abono")} disabled={saving} style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A", borderRadius: "12px", padding: "14px", color: "#D97706", fontWeight: "700", cursor: "pointer", fontSize: "13px", fontFamily: "inherit" }}>
                     + Registrar abono
                   </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ gridColumn: "1 / -1", background: "#2D6A4F", border: "none", borderRadius: "10px", padding: "14px", color: "#FFFFFF", fontWeight: "700", cursor: "pointer", fontSize: "15px" }}>
+                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ gridColumn: "1 / -1", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontWeight: "700", cursor: "pointer", fontSize: "15px", fontFamily: "inherit" }}>
                     ✓ Pagada completa — {formatPeso(TICKET_PRICE)}
                   </button>
                 </div>
@@ -301,16 +312,15 @@ export default function AdminPage() {
 
             {step === "abono" && (
               <>
-                <div style={{ background: "#F2F4F7", borderRadius: "12px", padding: "14px", marginBottom: "16px" }}>
-                  <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>CLIENTE</p>
-                  <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: "700", color: "#1C1C2E" }}>{clientName}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#6B7280" }}>{clientPhone} {clientCity ? `· ${clientCity}` : ""}</p>
+                <div style={{ background: "#F7F9FC", borderRadius: "12px", padding: "14px", marginBottom: "16px", border: "1.5px solid #E2E8F0" }}>
+                  <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600", letterSpacing: "0.5px" }}>CLIENTE</p>
+                  <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: "700", color: "#0F172A" }}>{clientName}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#64748B" }}>{clientPhone} {clientCity ? `· ${clientCity}` : ""}</p>
                 </div>
 
-                {/* HISTORIAL DE ABONOS */}
                 {selectedTicket.payments && selectedTicket.payments.length > 0 && (
-                  <div style={{ background: "#F0FDF4", borderRadius: "12px", padding: "14px", marginBottom: "16px", border: "1px solid #BBF7D0" }}>
-                    <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF", fontWeight: "700", letterSpacing: "1px" }}>HISTORIAL DE ABONOS</p>
+                  <div style={{ background: "#F0FDF4", borderRadius: "12px", padding: "14px", marginBottom: "16px", border: "1.5px solid #BBF7D0" }}>
+                    <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "700", letterSpacing: "1px" }}>HISTORIAL DE ABONOS</p>
                     {selectedTicket.payments.map((p: any, i: number) => {
                       const fecha = new Date(p.createdAt);
                       const dia = String(fecha.getDate()).padStart(2, "0");
@@ -318,14 +328,14 @@ export default function AdminPage() {
                       const anio = fecha.getFullYear();
                       return (
                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", paddingTop: i > 0 ? "8px" : "0", borderTop: i > 0 ? "1px solid #D1FAE5" : "none" }}>
-                          <span style={{ fontSize: "13px", color: "#6B7280" }}>{dia}/{mes}/{anio}</span>
-                          <span style={{ fontSize: "13px", fontWeight: "700", color: "#2D6A4F" }}>{formatPeso(Number(p.amount))}</span>
+                          <span style={{ fontSize: "13px", color: "#64748B" }}>{dia}/{mes}/{anio}</span>
+                          <span style={{ fontSize: "13px", fontWeight: "700", color: "#059669" }}>{formatPeso(Number(p.amount))}</span>
                         </div>
                       );
                     })}
                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", paddingTop: "10px", borderTop: "2px solid #BBF7D0" }}>
-                      <span style={{ fontSize: "12px", color: "#6B7280", fontWeight: "700" }}>Total abonado</span>
-                      <span style={{ fontSize: "13px", fontWeight: "900", color: "#2D6A4F" }}>
+                      <span style={{ fontSize: "12px", color: "#64748B", fontWeight: "700" }}>Total abonado</span>
+                      <span style={{ fontSize: "13px", fontWeight: "900", color: "#059669" }}>
                         {formatPeso(selectedTicket.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0))}
                       </span>
                     </div>
@@ -333,7 +343,7 @@ export default function AdminPage() {
                 )}
 
                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}>
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 14px", color: "#0F172A", fontSize: "14px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit", fontWeight: "500" }}>
                   <option value="">Medio de pago</option>
                   <option value="EFECTIVO">Efectivo</option>
                   <option value="TRANSFERENCIA">Transferencia bancaria</option>
@@ -342,22 +352,22 @@ export default function AdminPage() {
                 </select>
                 <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount}
                   onChange={(e) => setAbonoAmount(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "2px solid #2A9D8F", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "8px" }}
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #0EA5E9", borderRadius: "12px", padding: "12px 14px", color: "#0F172A", fontSize: "14px", outline: "none", boxSizing: "border-box", marginBottom: "8px", fontFamily: "inherit", fontWeight: "500" }}
                 />
                 {abonoAmount && (
-                  <p style={{ color: "#6B7280", fontSize: "13px", marginBottom: "16px" }}>
+                  <p style={{ color: "#94A3B8", fontSize: "13px", marginBottom: "16px", fontWeight: "500" }}>
                     Resta por pagar: {formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}
                   </p>
                 )}
-                {message && <p style={{ color: "#DC2626", fontSize: "13px", marginBottom: "10px" }}>{message}</p>}
+                {message && <p style={{ color: "#EF4444", fontSize: "13px", marginBottom: "10px", fontWeight: "500" }}>⚠ {message}</p>}
                 <div style={{ display: "flex", gap: "8px" }}>
                   {!selectedTicket.client && (
-                    <button onClick={() => setStep("form")} style={{ background: "#F2F4F7", border: "none", borderRadius: "10px", padding: "14px 20px", color: "#6B7280", cursor: "pointer", fontWeight: "600" }}>← Volver</button>
+                    <button onClick={() => setStep("form")} style={{ background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "14px 20px", color: "#64748B", cursor: "pointer", fontWeight: "600", fontFamily: "inherit" }}>← Volver</button>
                   )}
-                  <button onClick={() => handleAsignar("PARTIAL")} disabled={saving} style={{ flex: 1, background: "#2A9D8F", border: "none", borderRadius: "10px", padding: "14px", color: "#FFFFFF", fontWeight: "900", cursor: "pointer", fontSize: "15px" }}>
+                  <button onClick={() => handleAsignar("PARTIAL")} disabled={saving} style={{ flex: 1, background: "linear-gradient(135deg, #0EA5E9, #0284C7)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontWeight: "700", cursor: "pointer", fontSize: "15px", fontFamily: "inherit" }}>
                     {saving ? "Guardando..." : "Registrar abono"}
                   </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ background: "#2D6A4F", border: "none", borderRadius: "10px", padding: "14px 16px", color: "#FFFFFF", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
+                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ background: "#F0FDF4", border: "1.5px solid #BBF7D0", borderRadius: "12px", padding: "14px 16px", color: "#059669", fontWeight: "700", cursor: "pointer", fontSize: "13px", fontFamily: "inherit" }}>
                     ✓ Completa
                   </button>
                 </div>
