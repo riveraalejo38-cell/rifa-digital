@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import Image from "next/image";
 
 export default function VendedorPage() {
   const [search, setSearch] = useState("");
@@ -171,15 +172,21 @@ export default function VendedorPage() {
       `}</style>
 
       {/* Header */}
-      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E8EDF3", padding: "0 32px", height: "64px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: "#1A1F2E", borderBottom: "1px solid #2D3348", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: "800", color: "#fff" }}>C</div>
+          <Image
+            src="/logo-rg.jpeg"
+            alt="RG Proyectos"
+            width={48}
+            height={48}
+            style={{ borderRadius: "10px", objectFit: "cover" }}
+          />
           <div>
-            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#0F172A" }}>ColRifas</p>
-            <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "500" }}>Panel Vendedor</p>
+            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#D4A843", letterSpacing: "0.5px" }}>RG Proyectos</p>
+            <p style={{ margin: 0, fontSize: "11px", color: "#64748B", fontWeight: "500" }}>Panel Vendedor</p>
           </div>
         </div>
-        <a href="/api/auth/logout" style={{ color: "#94A3B8", fontSize: "13px", textDecoration: "none", fontWeight: "500", padding: "6px 14px", borderRadius: "8px", border: "1px solid #E8EDF3" }}>Cerrar sesión</a>
+        <a href="/api/auth/logout" style={{ color: "#64748B", fontSize: "13px", textDecoration: "none", fontWeight: "500", padding: "6px 14px", borderRadius: "8px", border: "1px solid #2D3348" }}>Cerrar sesión</a>
       </div>
 
       <div style={{ maxWidth: "600px", margin: "0 auto", padding: "40px 20px" }}>
