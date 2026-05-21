@@ -14,9 +14,10 @@ export default function BoletaPage() {
   const [guardado, setGuardado] = useState(false);
 
   const fotos = [
-    { src: "/Camion.jpeg", alt: "Foton 2025" },
-    { src: "/moto1.png", alt: "Honda XR 190" },
-    { src: "/moto2.png", alt: "Yamaha NMAX" },
+    { src: "/ChatGPT Image 21 may 2026, 12_19_09.png", alt: "Premios Rifa" },
+    { src: "/ChatGPT Image 21 may 2026, 12_26_56.png", alt: "Premio 2" },
+    { src: "/ChatGPT Image 21 may 2026, 12_27_05.png", alt: "Premio 3" },
+    { src: "/ChatGPT Image 21 may 2026, 12_30_16.png", alt: "Premio 4" },
   ];
 
   useEffect(() => {
@@ -167,7 +168,6 @@ export default function BoletaPage() {
               </div>
             </div>
 
-            {/* Historial de pagos */}
             {ticket.payments && ticket.payments.length > 0 && (
               <div style={{ marginTop: "14px", background: "rgba(5,150,105,0.06)", borderRadius: "12px", padding: "14px", border: "1px solid rgba(5,150,105,0.2)" }}>
                 <p style={{ margin: "0 0 10px", fontSize: "10px", color: "#475569", fontWeight: "700", letterSpacing: "1px" }}>HISTORIAL DE PAGOS</p>
@@ -192,17 +192,17 @@ export default function BoletaPage() {
         <div style={{ background: "#1E293B", padding: "22px 24px", border: "1px solid rgba(212,168,67,0.15)", borderTop: "none", borderBottom: "none" }}>
           <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "2px", color: "#475569", fontWeight: "600" }}>PREMIOS</p>
           <div style={{ borderRadius: "16px", overflow: "hidden", background: "#0F172A", marginBottom: "10px", position: "relative" }}>
-            <img src={fotos[fotoActiva].src} alt={fotos[fotoActiva].alt} style={{ width: "100%", height: "200px", objectFit: "cover", display: "block" }}
-              onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/440x200/0F172A/D4A843?text=" + fotos[fotoActiva].alt; }} />
-            <div style={{ position: "absolute", bottom: "10px", left: "50%", transform: "translateX(-50%)", background: "rgba(15,23,42,0.8)", borderRadius: "999px", padding: "4px 14px", border: "1px solid rgba(212,168,67,0.3)" }}>
+            <img src={fotos[fotoActiva].src} alt={fotos[fotoActiva].alt} style={{ width: "100%", height: "220px", objectFit: "cover", display: "block" }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/440x220/0F172A/D4A843?text=Premio"; }} />
+            <div style={{ position: "absolute", bottom: "10px", left: "50%", transform: "translateX(-50%)", background: "rgba(15,23,42,0.85)", borderRadius: "999px", padding: "4px 16px", border: "1px solid rgba(212,168,67,0.3)" }}>
               <p style={{ margin: 0, fontSize: "11px", color: "#D4A843", fontWeight: "600" }}>{fotos[fotoActiva].alt}</p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
             {fotos.map((f, i) => (
-              <button key={i} onClick={() => setFotoActiva(i)} style={{ width: "70px", height: "50px", borderRadius: "10px", overflow: "hidden", border: i === fotoActiva ? "2px solid #D4A843" : "2px solid rgba(212,168,67,0.15)", padding: 0, cursor: "pointer", background: "#0F172A", transition: "border 0.2s" }}>
+              <button key={i} onClick={() => setFotoActiva(i)} style={{ width: "70px", height: "52px", borderRadius: "10px", overflow: "hidden", border: i === fotoActiva ? "2px solid #D4A843" : "2px solid rgba(212,168,67,0.15)", padding: 0, cursor: "pointer", background: "#0F172A" }}>
                 <img src={f.src} alt={f.alt} style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/70x50/0F172A/D4A843?text=" + (i + 1); }} />
+                  onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/70x52/0F172A/D4A843?text=" + (i + 1); }} />
               </button>
             ))}
           </div>
@@ -213,17 +213,18 @@ export default function BoletaPage() {
           <p style={{ margin: "0 0 16px", fontSize: "11px", letterSpacing: "2px", color: "#475569", fontWeight: "600" }}>DESCRIPCIÓN DE PREMIOS</p>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {[
-              { titulo: "Nissan Frontier", desc: "Camioneta 0km totalmente equipada", badge: "Premio Mayor", color: "#D4A843" },
-              { titulo: "Honda XR 190", desc: "Moto 0km modelo 2025", badge: "2do Premio", color: "#7DD3FC" },
-              { titulo: "Yamaha NMAX", desc: "Scooter 0km modelo 2025", badge: "3er Premio", color: "#C4B5FD" },
+              { titulo: "Yamaha MT-15", desc: "Moto deportiva 0km modelo 2025", badge: "Premio Mayor", color: "#D4A843" },
+              { titulo: "Nissan Frontier", desc: "Camioneta 0km totalmente equipada", badge: "2do Premio", color: "#7DD3FC" },
               { titulo: "$10.000.000 en efectivo", desc: "Entrega inmediata al ganador", badge: "Premio Extra", color: "#6EE7B7" },
+              { titulo: "Electrodomésticos", desc: "Set completo de electrodomésticos", badge: "Premio Sorpresa", color: "#C4B5FD" },
+              { titulo: "Llamada sorpresa", desc: "Premio especial para un ganador", badge: "Premio Especial", color: "#FDA4AF" },
             ].map((p) => (
               <div key={p.titulo} style={{ background: "#0F172A", borderRadius: "12px", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(212,168,67,0.08)" }}>
                 <div>
                   <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#E2E8F0" }}>{p.titulo}</p>
                   <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#475569" }}>{p.desc}</p>
                 </div>
-                <span style={{ background: "rgba(212,168,67,0.1)", color: p.color, borderRadius: "999px", padding: "4px 12px", fontSize: "11px", fontWeight: "700", whiteSpace: "nowrap", marginLeft: "12px", border: `1px solid ${p.color}30` }}>{p.badge}</span>
+                <span style={{ background: "rgba(212,168,67,0.08)", color: p.color, borderRadius: "999px", padding: "4px 12px", fontSize: "11px", fontWeight: "700", whiteSpace: "nowrap", marginLeft: "12px", border: `1px solid ${p.color}40` }}>{p.badge}</span>
               </div>
             ))}
           </div>
