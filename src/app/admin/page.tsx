@@ -5,7 +5,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState({ total: 0, available: 0, reserved: 0, partial: 0, paid: 0, recaudado: 0 });
   const [tickets, setTickets] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [filtro, setFiltro] = useState("OCCUPIED");
+  const [filtro, setFiltro] = useState("SIN_DISPONIBLES");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -24,7 +24,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchStats();
-    fetchTickets("", filtro);
+    fetchTickets("", "SIN_DISPONIBLES");
   }, []);
 
   const fetchStats = async () => {
@@ -36,13 +36,13 @@ export default function AdminPage() {
   const fetchTickets = async (q = "", f = filtro) => {
     setLoading(true);
     const searchNum = q.startsWith("0") ? parseInt(q).toString() : q;
-    const statusParam = f === "ALL" ? "" : f === "OCCUPIED" ? "" : f;
+    const statusParam = (f === "ALL" || f === "SIN_DISPONIBLES") ? "" : f;
     const url = `/api/admin/tickets?search=${searchNum}${statusParam ? `&status=${statusParam}` : ""}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.success) {
       let result = data.tickets;
-      if (f === "OCCUPIED") {
+      if (f === "SIN_DISPONIBLES") {
         result = data.tickets.filter((t: any) => t.status !== "AVAILABLE");
       }
       setTickets(result);
@@ -129,8 +129,8 @@ export default function AdminPage() {
   };
 
   const filtros = [
-    { key: "OCCUPIED", label: "Ocupadas" },
-    { key: "ALL", label: "Todas" },
+    { key: "SIN_DISPONIBLES", label: "Todas" },
+    { key: "ALL", label: "Todas + Disponibles" },
     { key: "AVAILABLE", label: "Disponibles" },
     { key: "RESERVED", label: "Separadas" },
     { key: "PARTIAL", label: "Con abono" },
@@ -138,7 +138,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#111827", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#111827", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", position: "relative", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
         * { box-sizing: border-box; }
@@ -148,6 +148,37 @@ export default function AdminPage() {
         tr:hover td { background: rgba(212,168,67,0.04); }
         input::placeholder { color: #475569; }
       `}</style>
+
+      {/* Logo marca de agua */}
+      <div style={{
+        position: "fixed",
+        bottom: "-60px",
+        right: "-60px",
+        width: "400px",
+        height: "400px",
+        backgroundImage: "url('/logo-rg.jpeg.jpeg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        opacity: 0.04,
+        borderRadius: "50%",
+        pointerEvents: "none",
+        zIndex: 0,
+      }} />
+      <div style={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "500px",
+        height: "500px",
+        backgroundImage: "url('/logo-rg.jpeg.jpeg')",
+        backgroundSize: "contain",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        opacity: 0.03,
+        pointerEvents: "none",
+        zIndex: 0,
+      }} />
 
       {/* Header */}
       <div style={{ background: "#0F172A", borderBottom: "1px solid rgba(212,168,67,0.2)", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
@@ -164,7 +195,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: "1300px", margin: "0 auto", padding: "28px 20px" }}>
+      <div style={{ maxWidth: "1300px", margin: "0 auto", padding: "28px 20px", position: "relative", zIndex: 1 }}>
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "12px", marginBottom: "16px" }}>
@@ -185,9 +216,9 @@ export default function AdminPage() {
         {/* Recaudo */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "24px" }}>
           {[
-            { label: "TOTAL RECAUDADO", value: formatPeso(stats.paid * TICKET_PRICE), color: "#6EE7B7" },
-            { label: "TOTAL ABONOS", value: formatPeso(stats.recaudado), color: "#FCD34D" },
-            { label: "META TOTAL", value: formatPeso(stats.total * TICKET_PRICE), color: "#475569" },
+            { label: "TOTAL RECAUDADO", value: formatPeso(stats.paid * TICKET_PRICE), color: "#D4A843" },
+            { label: "TOTAL ABONOS", value: formatPeso(stats.recaudado), color: "#D4A843" },
+            { label: "META TOTAL", value: formatPeso(stats.total * TICKET_PRICE), color: "#D4A843" },
           ].map((s) => (
             <div key={s.label} style={{ background: "#1E293B", borderRadius: "16px", padding: "18px", border: "1px solid rgba(212,168,67,0.15)" }}>
               <p style={{ margin: 0, fontSize: "11px", color: "#475569", fontWeight: "600", letterSpacing: "0.5px" }}>{s.label}</p>
