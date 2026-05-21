@@ -193,16 +193,16 @@ export default function AdminPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#F2F4F7", color: "#6B7280", fontSize: "12px" }}>
-                {["Número", "Estado", "Cliente", "Teléfono", "Ciudad", "vendedor","Abono / Resta", "Acciones"].map((h) => (
+                {["Número", "Estado", "Cliente", "Teléfono", "Ciudad", "Vendedor", "Abono / Resta", "Acciones"].map((h) => (
                   <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontWeight: "600" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>Cargando...</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>Cargando...</td></tr>
               ) : tickets.length === 0 ? (
-                <tr><td colSpan={7} style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>No se encontraron boletas</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>No se encontraron boletas</td></tr>
               ) : tickets.map((ticket: any) => {
                 const abonado = ticket.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || Number(ticket.amountPaid) || 0;
                 const resta = TICKET_PRICE - abonado;
@@ -258,7 +258,7 @@ export default function AdminPage() {
       {/* Modal */}
       {showModal && selectedTicket && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "20px" }}>
-          <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+          <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.2)", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
               <div>
                 <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF", letterSpacing: "2px" }}>BOLETA</p>
@@ -306,6 +306,32 @@ export default function AdminPage() {
                   <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: "700", color: "#1C1C2E" }}>{clientName}</p>
                   <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#6B7280" }}>{clientPhone} {clientCity ? `· ${clientCity}` : ""}</p>
                 </div>
+
+                {/* HISTORIAL DE ABONOS */}
+                {selectedTicket.payments && selectedTicket.payments.length > 0 && (
+                  <div style={{ background: "#F0FDF4", borderRadius: "12px", padding: "14px", marginBottom: "16px", border: "1px solid #BBF7D0" }}>
+                    <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF", fontWeight: "700", letterSpacing: "1px" }}>HISTORIAL DE ABONOS</p>
+                    {selectedTicket.payments.map((p: any, i: number) => {
+                      const fecha = new Date(p.createdAt);
+                      const dia = String(fecha.getDate()).padStart(2, "0");
+                      const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+                      const anio = fecha.getFullYear();
+                      return (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", paddingTop: i > 0 ? "8px" : "0", borderTop: i > 0 ? "1px solid #D1FAE5" : "none" }}>
+                          <span style={{ fontSize: "13px", color: "#6B7280" }}>{dia}/{mes}/{anio}</span>
+                          <span style={{ fontSize: "13px", fontWeight: "700", color: "#2D6A4F" }}>{formatPeso(Number(p.amount))}</span>
+                        </div>
+                      );
+                    })}
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px", paddingTop: "10px", borderTop: "2px solid #BBF7D0" }}>
+                      <span style={{ fontSize: "12px", color: "#6B7280", fontWeight: "700" }}>Total abonado</span>
+                      <span style={{ fontSize: "13px", fontWeight: "900", color: "#2D6A4F" }}>
+                        {formatPeso(selectedTicket.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0))}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
                   style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}>
                   <option value="">Medio de pago</option>
