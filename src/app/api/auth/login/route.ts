@@ -15,7 +15,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Buscar primero en Admin
     const admin = await prisma.admin.findUnique({ where: { username } });
     if (admin) {
       const valid = await bcrypt.compare(password, admin.passwordHash);
@@ -27,12 +26,11 @@ export async function POST(request: Request) {
       }
       const cookieStore = await cookies();
       cookieStore.set("session", JSON.stringify({ id: admin.id, role: "ADMIN", name: "Admin" }), {
-        httpOnly: true, maxAge: 60 * 60 * 24 * 7, path: "/", sameSite: "lax",
+        httpOnly: true, maxAge: 60 * 60 * 24 * 7,
       });
       return NextResponse.json({ success: true, role: "ADMIN" });
     }
 
-    // Buscar en usuarios vendedores
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user || !user.isActive) {
       return NextResponse.json(
@@ -51,7 +49,7 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     cookieStore.set("session", JSON.stringify({ id: user.id, role: user.role, name: user.name }), {
-      httpOnly: true, maxAge: 60 * 60 * 24 * 7, path: "/", sameSite: "lax",
+      httpOnly: true, maxAge: 60 * 60 * 24 * 7,
     });
     return NextResponse.json({ success: true, role: user.role });
 
