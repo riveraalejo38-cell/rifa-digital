@@ -2,68 +2,56 @@
 import { useState, useRef } from "react";
 
 export default function VendedorPage() {
-  const [tickets, setTickets] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [ticket, setTicket] = useState<any>(null);
+  const [notFound, setNotFound] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientCity, setClientCity] = useState("");
   const [abonoAmount, setAbonoAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [step, setStep] = useState<"form" | "abono" | "done">("form");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [lastToken, setLastToken] = useState("");
   const [copied, setCopied] = useState(false);
-  const timerRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const TICKET_PRICE = 70000;
-  const isNumeric = (val: string) => /^\d+$/.test(val);
-  const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 
-  const fetchTickets = async (q = "") => {
-    if (!q || q.trim() === "") { setTickets([]); return; }
-    if (isNumeric(q) && q.length !== 4) { setTickets([]); return; }
+  const formatPeso = (value: number) =>
+    "$" + value.toLocaleString("es-CO");
+
+  const buscar = async () => {
+    if (!search.trim()) return;
     setLoading(true);
-    const searchVal = isNumeric(q) ? parseInt(q).toString() : q;
-    const res = await fetch(`/api/admin/tickets?search=${searchVal}`);
+    setTicket(null);
+    setNotFound(false);
+    setMessage("");
+    setClientName("");
+    setClientPhone("");
+    setClientCity("");
+    setAbonoAmount("");
+    setPaymentMethod("");
+
+    const isNum = /^\d+$/.test(search.trim());
+    const query = isNum ? parseInt(search.trim()).toString() : search.trim();
+    const res = await fetch(`/api/admin/tickets?search=${query}`);
     const data = await res.json();
-    if (data.success) setTickets(data.tickets);
-    else setTickets([]);
+
+    if (data.success && data.tickets.length > 0) {
+      const t = data.tickets[0];
+      setTicket(t);
+      setClientName(t.client?.name || "");
+      setClientPhone(t.client?.phone || "");
+      setClientCity(t.client?.city || "");
+    } else {
+      setNotFound(true);
+    }
     setLoading(false);
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearch(val);
-    setTickets([]);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (!val) return;
-    if (isNumeric(val) && val.length !== 4) return;
-    timerRef.current = setTimeout(() => fetchTickets(val), 150);
-  };
-
-  const openModal = (ticket: any) => {
-    setSelectedTicket(ticket);
-    setAbonoAmount("");
-    setPaymentMethod("");
-    setMessage("");
-    setLastToken("");
-    setCopied(false);
-    if (ticket.client) {
-      setClientName(ticket.client.name);
-      setClientPhone(ticket.client.phone);
-      setClientCity(ticket.client.city || "");
-      setStep("abono");
-    } else {
-      setClientName("");
-      setClientPhone("");
-      setClientCity("");
-      setStep("form");
-    }
-    setShowModal(true);
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") buscar();
   };
 
   const handleAsignar = async (tipo: "RESERVED" | "PARTIAL" | "PAID") => {
@@ -72,322 +60,298 @@ export default function VendedorPage() {
       return;
     }
     if (tipo === "PARTIAL" && !abonoAmount) {
-      setMessage("Ingresa el monto abonado");
+      setMessage("Ingresa el monto a abonar");
       return;
     }
     setSaving(true);
     setMessage("");
+    try {
+      const resClient = await fetch("/api/admin/clientes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: clientName, phone: clientPhone, city: clientCity }),
+      });
+      const dataClient = await resClient.json();
+      if (!dataClient.success) { setMessage("Error al registrar cliente"); setSaving(false); return; }
 
-    const resClient = await fetch("/api/admin/clientes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: clientName, phone: clientPhone, city: clientCity }),
-    });
-    const dataClient = await resClient.json();
-    if (!dataClient.success) {
-      setMessage("Error al registrar cliente");
-      setSaving(false);
-      return;
-    }
+      const abono = tipo === "PAID" ? TICKET_PRICE : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
 
-    const abono = tipo === "PAID" ? TICKET_PRICE : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
-
-    const resTicket = await fetch("/api/admin/asignar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ticketId: selectedTicket.id,
-        clientId: dataClient.client.id,
-        amountPaid: abono,
-      }),
-    });
-    const dataTicket = await resTicket.json();
-    if (dataTicket.success) {
-      setLastToken(selectedTicket.token);
-      setStep("done");
-      await fetchTickets(search);
-    } else {
-      setMessage(dataTicket.error || "Error al guardar");
+      const resTicket = await fetch("/api/admin/asignar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: ticket.id,
+          clientId: dataClient.client.id,
+          amountPaid: abono,
+        }),
+      });
+      const dataTicket = await resTicket.json();
+      if (dataTicket.success) {
+        await buscar();
+      } else {
+        setMessage(dataTicket.error || "Error al asignar");
+      }
+    } catch {
+      setMessage("Error de conexión");
     }
     setSaving(false);
   };
 
-  const liberarBoleta = async (ticketId: string) => {
+  const handleAbonar = async () => {
+    if (!abonoAmount) { setMessage("Ingresa el monto a abonar"); return; }
+    setSaving(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/admin/asignar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: ticket.id,
+          clientId: ticket.client.id,
+          amountPaid: parseFloat(abonoAmount),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAbonoAmount("");
+        setPaymentMethod("");
+        await buscar();
+      } else {
+        setMessage(data.error || "Error al registrar abono");
+      }
+    } catch {
+      setMessage("Error de conexión");
+    }
+    setSaving(false);
+  };
+
+  const liberarBoleta = async () => {
     if (!confirm("¿Seguro que quieres liberar esta boleta?")) return;
     const res = await fetch("/api/admin/liberar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticketId }),
+      body: JSON.stringify({ ticketId: ticket.id }),
     });
     const data = await res.json();
-    if (data.success) await fetchTickets(search);
+    if (data.success) { setTicket(null); setSearch(""); }
   };
 
-  const copiarLink = (token: string) => {
-    const link = `${window.location.origin}/boleta/${token}`;
+  const copiarLink = () => {
+    const link = `${window.location.origin}/boleta/${ticket.token}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
-    setTimeout(() => { setCopied(false); setShowModal(false); }, 1500);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const getHint = () => {
-    if (!search) return "";
-    if (isNumeric(search) && search.length < 4) return `Faltan ${4 - search.length} dígito(s)...`;
-    if (isNumeric(search) && search.length > 4) return "Máximo 4 dígitos";
-    return "";
-  };
+  const totalAbonado = ticket?.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
+  const resta = TICKET_PRICE - totalAbonado;
 
-  const totalAbonado = (ticket: any) => {
-    if (ticket.payments?.length > 0) {
-      return ticket.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
-    }
-    return Number(ticket.amountPaid) || 0;
-  };
+  const isAvailable = ticket?.status === "AVAILABLE";
+  const isTaken = ticket && !isAvailable;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F2F4F7", fontFamily: "'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#F7F9FC", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
+        * { box-sizing: border-box; }
+        input:focus { outline: none; }
+        select:focus { outline: none; }
+        button:active { transform: scale(0.98); }
+        .search-input::placeholder { color: #B0BAC9; }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.3s ease forwards; }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .pulse { animation: pulse 1.5s ease infinite; }
+      `}</style>
 
       {/* Header */}
-      <div style={{ background: "#1C1C2E", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: "#FFFFFF", letterSpacing: "2px" }}>COLRIFAS</h1>
-          <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>Panel Vendedor</p>
+      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E8EDF3", padding: "0 32px", height: "64px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: "800", color: "#fff" }}>C</div>
+          <div>
+            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#0F172A" }}>ColRifas</p>
+            <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "500" }}>Panel Vendedor</p>
+          </div>
         </div>
-        <a href="/api/auth/logout" style={{ color: "#6B7280", fontSize: "13px", textDecoration: "none" }}>Cerrar sesión</a>
+        <a href="/api/auth/logout" style={{ color: "#94A3B8", fontSize: "13px", textDecoration: "none", fontWeight: "500", padding: "6px 14px", borderRadius: "8px", border: "1px solid #E8EDF3" }}>Cerrar sesión</a>
       </div>
 
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "24px 16px" }}>
+      <div style={{ maxWidth: "600px", margin: "0 auto", padding: "40px 20px" }}>
 
-        {/* Buscador */}
-        <div style={{ background: "#FFFFFF", borderRadius: "16px", padding: "20px", marginBottom: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <p style={{ margin: "0 0 10px", fontSize: "11px", letterSpacing: "2px", color: "#6B7280", fontWeight: "600" }}>
-            BUSCA BOLETA, TELÉFONO O NOMBRE
-          </p>
+        {/* Search */}
+        <div style={{ marginBottom: "32px" }}>
+          <p style={{ margin: "0 0 8px", fontSize: "12px", fontWeight: "600", color: "#94A3B8", letterSpacing: "1.5px", textTransform: "uppercase" }}>Buscar boleta</p>
           <div style={{ display: "flex", gap: "10px" }}>
-            <input
-              type="text"
-              placeholder="Número de boleta o teléfono..."
-              value={search}
-              onChange={handleSearch}
-              style={{ flex: 1, background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 16px", color: "#1C1C2E", fontSize: "15px", outline: "none" }}
-            />
-            <button onClick={() => fetchTickets(search)} style={{ background: "#3B5998", border: "none", borderRadius: "10px", padding: "12px 20px", color: "#FFFFFF", fontWeight: "700", fontSize: "14px", cursor: "pointer" }}>
-              Buscar
+            <input ref={inputRef} type="text" className="search-input" placeholder="Número (ej: 0234) o teléfono..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={handleKey}
+              style={{ flex: 1, background: "#FFFFFF", border: "1.5px solid #E2E8F0", borderRadius: "14px", padding: "14px 18px", fontSize: "15px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500" }} />
+            <button onClick={buscar} disabled={loading}
+              style={{ background: loading ? "#E2E8F0" : "linear-gradient(135deg, #0EA5E9, #0284C7)", border: "none", borderRadius: "14px", padding: "14px 24px", color: loading ? "#94A3B8" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", minWidth: "100px" }}>
+              {loading ? "Buscando…" : "Buscar"}
             </button>
           </div>
-          {getHint() && <p style={{ color: "#9CA3AF", fontSize: "12px", margin: "8px 0 0" }}>{getHint()}</p>}
         </div>
 
-        {loading && (
-          <div style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>Buscando...</div>
+        {/* Not found */}
+        {notFound && (
+          <div className="fade-up" style={{ background: "#FFFFFF", borderRadius: "20px", padding: "40px", textAlign: "center", border: "1.5px solid #E2E8F0" }}>
+            <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
+            <p style={{ margin: 0, fontWeight: "700", color: "#0F172A", fontSize: "16px" }}>No se encontró ninguna boleta</p>
+            <p style={{ margin: "6px 0 0", color: "#94A3B8", fontSize: "14px" }}>Verifica el número o teléfono e intenta de nuevo</p>
+          </div>
         )}
 
-        {!loading && search && tickets.length === 0 && (!isNumeric(search) || search.length === 4) && (
-          <div style={{ textAlign: "center", padding: "32px", color: "#6B7280" }}>No se encontraron boletas</div>
-        )}
-
-        {/* Resultados */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {tickets.map((ticket: any) => {
-            const abonado = totalAbonado(ticket);
-            const resta = TICKET_PRICE - abonado;
-            return (
-              <div key={ticket.id} style={{ background: "#FFFFFF", borderRadius: "16px", padding: "20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-
-                {/* Número y estado */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
-                  <div>
-                    <p style={{ margin: 0, fontFamily: "monospace", fontSize: "32px", fontWeight: "900", color: "#1C1C2E", letterSpacing: "4px" }}>
-                      {String(ticket.number).padStart(4, "0")}
-                    </p>
-                    <span style={{
-                      display: "inline-block", marginTop: "4px",
-                      background: ticket.status === "PAID" ? "#D1FAE5" : ticket.status === "PARTIAL" ? "#FEF3C7" : ticket.status === "RESERVED" ? "#DBEAFE" : "#F3F4F6",
-                      color: ticket.status === "PAID" ? "#2D6A4F" : ticket.status === "PARTIAL" ? "#D97706" : ticket.status === "RESERVED" ? "#3B5998" : "#6B7280",
-                      borderRadius: "999px", padding: "3px 12px", fontSize: "11px", fontWeight: "700",
-                    }}>
-                      {ticket.status === "PAID" ? "✓ Pagada" : ticket.status === "PARTIAL" ? "⏳ Con abono" : ticket.status === "RESERVED" ? "● Reservada" : "○ Disponible"}
-                    </span>
-                  </div>
-
-                  {/* Botones según estado */}
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "flex-end" }}>
-                    {ticket.status === "AVAILABLE" ? (
-                      <button onClick={() => openModal(ticket)} style={{ background: "#3B5998", border: "none", borderRadius: "10px", padding: "10px 20px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "700" }}>
-                        Asignar
-                      </button>
-                    ) : (
-                      <>
-                        <button onClick={() => copiarLink(ticket.token)} style={{ background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "10px 14px", color: "#3B5998", fontSize: "13px", cursor: "pointer", fontWeight: "700" }}>
-                          🔗 Link
-                        </button>
-                        {ticket.status !== "PAID" && (
-                          <button onClick={() => openModal(ticket)} style={{ background: "#2A9D8F", border: "none", borderRadius: "10px", padding: "10px 14px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "700" }}>
-                            + Abonar
-                          </button>
-                        )}
-                        <button onClick={() => liberarBoleta(ticket.id)} style={{ background: "#FEF2F2", border: "1px solid #FCA5A5", borderRadius: "10px", padding: "10px 14px", color: "#DC2626", fontSize: "13px", cursor: "pointer", fontWeight: "700" }}>
-                          Liberar
-                        </button>
-                      </>
-                    )}
-                  </div>
+        {/* DISPONIBLE */}
+        {isAvailable && (
+          <div className="fade-up">
+            <div style={{ background: "linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)", borderRadius: "20px", padding: "28px", marginBottom: "16px", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "120px", height: "120px", background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
+              <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.7)", fontWeight: "600", letterSpacing: "1.5px" }}>BOLETA</p>
+              <p style={{ margin: "0 0 12px", fontSize: "52px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px", lineHeight: 1 }}>{String(ticket.number).padStart(4, "0")}</p>
+              <span style={{ background: "rgba(255,255,255,0.2)", color: "#FFFFFF", borderRadius: "999px", padding: "5px 14px", fontSize: "12px", fontWeight: "700" }}>✦ Disponible</span>
+            </div>
+            <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "24px", border: "1.5px solid #E2E8F0" }}>
+              <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#0F172A", letterSpacing: "0.5px" }}>DATOS DEL CLIENTE</p>
+              <input type="text" placeholder="Nombre completo" value={clientName} onChange={(e) => setClientName(e.target.value)}
+                style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
+              <input type="text" placeholder="Teléfono celular" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)}
+                style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
+              <input type="text" placeholder="Ciudad" value={clientCity} onChange={(e) => setClientCity(e.target.value)}
+                style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500", marginBottom: "16px" }} />
+              {message && <p style={{ color: "#EF4444", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <button onClick={() => handleAsignar("RESERVED")} disabled={saving}
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "13px", color: "#64748B", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit" }}>
+                  Separar sin abono
+                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <input type="number" placeholder="Monto abono ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)}
+                    style={{ flex: 1, background: "#F7F9FC", border: "1.5px solid #0EA5E9", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500" }} />
+                  <button onClick={() => handleAsignar("PARTIAL")} disabled={saving}
+                    style={{ background: "#EFF6FF", border: "1.5px solid #BFDBFE", borderRadius: "12px", padding: "12px 16px", color: "#0284C7", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                    + Abonar
+                  </button>
                 </div>
-
-                {/* Datos del cliente */}
-                {ticket.client && (
-                  <div style={{ background: "#F2F4F7", borderRadius: "10px", padding: "14px", marginBottom: abonado > 0 ? "10px" : "0" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                      <div>
-                        <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>Cliente</p>
-                        <p style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: "700", color: "#1C1C2E" }}>{ticket.client.name}</p>
-                      </div>
-                      <div>
-                        <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>Teléfono</p>
-                        <p style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: "700", color: "#1C1C2E" }}>{ticket.client.phone}</p>
-                      </div>
-                      {ticket.client.city && (
-                        <div>
-                          <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>Ciudad</p>
-                          <p style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: "700", color: "#1C1C2E" }}>{ticket.client.city}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Abono y resta */}
-                {abonado > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", background: "#F2F4F7", borderRadius: "10px", padding: "12px 14px" }}>
-                    <div>
-                      <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>Abonado</p>
-                      <p style={{ margin: "2px 0 0", fontSize: "16px", fontWeight: "800", color: "#2D6A4F" }}>{formatPeso(abonado)}</p>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>Resta</p>
-                      <p style={{ margin: "2px 0 0", fontSize: "16px", fontWeight: "800", color: resta === 0 ? "#2D6A4F" : "#D97706" }}>{formatPeso(resta)}</p>
-                    </div>
-                  </div>
-                )}
+                <button onClick={() => handleAsignar("PAID")} disabled={saving}
+                  style={{ width: "100%", background: "linear-gradient(135deg, #0EA5E9, #0284C7)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                  {saving ? "Guardando..." : `✓ Pagada completa — ${formatPeso(TICKET_PRICE)}`}
+                </button>
               </div>
-            );
-          })}
-        </div>
-      </div>
+            </div>
+          </div>
+        )}
 
-      {/* Modal */}
-      {showModal && selectedTicket && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "20px" }}>
-          <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
-
-            {/* Header modal */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
-              <div>
-                <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF", letterSpacing: "2px" }}>BOLETA</p>
-                <h2 style={{ margin: "4px 0 0", fontSize: "40px", fontWeight: "900", color: "#1C1C2E", fontFamily: "monospace", letterSpacing: "6px" }}>
-                  {String(selectedTicket.number).padStart(4, "0")}
-                </h2>
-                <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#6B7280" }}>Valor total: {formatPeso(TICKET_PRICE)}</p>
+        {/* OCUPADA */}
+        {isTaken && (
+          <div className="fade-up">
+            <div style={{ background: ticket.status === "PAID" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #F59E0B, #D97706)", borderRadius: "20px", padding: "28px", marginBottom: "16px", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "120px", height: "120px", background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.7)", fontWeight: "600", letterSpacing: "1.5px" }}>BOLETA</p>
+                  <p style={{ margin: "0 0 12px", fontSize: "52px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px", lineHeight: 1 }}>{String(ticket.number).padStart(4, "0")}</p>
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button onClick={copiarLink} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
+                    {copied ? "✓ Copiado" : "🔗 Link"}
+                  </button>
+                  <button onClick={liberarBoleta} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
+                    Liberar
+                  </button>
+                </div>
               </div>
-              <button onClick={() => setShowModal(false)} style={{ background: "#F2F4F7", border: "none", borderRadius: "8px", padding: "8px 12px", color: "#6B7280", cursor: "pointer", fontSize: "16px" }}>✕</button>
+              <span style={{ background: "rgba(255,255,255,0.2)", color: "#FFFFFF", borderRadius: "999px", padding: "5px 14px", fontSize: "12px", fontWeight: "700" }}>
+                {ticket.status === "PAID" ? "✅ Pagada completa" : ticket.status === "PARTIAL" ? "⏳ Con abono" : "● Reservada"}
+              </span>
             </div>
 
-            {/* Formulario nuevo cliente */}
-            {step === "form" && (
-              <>
-                <input type="text" placeholder="Nombre completo" value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
-                />
-                <input type="text" placeholder="Teléfono celular" value={clientPhone}
-                  onChange={(e) => setClientPhone(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
-                />
-                <input type="text" placeholder="Ciudad" value={clientCity}
-                  onChange={(e) => setClientCity(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "16px" }}
-                />
-                {message && <p style={{ color: "#DC2626", fontSize: "13px", marginBottom: "10px" }}>{message}</p>}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                  <button onClick={() => handleAsignar("RESERVED")} disabled={saving} style={{ background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "14px", color: "#4B5563", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
-                    Solo separar
-                  </button>
-                  <button onClick={() => setStep("abono")} disabled={saving} style={{ background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: "10px", padding: "14px", color: "#92400E", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
-                    + Registrar abono
-                  </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ gridColumn: "1 / -1", background: "#2D6A4F", border: "none", borderRadius: "10px", padding: "14px", color: "#FFFFFF", fontWeight: "700", cursor: "pointer", fontSize: "15px" }}>
-                    ✓ Pagada completa — {formatPeso(TICKET_PRICE)}
-                  </button>
+            <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "24px", border: "1.5px solid #E2E8F0", marginBottom: "12px" }}>
+              <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#0F172A", letterSpacing: "0.5px" }}>DATOS DEL CLIENTE</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                <div style={{ background: "#F7F9FC", borderRadius: "12px", padding: "14px" }}>
+                  <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600" }}>NOMBRE</p>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: "#0F172A" }}>{ticket.client?.name || "-"}</p>
                 </div>
-              </>
-            )}
+                <div style={{ background: "#F7F9FC", borderRadius: "12px", padding: "14px" }}>
+                  <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600" }}>TELÉFONO</p>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: "#0F172A" }}>{ticket.client?.phone || "-"}</p>
+                </div>
+                <div style={{ background: "#F7F9FC", borderRadius: "12px", padding: "14px" }}>
+                  <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600" }}>CIUDAD</p>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: "#0F172A" }}>{ticket.client?.city || "-"}</p>
+                </div>
+                <div style={{ background: "#F7F9FC", borderRadius: "12px", padding: "14px" }}>
+                  <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8", fontWeight: "600" }}>SALDO PENDIENTE</p>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: resta > 0 ? "#EF4444" : "#059669" }}>
+                    {resta > 0 ? formatPeso(resta) : "Pagado ✓"}
+                  </p>
+                </div>
+              </div>
 
-            {/* Registrar abono */}
-            {step === "abono" && (
-              <>
-                <div style={{ background: "#F2F4F7", borderRadius: "12px", padding: "14px", marginBottom: "16px" }}>
-                  <p style={{ margin: 0, fontSize: "11px", color: "#9CA3AF" }}>CLIENTE</p>
-                  <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: "700", color: "#1C1C2E" }}>{clientName}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#6B7280" }}>{clientPhone} {clientCity ? `· ${clientCity}` : ""}</p>
-                  {totalAbonado(selectedTicket) > 0 && (
-                    <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#D97706" }}>
-                      Ya abonado: {formatPeso(totalAbonado(selectedTicket))} · Resta: {formatPeso(TICKET_PRICE - totalAbonado(selectedTicket))}
-                    </p>
-                  )}
+              {ticket.payments && ticket.payments.length > 0 && (
+                <div style={{ borderTop: "1.5px solid #F1F5F9", paddingTop: "16px" }}>
+                  <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: "700", color: "#0F172A", letterSpacing: "0.5px" }}>HISTORIAL DE PAGOS</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {ticket.payments.map((p: any, i: number) => {
+                      const fecha = new Date(p.createdAt);
+                      const dia = String(fecha.getDate()).padStart(2, "0");
+                      const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+                      const anio = fecha.getFullYear();
+                      return (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F0FDF4", borderRadius: "10px", padding: "10px 14px", border: "1px solid #BBF7D0" }}>
+                          <span style={{ fontSize: "13px", color: "#64748B", fontWeight: "500" }}>{dia}/{mes}/{anio}</span>
+                          <span style={{ fontSize: "14px", fontWeight: "700", color: "#059669" }}>{formatPeso(Number(p.amount))}</span>
+                        </div>
+                      );
+                    })}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderTop: "1.5px dashed #E2E8F0", marginTop: "4px" }}>
+                      <span style={{ fontSize: "13px", color: "#64748B", fontWeight: "600" }}>Total abonado</span>
+                      <span style={{ fontSize: "15px", fontWeight: "800", color: "#059669" }}>{formatPeso(totalAbonado)}</span>
+                    </div>
+                  </div>
                 </div>
+              )}
+            </div>
+
+            {ticket.status !== "PAID" && (
+              <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "24px", border: "1.5px solid #E2E8F0" }}>
+                <p style={{ margin: "0 0 14px", fontSize: "13px", fontWeight: "700", color: "#0F172A", letterSpacing: "0.5px" }}>REGISTRAR NUEVO ABONO</p>
                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}>
-                  <option value="">Medio de pago</option>
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }}>
+                  <option value="">Método de pago</option>
                   <option value="EFECTIVO">Efectivo</option>
                   <option value="TRANSFERENCIA">Transferencia bancaria</option>
                   <option value="NEQUI">Nequi</option>
                   <option value="DAVIPLATA">Daviplata</option>
                 </select>
-                <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount}
-                  onChange={(e) => setAbonoAmount(e.target.value)}
-                  style={{ width: "100%", background: "#F2F4F7", border: "2px solid #2A9D8F", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "8px" }}
-                />
+                <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)}
+                  style={{ width: "100%", background: "#F7F9FC", border: "1.5px solid #0EA5E9", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500", marginBottom: abonoAmount ? "6px" : "14px" }} />
                 {abonoAmount && (
-                  <p style={{ color: "#6B7280", fontSize: "13px", marginBottom: "16px" }}>
-                    Resta por pagar: {formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}
+                  <p style={{ color: "#94A3B8", fontSize: "13px", marginBottom: "14px", fontWeight: "500" }}>
+                    Quedaría pendiente: {formatPeso(Math.max(0, TICKET_PRICE - totalAbonado - parseFloat(abonoAmount || "0")))}
                   </p>
                 )}
-                {message && <p style={{ color: "#DC2626", fontSize: "13px", marginBottom: "10px" }}>{message}</p>}
+                {message && <p style={{ color: "#EF4444", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
                 <div style={{ display: "flex", gap: "8px" }}>
-                  {!selectedTicket.client && (
-                    <button onClick={() => setStep("form")} style={{ background: "#F2F4F7", border: "none", borderRadius: "10px", padding: "14px 20px", color: "#6B7280", cursor: "pointer", fontWeight: "600" }}>← Volver</button>
-                  )}
-                  <button onClick={() => handleAsignar("PARTIAL")} disabled={saving} style={{ flex: 1, background: "#2A9D8F", border: "none", borderRadius: "10px", padding: "14px", color: "#FFFFFF", fontWeight: "900", cursor: "pointer", fontSize: "15px" }}>
+                  <button onClick={handleAbonar} disabled={saving}
+                    style={{ flex: 1, background: "linear-gradient(135deg, #0EA5E9, #0284C7)", border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
                     {saving ? "Guardando..." : "Registrar abono"}
                   </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ background: "#2D6A4F", border: "none", borderRadius: "10px", padding: "14px 16px", color: "#FFFFFF", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
+                  <button onClick={() => handleAsignar("PAID")} disabled={saving}
+                    style={{ background: "#F0FDF4", border: "1.5px solid #BBF7D0", borderRadius: "12px", padding: "13px 16px", color: "#059669", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
                     ✓ Completa
                   </button>
                 </div>
-              </>
-            )}
-
-            {/* Listo */}
-            {step === "done" && (
-              <div style={{ textAlign: "center" }}>
-                <p style={{ fontSize: "48px", margin: "0 0 8px" }}>🎟️</p>
-                <h3 style={{ color: "#2D6A4F", fontSize: "20px", margin: "0 0 8px" }}>¡Boleta registrada!</h3>
-                <p style={{ color: "#6B7280", fontSize: "14px", marginBottom: "24px" }}>Comparte el link con el cliente</p>
-                <button onClick={() => copiarLink(lastToken)} style={{
-                  width: "100%", background: copied ? "#2D6A4F" : "#3B5998",
-                  border: "none", borderRadius: "12px", padding: "16px",
-                  color: "#FFFFFF", fontWeight: "900", fontSize: "16px", cursor: "pointer", marginBottom: "12px"
-                }}>
-                  {copied ? "✓ Link copiado — cerrando..." : "🔗 Copiar link de la boleta"}
-                </button>
-                <button onClick={() => setShowModal(false)} style={{ width: "100%", background: "transparent", border: "1px solid #E5E7EB", borderRadius: "12px", padding: "14px", color: "#6B7280", cursor: "pointer", fontSize: "14px" }}>
-                  Cerrar
-                </button>
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
