@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       }
       const cookieStore = await cookies();
       cookieStore.set("session", JSON.stringify({ id: admin.id, role: "ADMIN", name: "Admin" }), {
-        httpOnly: true, maxAge: 60 * 60 * 24 * 7,
+        httpOnly: true, maxAge: 60 * 60 * 24 * 7, path: "/", sameSite: "lax",
       });
       return NextResponse.json({ success: true, role: "ADMIN" });
     }
@@ -51,10 +51,10 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     cookieStore.set("session", JSON.stringify({ id: user.id, role: user.role, name: user.name }), {
-      httpOnly: true, maxAge: 60 * 60 * 24 * 7,
+      httpOnly: true, maxAge: 60 * 60 * 24 * 7, path: "/", sameSite: "lax",
     });
-
     return NextResponse.json({ success: true, role: user.role });
+
   } catch (error) {
     console.error(error);
     return NextResponse.json({ success: false, error: "Error" }, { status: 500 });
