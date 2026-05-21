@@ -4,8 +4,11 @@ import { useState, useEffect, useRef } from "react";
 export default function AdminPage() {
   const [stats, setStats] = useState({ total: 0, available: 0, reserved: 0, partial: 0, paid: 0, recaudado: 0 });
   const [tickets, setTickets] = useState<any[]>([]);
+  const [vendedores, setVendedores] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [filtro, setFiltro] = useState("SIN_DISPONIBLES");
+  const [vendedorFiltro, setVendedorFiltro] = useState("");
+  const [showVendedorMenu, setShowVendedorMenu] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -19,12 +22,21 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState("");
   const timerRef = useRef<any>(null);
+  const vendedorMenuRef = useRef<any>(null);
 
   const TICKET_PRICE = 70000;
 
   useEffect(() => {
     fetchStats();
     fetchTickets("", "SIN_DISPONIBLES");
+    fetchVendedores();
+    const handleClick = (e: MouseEvent) => {
+      if (vendedorMenuRef.current && !vendedorMenuRef.current.contains(e.target)) {
+        setShowVendedorMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const fetchStats = async () => {
@@ -33,17 +45,28 @@ export default function AdminPage() {
     if (data.success) setStats(data.stats);
   };
 
-  const fetchTickets = async (q = "", f = filtro) => {
+  const fetchVendedores = async () => {
+    const res = await fetch("/api/admin/vendedores");
+    const data = await res.json();
+    if (data.success) setVendedores(data.vendedores);
+  };
+
+  const fetchTickets = async (q = "", f = filtro, vend = vendedorFiltro) => {
     setLoading(true);
     const searchNum = q.startsWith("0") ? parseInt(q).toString() : q;
-    const statusParam = (f === "ALL" || f === "SIN_DISPONIBLES") ? "" : f;
+    const statusParam = f === "SIN_DISPONIBLES" ? "" : f;
     const url = `/api/admin/tickets?search=${searchNum}${statusParam ? `&status=${statusParam}` : ""}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.success) {
       let result = data.tickets;
       if (f === "SIN_DISPONIBLES") {
-        result = data.tickets.filter((t: any) => t.status !== "AVAILABLE");
+        result = result.filter((t: any) => t.status !== "AVAILABLE");
+      }
+      if (vend) {
+        result = result.filter((t: any) =>
+          t.client?.notes?.toLowerCase().includes(vend.toLowerCase())
+        );
       }
       setTickets(result);
     }
@@ -54,12 +77,25 @@ export default function AdminPage() {
     const val = e.target.value;
     setSearch(val);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => fetchTickets(val, filtro), 150);
+    timerRef.current = setTimeout(() => fetchTickets(val, filtro, vendedorFiltro), 150);
   };
 
   const handleFiltro = (f: string) => {
     setFiltro(f);
-    fetchTickets(search, f);
+    setVendedorFiltro("");
+    fetchTickets(search, f, "");
+  };
+
+  const handleVendedor = (nombre: string) => {
+    setVendedorFiltro(nombre);
+    setFiltro("SIN_DISPONIBLES");
+    setShowVendedorMenu(false);
+    fetchTickets(search, "SIN_DISPONIBLES", nombre);
+  };
+
+  const limpiarVendedor = () => {
+    setVendedorFiltro("");
+    fetchTickets(search, filtro, "");
   };
 
   const openModal = (ticket: any) => {
@@ -94,7 +130,7 @@ export default function AdminPage() {
       });
       const dataTicket = await resTicket.json();
       if (dataTicket.success) {
-        await Promise.all([fetchStats(), fetchTickets(search, filtro)]);
+        await Promise.all([fetchStats(), fetchTickets(search, filtro, vendedorFiltro)]);
         setShowModal(false);
       } else { setMessage(dataTicket.error || "Error al asignar"); }
     } catch { setMessage("Error de conexión"); }
@@ -116,7 +152,7 @@ export default function AdminPage() {
       body: JSON.stringify({ ticketId }),
     });
     const data = await res.json();
-    if (data.success) { fetchStats(); fetchTickets(search, filtro); }
+    if (data.success) { fetchStats(); fetchTickets(search, filtro, vendedorFiltro); }
   };
 
   const formatPeso = (value: number) => "$" + value.toLocaleString("es-CO");
@@ -130,7 +166,6 @@ export default function AdminPage() {
 
   const filtros = [
     { key: "SIN_DISPONIBLES", label: "Todas" },
-    { key: "ALL", label: "Todas + Disponibles" },
     { key: "AVAILABLE", label: "Disponibles" },
     { key: "RESERVED", label: "Separadas" },
     { key: "PARTIAL", label: "Con abono" },
@@ -149,36 +184,17 @@ export default function AdminPage() {
         input::placeholder { color: #475569; }
       `}</style>
 
-      {/* Logo marca de agua */}
-      <div style={{
-        position: "fixed",
-        bottom: "-60px",
-        right: "-60px",
-        width: "400px",
-        height: "400px",
-        backgroundImage: "url('/logo-rg.jpeg.jpeg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        opacity: 0.04,
-        borderRadius: "50%",
-        pointerEvents: "none",
-        zIndex: 0,
-      }} />
-      <div style={{
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "500px",
-        height: "500px",
-        backgroundImage: "url('/logo-rg.jpeg.jpeg')",
-        backgroundSize: "contain",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        opacity: 0.03,
-        pointerEvents: "none",
-        zIndex: 0,
-      }} />
+      {/* Marca de agua esquina inferior derecha */}
+      <div style={{ position: "fixed", bottom: "24px", right: "24px", pointerEvents: "none", zIndex: 0, textAlign: "center", lineHeight: 1 }}>
+        <div style={{ fontSize: "80px", fontWeight: 900, color: "rgba(212,168,67,0.08)", fontFamily: "monospace", letterSpacing: "-4px" }}>RG</div>
+        <div style={{ fontSize: "14px", fontWeight: 700, color: "rgba(212,168,67,0.08)", fontFamily: "monospace", letterSpacing: "5px", marginTop: "-8px" }}>PROYECTOS</div>
+      </div>
+
+      {/* Marca de agua esquina superior izquierda */}
+      <div style={{ position: "fixed", top: "80px", left: "24px", pointerEvents: "none", zIndex: 0, textAlign: "center", lineHeight: 1 }}>
+        <div style={{ fontSize: "80px", fontWeight: 900, color: "rgba(212,168,67,0.08)", fontFamily: "monospace", letterSpacing: "-4px" }}>RG</div>
+        <div style={{ fontSize: "14px", fontWeight: 700, color: "rgba(212,168,67,0.08)", fontFamily: "monospace", letterSpacing: "5px", marginTop: "-8px" }}>PROYECTOS</div>
+      </div>
 
       {/* Header */}
       <div style={{ background: "#0F172A", borderBottom: "1px solid rgba(212,168,67,0.2)", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
@@ -216,13 +232,13 @@ export default function AdminPage() {
         {/* Recaudo */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px", marginBottom: "24px" }}>
           {[
-            { label: "TOTAL RECAUDADO", value: formatPeso(stats.paid * TICKET_PRICE), color: "#D4A843" },
-            { label: "TOTAL ABONOS", value: formatPeso(stats.recaudado), color: "#D4A843" },
-            { label: "META TOTAL", value: formatPeso(stats.total * TICKET_PRICE), color: "#D4A843" },
+            { label: "TOTAL RECAUDADO", value: formatPeso(stats.paid * TICKET_PRICE) },
+            { label: "TOTAL ABONOS", value: formatPeso(stats.recaudado) },
+            { label: "META TOTAL", value: formatPeso(stats.total * TICKET_PRICE) },
           ].map((s) => (
             <div key={s.label} style={{ background: "#1E293B", borderRadius: "16px", padding: "18px", border: "1px solid rgba(212,168,67,0.15)" }}>
               <p style={{ margin: 0, fontSize: "11px", color: "#475569", fontWeight: "600", letterSpacing: "0.5px" }}>{s.label}</p>
-              <p style={{ margin: "6px 0 0", fontSize: "22px", fontWeight: "800", color: s.color, fontFamily: "'DM Mono', monospace" }}>{s.value}</p>
+              <p style={{ margin: "6px 0 0", fontSize: "22px", fontWeight: "800", color: "#D4A843", fontFamily: "'DM Mono', monospace" }}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -236,22 +252,62 @@ export default function AdminPage() {
             onChange={handleSearch}
             style={{ flex: 1, minWidth: "260px", background: "#1E293B", border: "1px solid rgba(212,168,67,0.2)", borderRadius: "12px", padding: "13px 18px", color: "#E2E8F0", fontSize: "14px", outline: "none", fontFamily: "inherit", fontWeight: "500" }}
           />
-          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
             {filtros.map((f) => (
               <button key={f.key} onClick={() => handleFiltro(f.key)}
                 style={{
-                  background: filtro === f.key ? "linear-gradient(135deg, #D4A843, #B8860B)" : "#1E293B",
-                  border: filtro === f.key ? "none" : "1px solid rgba(212,168,67,0.2)",
+                  background: filtro === f.key && !vendedorFiltro ? "linear-gradient(135deg, #D4A843, #B8860B)" : "#1E293B",
+                  border: filtro === f.key && !vendedorFiltro ? "none" : "1px solid rgba(212,168,67,0.2)",
                   borderRadius: "10px", padding: "10px 16px",
-                  color: filtro === f.key ? "#0F172A" : "#94A3B8",
+                  color: filtro === f.key && !vendedorFiltro ? "#0F172A" : "#94A3B8",
                   fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
-                  transition: "all 0.2s",
                 }}>
                 {f.label}
               </button>
             ))}
+
+            {/* Dropdown Vendedor */}
+            <div ref={vendedorMenuRef} style={{ position: "relative" }}>
+              <button onClick={() => setShowVendedorMenu(!showVendedorMenu)}
+                style={{
+                  background: vendedorFiltro ? "linear-gradient(135deg, #D4A843, #B8860B)" : "#1E293B",
+                  border: vendedorFiltro ? "none" : "1px solid rgba(212,168,67,0.2)",
+                  borderRadius: "10px", padding: "10px 16px",
+                  color: vendedorFiltro ? "#0F172A" : "#94A3B8",
+                  fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
+                  display: "flex", alignItems: "center", gap: "6px",
+                }}>
+                {vendedorFiltro || "Vendedor"} ▾
+              </button>
+              {showVendedorMenu && (
+                <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, background: "#1E293B", border: "1px solid rgba(212,168,67,0.2)", borderRadius: "12px", padding: "6px", minWidth: "180px", zIndex: 20, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                  {vendedorFiltro && (
+                    <button onClick={limpiarVendedor} style={{ width: "100%", background: "rgba(239,68,68,0.1)", border: "none", borderRadius: "8px", padding: "9px 14px", color: "#F87171", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", textAlign: "left", marginBottom: "4px" }}>
+                      ✕ Quitar filtro
+                    </button>
+                  )}
+                  {vendedores.filter(v => v.isActive).map((v) => (
+                    <button key={v.id} onClick={() => handleVendedor(v.name)}
+                      style={{ width: "100%", background: vendedorFiltro === v.name ? "rgba(212,168,67,0.15)" : "transparent", border: "none", borderRadius: "8px", padding: "9px 14px", color: vendedorFiltro === v.name ? "#D4A843" : "#E2E8F0", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+                      {v.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Etiqueta vendedor activo */}
+        {vendedorFiltro && (
+          <div style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "13px", color: "#D4A843", fontWeight: "600" }}>
+              🧑‍💼 Mostrando boletas de: <strong>{vendedorFiltro}</strong>
+            </span>
+            <span style={{ fontSize: "12px", color: "#475569" }}>— {tickets.length} boleta(s)</span>
+            <button onClick={limpiarVendedor} style={{ background: "none", border: "none", color: "#F87171", fontSize: "12px", cursor: "pointer", fontWeight: "600" }}>✕ Quitar</button>
+          </div>
+        )}
 
         {/* Tabla */}
         <div style={{ background: "#1E293B", borderRadius: "20px", overflow: "hidden", border: "1px solid rgba(212,168,67,0.15)" }}>
