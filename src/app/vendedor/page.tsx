@@ -173,9 +173,9 @@ export default function VendedorPage() {
       {/* Header */}
       <div style={{ background: "#1A1F2E", borderBottom: "1px solid #2D3348", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <img src="/logo-rg.jpeg.jpeg" alt="RG Proyectos" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
+          <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
           <div>
-            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#D4A843", letterSpacing: "0.5px" }}>RG Proyectos</p>
+            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#D4A843", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
             <p style={{ margin: 0, fontSize: "11px", color: "#64748B", fontWeight: "500" }}>Panel Vendedor</p>
           </div>
         </div>
