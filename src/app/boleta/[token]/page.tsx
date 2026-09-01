@@ -12,13 +12,38 @@ export default function BoletaPage() {
   const [errorTel, setErrorTel] = useState("");
   const [fotoActiva, setFotoActiva] = useState(0);
   const [guardado, setGuardado] = useState(false);
+  const [tiempoRestante, setTiempoRestante] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
 
-  const fotos = [
-    { src: "/ChatGPT Image 21 may 2026, 12_19_09.png", alt: "Premios Rifa" },
-    { src: "/ChatGPT Image 21 may 2026, 12_26_56.png", alt: "Premio 2" },
-    { src: "/ChatGPT Image 21 may 2026, 12_27_05.png", alt: "Premio 3" },
-    { src: "/ChatGPT Image 21 may 2026, 12_30_16.png", alt: "Premio 4" },
+  // Premios con imágenes reales
+  const premios = [
+    {
+      titulo: "Nissan Frontier NP300 LE/XE",
+      desc: "Camioneta 0km, totalmente equipada",
+      badge: "Premio Mayor",
+      color: "#D4A843",
+      src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Nissan_NP_300_LE_X-Gear_2019.jpg/1280px-Nissan_NP_300_LE_X-Gear_2019.jpg",
+      alt: "Nissan Frontier NP300 LE/XE",
+    },
+    {
+      titulo: "Yamaha NMAX 155",
+      desc: "Scooter 0km, modelo reciente",
+      badge: "2do Premio",
+      color: "#7DD3FC",
+      src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/2025_Yamaha_NMAX_155_Standard.jpg/1280px-2025_Yamaha_NMAX_155_Standard.jpg",
+      alt: "Yamaha NMAX 155",
+    },
+    {
+      titulo: "Yamaha MT-15 V3",
+      desc: "Moto deportiva 0km",
+      badge: "3er Premio",
+      color: "#6EE7B7",
+      src: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Yamaha_MT_15_Green_version_2.jpg/1280px-Yamaha_MT_15_Green_version_2.jpg",
+      alt: "Yamaha MT-15 V3",
+    },
   ];
+
+  // Fecha del sorteo — cambia esta línea si la fecha cambia
+  const FECHA_SORTEO = new Date("2026-08-05T20:00:00-05:00");
 
   useEffect(() => {
     fetch(`/api/boleta/${token}`)
@@ -28,6 +53,26 @@ export default function BoletaPage() {
         setLoading(false);
       });
   }, [token]);
+
+  useEffect(() => {
+    const calcular = () => {
+      const ahora = new Date().getTime();
+      const diff = FECHA_SORTEO.getTime() - ahora;
+      if (diff <= 0) {
+        setTiempoRestante({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
+        return;
+      }
+      setTiempoRestante({
+        dias: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        horas: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutos: Math.floor((diff / (1000 * 60)) % 60),
+        segundos: Math.floor((diff / 1000) % 60),
+      });
+    };
+    calcular();
+    const intervalo = setInterval(calcular, 1000);
+    return () => clearInterval(intervalo);
+  }, []);
 
   const verificarTelefono = () => {
     if (!ticket?.client) { setErrorTel("Esta boleta no tiene cliente registrado"); return; }
@@ -62,8 +107,8 @@ export default function BoletaPage() {
     <div style={{ minHeight: "100vh", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap'); * { box-sizing: border-box; } input:focus { outline: none; }`}</style>
       <div style={{ background: "#1E293B", borderRadius: "24px", padding: "36px 28px", width: "100%", maxWidth: "380px", textAlign: "center", border: "1px solid rgba(212,168,67,0.2)", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
-        <img src="/logo-rg.jpeg.jpeg" alt="RG Proyectos" style={{ width: "72px", height: "72px", borderRadius: "16px", objectFit: "cover", marginBottom: "16px" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-        <p style={{ margin: "0 0 4px", fontSize: "11px", color: "#475569", fontWeight: "600", letterSpacing: "2px" }}>RG PROYECTOS</p>
+        <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "72px", height: "72px", borderRadius: "16px", objectFit: "cover", marginBottom: "16px" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        <p style={{ margin: "0 0 4px", fontSize: "11px", color: "#475569", fontWeight: "600", letterSpacing: "2px" }}>PROYECTOS SANTIAGO GÓMEZ</p>
         <h2 style={{ margin: "0 0 6px", fontSize: "22px", fontWeight: "800", color: "#D4A843" }}>Verificación</h2>
         <p style={{ margin: "0 0 6px", fontSize: "14px", color: "#64748B" }}>Boleta número</p>
         <p style={{ margin: "0 0 20px", fontSize: "40px", fontWeight: "900", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>
@@ -88,20 +133,26 @@ export default function BoletaPage() {
   );
 
   const numero = String(ticket.number).padStart(4, "0");
-  const fechaSorteo = new Date(ticket.raffle.drawDate).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
+  const fechaSorteo = FECHA_SORTEO.toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
   const totalPaid = ticket.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
   const TICKET_PRICE = 70000;
   const saldoPendiente = Math.max(0, TICKET_PRICE - totalPaid);
+  const porcentajePagado = Math.min(100, Math.round((totalPaid / TICKET_PRICE) * 100));
   const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 
   const guardarBoleta = () => {
     if (navigator.share) {
-      navigator.share({ title: "Mi boleta RG Proyectos", url: window.location.href });
+      navigator.share({ title: "Mi boleta Proyectos Santiago Gómez", url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
       setGuardado(true);
       setTimeout(() => setGuardado(false), 2000);
     }
+  };
+
+  const compartirWhatsApp = () => {
+    const mensaje = `🎟️ ¡Mira mi boleta oficial de Proyectos Santiago Gómez!\n\nNúmero: ${numero}\nSorteo: ${fechaSorteo}\n\n${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, "_blank");
   };
 
   const statusConfig: any = {
@@ -113,13 +164,17 @@ export default function BoletaPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#111827", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "24px 16px 48px", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap'); * { box-sizing: border-box; }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
+        * { box-sizing: border-box; }
+        @keyframes brillo { 0%, 100% { box-shadow: 0 0 40px rgba(212,168,67,0.1); } 50% { box-shadow: 0 0 55px rgba(212,168,67,0.25); } }
+      `}</style>
       <div style={{ maxWidth: "440px", width: "100%" }}>
 
         {/* Header */}
         <div style={{ background: "#0F172A", borderRadius: "24px 24px 0 0", padding: "28px 24px", textAlign: "center", border: "1px solid rgba(212,168,67,0.2)", borderBottom: "none" }}>
-          <img src="/logo-rg.jpeg.jpeg" alt="RG Proyectos" style={{ width: "64px", height: "64px", borderRadius: "14px", objectFit: "cover", marginBottom: "12px" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-          <p style={{ margin: "0 0 2px", fontSize: "11px", color: "#475569", fontWeight: "600", letterSpacing: "2px" }}>RG PROYECTOS</p>
+          <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "64px", height: "64px", borderRadius: "14px", objectFit: "cover", marginBottom: "12px" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <p style={{ margin: "0 0 2px", fontSize: "11px", color: "#475569", fontWeight: "600", letterSpacing: "2px" }}>PROYECTOS SANTIAGO GÓMEZ</p>
           <h1 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: "800", color: "#D4A843", letterSpacing: "1px" }}>Boleta Digital Oficial</h1>
           <p style={{ margin: 0, fontSize: "12px", color: "#475569" }}>Tu participación está asegurada</p>
         </div>
@@ -127,7 +182,7 @@ export default function BoletaPage() {
         {/* Número */}
         <div style={{ background: "#1E293B", padding: "32px 24px", textAlign: "center", border: "1px solid rgba(212,168,67,0.15)", borderTop: "none", borderBottom: "none" }}>
           <p style={{ margin: "0 0 16px", fontSize: "11px", letterSpacing: "3px", color: "#475569", fontWeight: "600" }}>TU NÚMERO DE BOLETA</p>
-          <div style={{ display: "inline-block", background: "#0F172A", borderRadius: "20px", padding: "20px 48px", border: "2px solid rgba(212,168,67,0.3)", boxShadow: "0 0 40px rgba(212,168,67,0.1)" }}>
+          <div style={{ display: "inline-block", background: "#0F172A", borderRadius: "20px", padding: "20px 48px", border: "2px solid rgba(212,168,67,0.3)", animation: "brillo 3s ease-in-out infinite" }}>
             <p style={{ color: "#D4A843", fontSize: "72px", fontWeight: "900", letterSpacing: "12px", margin: "0", fontFamily: "'DM Mono', monospace" }}>
               {numero}
             </p>
@@ -136,6 +191,39 @@ export default function BoletaPage() {
             <span style={{ background: st.bg, color: st.color, border: `1px solid ${st.border}`, borderRadius: "999px", padding: "6px 20px", fontSize: "12px", fontWeight: "700", letterSpacing: "1px" }}>
               {st.label}
             </span>
+          </div>
+        </div>
+
+        {/* Contador regresivo */}
+        <div style={{ background: "#1E293B", padding: "22px 24px", border: "1px solid rgba(212,168,67,0.15)", borderTop: "none", borderBottom: "none" }}>
+          <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "2px", color: "#475569", fontWeight: "600", textAlign: "center" }}>FALTA PARA EL SORTEO · {fechaSorteo.toUpperCase()}</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+            {[
+              { valor: tiempoRestante.dias, label: "DÍAS" },
+              { valor: tiempoRestante.horas, label: "HORAS" },
+              { valor: tiempoRestante.minutos, label: "MIN" },
+              { valor: tiempoRestante.segundos, label: "SEG" },
+            ].map((item) => (
+              <div key={item.label} style={{ background: "#0F172A", borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: "1px solid rgba(212,168,67,0.2)" }}>
+                <p style={{ margin: "0 0 2px", fontSize: "26px", fontWeight: "800", color: "#D4A843", fontFamily: "'DM Mono', monospace" }}>{String(item.valor).padStart(2, "0")}</p>
+                <p style={{ margin: 0, fontSize: "9px", color: "#64748B", fontWeight: "700", letterSpacing: "1px" }}>{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Progreso de pago */}
+        <div style={{ background: "#1E293B", padding: "22px 24px", border: "1px solid rgba(212,168,67,0.15)", borderTop: "none", borderBottom: "none" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+            <p style={{ margin: 0, fontSize: "11px", letterSpacing: "2px", color: "#475569", fontWeight: "600" }}>PROGRESO DE PAGO</p>
+            <p style={{ margin: 0, fontSize: "13px", fontWeight: "800", color: porcentajePagado >= 100 ? "#6EE7B7" : "#D4A843" }}>{porcentajePagado}%</p>
+          </div>
+          <div style={{ width: "100%", height: "10px", background: "#0F172A", borderRadius: "999px", overflow: "hidden", border: "1px solid rgba(212,168,67,0.15)" }}>
+            <div style={{ width: `${porcentajePagado}%`, height: "100%", background: "linear-gradient(90deg, #B8860B, #D4A843)", borderRadius: "999px", transition: "width 0.5s ease" }} />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>Abonado: <span style={{ color: "#6EE7B7", fontWeight: "700" }}>{formatPeso(totalPaid)}</span></p>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>Saldo: <span style={{ color: saldoPendiente === 0 ? "#6EE7B7" : "#FCD34D", fontWeight: "700" }}>{formatPeso(saldoPendiente)}</span></p>
           </div>
         </div>
 
@@ -156,20 +244,9 @@ export default function BoletaPage() {
                 </div>
               ))}
             </div>
-            <div style={{ background: "#0F172A", borderRadius: "14px", padding: "16px 18px", border: "1px solid rgba(212,168,67,0.15)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <p style={{ margin: 0, fontSize: "10px", color: "#475569", fontWeight: "600", letterSpacing: "0.5px" }}>ABONADO</p>
-                <p style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: "800", color: "#6EE7B7", fontFamily: "'DM Mono', monospace" }}>{formatPeso(totalPaid)}</p>
-              </div>
-              <div style={{ width: "1px", height: "40px", background: "rgba(212,168,67,0.15)" }} />
-              <div style={{ textAlign: "right" }}>
-                <p style={{ margin: 0, fontSize: "10px", color: "#475569", fontWeight: "600", letterSpacing: "0.5px" }}>SALDO PENDIENTE</p>
-                <p style={{ margin: "4px 0 0", fontSize: "22px", fontWeight: "800", color: saldoPendiente === 0 ? "#6EE7B7" : "#FCD34D", fontFamily: "'DM Mono', monospace" }}>{formatPeso(saldoPendiente)}</p>
-              </div>
-            </div>
 
             {ticket.payments && ticket.payments.length > 0 && (
-              <div style={{ marginTop: "14px", background: "rgba(5,150,105,0.06)", borderRadius: "12px", padding: "14px", border: "1px solid rgba(5,150,105,0.2)" }}>
+              <div style={{ background: "rgba(5,150,105,0.06)", borderRadius: "12px", padding: "14px", border: "1px solid rgba(5,150,105,0.2)" }}>
                 <p style={{ margin: "0 0 10px", fontSize: "10px", color: "#475569", fontWeight: "700", letterSpacing: "1px" }}>HISTORIAL DE PAGOS</p>
                 {ticket.payments.map((p: any, i: number) => {
                   const fecha = new Date(p.createdAt);
@@ -188,43 +265,37 @@ export default function BoletaPage() {
           </div>
         )}
 
-        {/* Galería */}
+        {/* Galería de premios */}
         <div style={{ background: "#1E293B", padding: "22px 24px", border: "1px solid rgba(212,168,67,0.15)", borderTop: "none", borderBottom: "none" }}>
           <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "2px", color: "#475569", fontWeight: "600" }}>PREMIOS</p>
           <div style={{ borderRadius: "16px", overflow: "hidden", background: "#0F172A", marginBottom: "10px", position: "relative" }}>
-            <img src={fotos[fotoActiva].src} alt={fotos[fotoActiva].alt} style={{ width: "100%", height: "220px", objectFit: "cover", display: "block" }}
+            <img src={premios[fotoActiva].src} alt={premios[fotoActiva].alt} style={{ width: "100%", height: "220px", objectFit: "cover", display: "block" }}
               onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/440x220/0F172A/D4A843?text=Premio"; }} />
             <div style={{ position: "absolute", bottom: "10px", left: "50%", transform: "translateX(-50%)", background: "rgba(15,23,42,0.85)", borderRadius: "999px", padding: "4px 16px", border: "1px solid rgba(212,168,67,0.3)" }}>
-              <p style={{ margin: 0, fontSize: "11px", color: "#D4A843", fontWeight: "600" }}>{fotos[fotoActiva].alt}</p>
+              <p style={{ margin: 0, fontSize: "11px", color: "#D4A843", fontWeight: "600" }}>{premios[fotoActiva].titulo}</p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-            {fotos.map((f, i) => (
+            {premios.map((p, i) => (
               <button key={i} onClick={() => setFotoActiva(i)} style={{ width: "70px", height: "52px", borderRadius: "10px", overflow: "hidden", border: i === fotoActiva ? "2px solid #D4A843" : "2px solid rgba(212,168,67,0.15)", padding: 0, cursor: "pointer", background: "#0F172A" }}>
-                <img src={f.src} alt={f.alt} style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                <img src={p.src} alt={p.alt} style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/70x52/0F172A/D4A843?text=" + (i + 1); }} />
               </button>
             ))}
           </div>
         </div>
 
-        {/* Premios descripción */}
+        {/* Descripción de premios */}
         <div style={{ background: "#1E293B", padding: "22px 24px", border: "1px solid rgba(212,168,67,0.15)", borderTop: "none", borderBottom: "none" }}>
           <p style={{ margin: "0 0 16px", fontSize: "11px", letterSpacing: "2px", color: "#475569", fontWeight: "600" }}>DESCRIPCIÓN DE PREMIOS</p>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {[
-              { titulo: "Yamaha MT-15", desc: "Moto deportiva 0km modelo 2025", badge: "Premio Mayor", color: "#D4A843" },
-              { titulo: "Nissan Frontier", desc: "Camioneta 0km totalmente equipada", badge: "2do Premio", color: "#7DD3FC" },
-              { titulo: "$10.000.000 en efectivo", desc: "Entrega inmediata al ganador", badge: "Premio Extra", color: "#6EE7B7" },
-              { titulo: "Electrodomésticos", desc: "Set completo de electrodomésticos", badge: "Premio Sorpresa", color: "#C4B5FD" },
-              { titulo: "Llamada sorpresa", desc: "Premio especial para un ganador", badge: "Premio Especial", color: "#FDA4AF" },
-            ].map((p) => (
-              <div key={p.titulo} style={{ background: "#0F172A", borderRadius: "12px", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(212,168,67,0.08)" }}>
+            {premios.map((p) => (
+              <div key={p.titulo} style={{ background: "#0F172A", borderRadius: "12px", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(212,168,67,0.08)", gap: "12px" }}>
                 <div>
                   <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#E2E8F0" }}>{p.titulo}</p>
                   <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#475569" }}>{p.desc}</p>
                 </div>
-                <span style={{ background: "rgba(212,168,67,0.08)", color: p.color, borderRadius: "999px", padding: "4px 12px", fontSize: "11px", fontWeight: "700", whiteSpace: "nowrap", marginLeft: "12px", border: `1px solid ${p.color}40` }}>{p.badge}</span>
+                <span style={{ background: "rgba(212,168,67,0.08)", color: p.color, borderRadius: "999px", padding: "4px 12px", fontSize: "11px", fontWeight: "700", whiteSpace: "nowrap", border: `1px solid ${p.color}40` }}>{p.badge}</span>
               </div>
             ))}
           </div>
@@ -249,8 +320,13 @@ export default function BoletaPage() {
 
         {/* Footer */}
         <div style={{ background: "#0F172A", borderRadius: "0 0 24px 24px", padding: "22px 24px", textAlign: "center", border: "1px solid rgba(212,168,67,0.2)", borderTop: "1px solid rgba(212,168,67,0.15)" }}>
-          <p style={{ margin: "0 0 2px", fontSize: "14px", fontWeight: "800", color: "#D4A843", letterSpacing: "1px" }}>RG PROYECTOS</p>
+          <p style={{ margin: "0 0 2px", fontSize: "14px", fontWeight: "800", color: "#D4A843", letterSpacing: "1px" }}>PROYECTOS SANTIAGO GÓMEZ</p>
           <p style={{ margin: "0 0 16px", fontSize: "11px", color: "#475569" }}>Documento oficial de participación · Aplican términos y condiciones</p>
+
+          <button onClick={compartirWhatsApp} style={{ width: "100%", background: "#25D366", border: "none", borderRadius: "12px", padding: "16px", color: "#0F172A", fontWeight: "800", fontSize: "15px", cursor: "pointer", letterSpacing: "0.5px", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <span style={{ fontSize: "18px" }}>📲</span> COMPARTIR POR WHATSAPP
+          </button>
+
           <button onClick={guardarBoleta} style={{ width: "100%", background: "linear-gradient(135deg, #D4A843, #B8860B)", border: "none", borderRadius: "12px", padding: "16px", color: "#0F172A", fontWeight: "800", fontSize: "15px", cursor: "pointer", letterSpacing: "1px", fontFamily: "inherit" }}>
             {guardado ? "✓ LINK COPIADO" : "GUARDAR MI BOLETA"}
           </button>
