@@ -17,18 +17,20 @@ export async function GET(request: Request) {
 
     const isNumeric = /^\d+$/.test(search);
 
+    const orConditions: any[] = [];
+    if (search) {
+      if (isNumeric) {
+        orConditions.push({ number: { equals: parseInt(search) } });
+      }
+      orConditions.push({ client: { name: { contains: search, mode: "insensitive" } } });
+      orConditions.push({ client: { phone: { contains: search } } });
+    }
+
     const tickets = await prisma.ticket.findMany({
       where: {
         raffleId: raffle.id,
         status: status ? (status as any) : undefined,
-        OR: search ? (
-          isNumeric ? [
-            { number: { equals: parseInt(search) } },
-          ] : [
-            { client: { name: { contains: search, mode: "insensitive" } } },
-            { client: { phone: { startsWith: search } } },
-          ]
-        ) : undefined,
+        OR: orConditions.length ? orConditions : undefined,
       },
       include: { client: true, payments: true },
       orderBy: { number: "asc" },
