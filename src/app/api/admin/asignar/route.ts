@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
-const TICKET_PRICE = 70000;
+const TICKET_PRICE = 80000;
 
 export async function POST(request: Request) {
   try {
