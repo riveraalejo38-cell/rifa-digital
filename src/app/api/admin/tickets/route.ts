@@ -16,11 +16,17 @@ export async function GET(request: Request) {
     }
 
     const isNumeric = /^\d+$/.test(search);
+    // El número de boleta es un entero de 32 bits en la base de datos: un teléfono
+    // completo (10 dígitos) desborda ese rango y hace fallar la consulta si se
+    // intenta comparar contra `number`. Solo se busca por número cuando el valor
+    // cabe en un int de 32 bits (los números de boleta reales son de máximo 4-5 cifras).
+    const numericValue = isNumeric ? Number(search) : null;
+    const numberSearchable = isNumeric && numericValue !== null && numericValue <= 2147483647;
 
     const orConditions: any[] = [];
     if (search) {
-      if (isNumeric) {
-        orConditions.push({ number: { equals: parseInt(search) } });
+      if (numberSearchable) {
+        orConditions.push({ number: { equals: numericValue } });
       }
       orConditions.push({ client: { name: { contains: search, mode: "insensitive" } } });
       orConditions.push({ client: { phone: { contains: search } } });
