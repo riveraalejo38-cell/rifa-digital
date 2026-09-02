@@ -5,6 +5,7 @@ export default function VendedorPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [ticket, setTicket] = useState<any>(null);
+  const [resultados, setResultados] = useState<any[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
@@ -25,6 +26,7 @@ export default function VendedorPage() {
     if (!search.trim()) return;
     setLoading(true);
     setTicket(null);
+    setResultados([]);
     setNotFound(false);
     setMessage("");
     setClientName("");
@@ -39,15 +41,40 @@ export default function VendedorPage() {
     const data = await res.json();
 
     if (data.success && data.tickets.length > 0) {
-      const t = data.tickets[0];
-      setTicket(t);
-      setClientName(t.client?.name || "");
-      setClientPhone(t.client?.phone || "");
-      setClientCity(t.client?.city || "");
+      if (data.tickets.length === 1) {
+        const t = data.tickets[0];
+        setTicket(t);
+        setClientName(t.client?.name || "");
+        setClientPhone(t.client?.phone || "");
+        setClientCity(t.client?.city || "");
+      } else {
+        setResultados(data.tickets);
+      }
     } else {
       setNotFound(true);
     }
     setLoading(false);
+  };
+
+  const seleccionarTicket = (t: any) => {
+    setTicket(t);
+    setNotFound(false);
+    setMessage("");
+    setClientName(t.client?.name || "");
+    setClientPhone(t.client?.phone || "");
+    setClientCity(t.client?.city || "");
+    setAbonoAmount("");
+    setPaymentMethod("");
+  };
+
+  const refrescarTicket = async () => {
+    if (!ticket) return;
+    const res = await fetch(`/api/admin/tickets?search=${ticket.number}`);
+    const data = await res.json();
+    if (data.success) {
+      const actualizado = data.tickets.find((t: any) => t.id === ticket.id);
+      if (actualizado) setTicket(actualizado);
+    }
   };
 
   const handleKey = (e: React.KeyboardEvent) => {
@@ -87,7 +114,7 @@ export default function VendedorPage() {
       });
       const dataTicket = await resTicket.json();
       if (dataTicket.success) {
-        await buscar();
+        await refrescarTicket();
       } else {
         setMessage(dataTicket.error || "Error al asignar");
       }
@@ -115,7 +142,7 @@ export default function VendedorPage() {
       if (data.success) {
         setAbonoAmount("");
         setPaymentMethod("");
-        await buscar();
+        await refrescarTicket();
       } else {
         setMessage(data.error || "Error al registrar abono");
       }
@@ -133,7 +160,7 @@ export default function VendedorPage() {
       body: JSON.stringify({ ticketId: ticket.id }),
     });
     const data = await res.json();
-    if (data.success) { setTicket(null); setSearch(""); }
+    if (data.success) { setTicket(null); setSearch(""); setResultados([]); }
   };
 
   const copiarLink = () => {
@@ -188,7 +215,7 @@ export default function VendedorPage() {
         <div style={{ marginBottom: "32px" }}>
           <p style={{ margin: "0 0 8px", fontSize: "12px", fontWeight: "600", color: "#94A3B8", letterSpacing: "1.5px", textTransform: "uppercase" }}>Buscar boleta</p>
           <div style={{ display: "flex", gap: "10px" }}>
-            <input ref={inputRef} type="text" className="search-input" placeholder="Número (ej: 0234) o teléfono..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={handleKey}
+            <input ref={inputRef} type="text" className="search-input" placeholder="Número (ej: 0234), nombre o teléfono..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={handleKey}
               style={{ flex: 1, background: "#FFFFFF", border: "1.5px solid #E2E8F0", borderRadius: "14px", padding: "14px 18px", fontSize: "15px", color: "#0F172A", fontFamily: "inherit", fontWeight: "500" }} />
             <button onClick={buscar} disabled={loading}
               style={{ background: loading ? "#E2E8F0" : "linear-gradient(135deg, #0EA5E9, #0284C7)", border: "none", borderRadius: "14px", padding: "14px 24px", color: loading ? "#94A3B8" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", minWidth: "100px" }}>
@@ -206,9 +233,42 @@ export default function VendedorPage() {
           </div>
         )}
 
+        {/* Resultados múltiples — varias boletas del mismo cliente (o coincidencias por nombre) */}
+        {!ticket && resultados.length > 0 && (
+          <div className="fade-up" style={{ background: "#FFFFFF", borderRadius: "20px", padding: "24px", border: "1.5px solid #E2E8F0" }}>
+            <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#0F172A", letterSpacing: "0.5px" }}>
+              {resultados.length} BOLETAS ENCONTRADAS
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {resultados.map((t: any) => {
+                const label = t.status === "PAID" ? "✅ Pagada completa" : t.status === "PARTIAL" ? "⏳ Con abono" : t.status === "RESERVED" ? "● Reservada" : "✦ Disponible";
+                const color = t.status === "PAID" ? "#059669" : t.status === "PARTIAL" ? "#D97706" : t.status === "RESERVED" ? "#0284C7" : "#94A3B8";
+                return (
+                  <button key={t.id} onClick={() => seleccionarTicket(t)}
+                    style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F7F9FC", border: "1.5px solid #E2E8F0", borderRadius: "14px", padding: "14px 18px", cursor: "pointer", fontFamily: "inherit", textAlign: "left", width: "100%" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <span style={{ fontSize: "13px", fontWeight: "700", color: "#0F172A" }}>{t.client?.name || "Sin nombre"}</span>
+                      <span style={{ fontSize: "11px", color: "#94A3B8" }}>{t.client?.phone || "—"}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                      <span style={{ fontSize: "18px", fontWeight: "800", color: "#0F172A", fontFamily: "'DM Mono', monospace", letterSpacing: "1px" }}>{String(t.number).padStart(4, "0")}</span>
+                      <span style={{ fontSize: "11px", fontWeight: "700", color }}>{label}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* DISPONIBLE */}
         {isAvailable && (
           <div className="fade-up">
+            {resultados.length > 1 && (
+              <button onClick={() => setTicket(null)} style={{ background: "none", border: "none", color: "#0284C7", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", padding: "0 0 12px", display: "flex", alignItems: "center", gap: "4px" }}>
+                ← Ver todas las boletas ({resultados.length})
+              </button>
+            )}
             <div style={{ background: "linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)", borderRadius: "20px", padding: "28px", marginBottom: "16px", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "120px", height: "120px", background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
               <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.7)", fontWeight: "600", letterSpacing: "1.5px" }}>BOLETA</p>
@@ -249,6 +309,11 @@ export default function VendedorPage() {
         {/* OCUPADA */}
         {isTaken && (
           <div className="fade-up">
+            {resultados.length > 1 && (
+              <button onClick={() => setTicket(null)} style={{ background: "none", border: "none", color: "#0284C7", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", padding: "0 0 12px", display: "flex", alignItems: "center", gap: "4px" }}>
+                ← Ver todas las boletas ({resultados.length})
+              </button>
+            )}
             <div style={{ background: ticket.status === "PAID" ? "linear-gradient(135deg, #059669, #047857)" : "linear-gradient(135deg, #F59E0B, #D97706)", borderRadius: "20px", padding: "28px", marginBottom: "16px", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "120px", height: "120px", background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
