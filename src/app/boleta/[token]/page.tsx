@@ -45,7 +45,7 @@ export default function BoletaPage() {
   const HERO_IMG = "/premios/hero-grupo.jpg";
 
   // Fecha del sorteo — cambia esta línea si la fecha cambia
-  const FECHA_SORTEO = new Date("2026-08-05T20:00:00-05:00");
+  const FECHA_SORTEO = new Date("2026-12-12T20:00:00-05:00");
 
   useEffect(() => {
     fetch(`/api/boleta/${token}`)
@@ -140,7 +140,7 @@ export default function BoletaPage() {
   const numero = String(ticket.number).padStart(4, "0");
   const fechaSorteo = FECHA_SORTEO.toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
   const totalPaid = ticket.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
-  const TICKET_PRICE = 70000;
+  const TICKET_PRICE = 80000;
   const saldoPendiente = Math.max(0, TICKET_PRICE - totalPaid);
   const porcentajePagado = Math.min(100, Math.round((totalPaid / TICKET_PRICE) * 100));
   const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
