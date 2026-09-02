@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
+
+async function requireAdmin() {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session");
+  const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
+  if (!session || session.role !== "ADMIN") {
+    return null;
+  }
+  return session;
+}
 
 export async function GET() {
   try {
@@ -24,6 +35,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "No autorizado. Solo el administrador puede crear vendedores." },
+        { status: 401 }
+      );
+    }
+
     const { name, username, password, role } = await request.json();
 
     if (!name || !username || !password) {
@@ -62,6 +81,14 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "No autorizado. Solo el administrador puede modificar vendedores." },
+        { status: 401 }
+      );
+    }
+
     const { id, isActive, password } = await request.json();
 
     if (!id) {
