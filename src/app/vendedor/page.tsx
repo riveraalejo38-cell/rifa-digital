@@ -17,7 +17,7 @@ export default function VendedorPage() {
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const TICKET_PRICE = 70000;
+  const TICKET_PRICE = 80000;
 
   const formatPeso = (value: number) =>
     "$" + value.toLocaleString("es-CO");
