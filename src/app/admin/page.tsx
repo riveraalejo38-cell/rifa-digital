@@ -24,7 +24,7 @@ export default function AdminPage() {
   const timerRef = useRef<any>(null);
   const vendedorMenuRef = useRef<any>(null);
 
-  const TICKET_PRICE = 70000;
+  const TICKET_PRICE = 80000;
 
   useEffect(() => {
     fetchStats();
