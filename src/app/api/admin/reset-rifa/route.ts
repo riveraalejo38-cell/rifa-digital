@@ -54,6 +54,8 @@ export async function POST(request: Request) {
           amountPaid: null,
           reservedAt: null,
           paidAt: null,
+          assignedById: null,
+          assignedByName: null,
         },
       }),
       prisma.client.deleteMany({
