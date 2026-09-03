@@ -48,16 +48,26 @@ export async function POST(request: Request) {
 
     const amount = Number(amountPaid) || 0;
 
-    let newStatus: "RESERVED" | "PARTIAL" | "PAID";
-    if (amount <= 0) {
-      newStatus = "RESERVED";
-    } else if (amount >= TICKET_PRICE) {
-      newStatus = "PAID";
-    } else {
-      newStatus = "PARTIAL";
-    }
-
     const result = await prisma.$transaction(async (tx) => {
+      // El estado de la boleta se calcula sobre el ACUMULADO de todos sus
+      // abonos (no solo este abono puntual), para que una boleta que se
+      // termina de pagar en varias partes sí quede marcada como PAID.
+      const pagosPrevios = await tx.payment.aggregate({
+        where: { ticketId },
+        _sum: { amount: true },
+      });
+      const yaAbonado = Number(pagosPrevios._sum.amount) || 0;
+      const acumulado = yaAbonado + amount;
+
+      let newStatus: "RESERVED" | "PARTIAL" | "PAID";
+      if (acumulado <= 0) {
+        newStatus = "RESERVED";
+      } else if (acumulado >= TICKET_PRICE) {
+        newStatus = "PAID";
+      } else {
+        newStatus = "PARTIAL";
+      }
+
       // Se registra siempre un movimiento (incluso cuando amount es 0, es
       // decir, una boleta que solo se separa sin abono), para poder armar
       // un historial confiable de movimientos por día en el reporte diario.
@@ -86,7 +96,7 @@ export async function POST(request: Request) {
         data: {
           clientId,
           status: newStatus,
-          amountPaid: amount,
+          amountPaid: acumulado,
           reservedAt: new Date(),
           paidAt: newStatus === "PAID" ? new Date() : null,
           assignedById: session.id,
