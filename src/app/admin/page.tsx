@@ -151,7 +151,8 @@ export default function AdminPage() {
       });
       const dataClient = await resClient.json();
       if (!dataClient.success) { setMessage("Error al crear cliente"); setSaving(false); return; }
-      const abono = tipo === "PAID" ? TICKET_PRICE : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
+      const yaAbonado = selectedTicket.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
+      const abono = tipo === "PAID" ? Math.max(0, TICKET_PRICE - yaAbonado) : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
       const resTicket = await fetch("/api/admin/asignar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
