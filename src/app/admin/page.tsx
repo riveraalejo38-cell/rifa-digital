@@ -24,12 +24,18 @@ export default function AdminPage() {
   const timerRef = useRef<any>(null);
   const vendedorMenuRef = useRef<any>(null);
 
+  const hoyBogota = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
+  const [reporteFecha, setReporteFecha] = useState(hoyBogota());
+  const [reporte, setReporte] = useState<any>(null);
+  const [reporteLoading, setReporteLoading] = useState(false);
+
   const TICKET_PRICE = 80000;
 
   useEffect(() => {
     fetchStats();
     fetchTickets("", "SIN_DISPONIBLES");
     fetchVendedores();
+    fetchReporte(hoyBogota());
     const handleClick = (e: MouseEvent) => {
       if (vendedorMenuRef.current && !vendedorMenuRef.current.contains(e.target)) {
         setShowVendedorMenu(false);
@@ -43,6 +49,23 @@ export default function AdminPage() {
     const res = await fetch("/api/admin/stats");
     const data = await res.json();
     if (data.success) setStats(data.stats);
+  };
+
+  const fetchReporte = async (fecha: string) => {
+    if (!fecha) return;
+    setReporteLoading(true);
+    try {
+      const res = await fetch(`/api/admin/reporte-diario?date=${fecha}`);
+      const data = await res.json();
+      if (data.success) setReporte(data);
+      else setReporte(null);
+    } catch { setReporte(null); }
+    setReporteLoading(false);
+  };
+
+  const handleReporteFecha = (fecha: string) => {
+    setReporteFecha(fecha);
+    fetchReporte(fecha);
   };
 
   const fetchVendedores = async () => {
@@ -251,6 +274,83 @@ export default function AdminPage() {
           ))}
         </div>
 
+        {/* Reporte diario */}
+        <div style={{ background: "#1E293B", borderRadius: "20px", padding: "20px", marginBottom: "24px", border: "1px solid rgba(212,168,67,0.15)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginBottom: reporte ? "18px" : 0 }}>
+            <p style={{ margin: 0, fontSize: "13px", fontWeight: "700", color: "#D4A843", letterSpacing: "0.5px" }}>📅 Reporte por día</p>
+            <input
+              type="date"
+              value={reporteFecha}
+              onChange={(e) => handleReporteFecha(e.target.value)}
+              style={{ background: "#0F172A", border: "1px solid rgba(212,168,67,0.3)", borderRadius: "10px", padding: "9px 14px", color: "#E2E8F0", fontSize: "13px", fontFamily: "inherit", fontWeight: "600" }}
+            />
+          </div>
+
+          {reporteLoading ? (
+            <p style={{ margin: 0, color: "#475569", fontSize: "13px" }}>Cargando reporte...</p>
+          ) : reporte && (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "10px", marginBottom: reporte.movimientos.length > 0 ? "16px" : 0 }}>
+                {[
+                  { label: "Ventas nuevas", value: reporte.resumen.ventasNuevas, color: "#7DD3FC" },
+                  { label: "Separadas sin abono", value: reporte.resumen.separadasSinAbono, color: "#94A3B8" },
+                  { label: "Abonos", value: reporte.resumen.abonos, color: "#FCD34D" },
+                  { label: "Pagos completos", value: reporte.resumen.pagosCompletos, color: "#6EE7B7" },
+                  { label: "Monto recibido", value: formatPeso(reporte.resumen.montoAbonado), color: "#D4A843" },
+                  { label: "Total movimientos", value: reporte.resumen.totalMovimientos, color: "#E2E8F0" },
+                ].map((s) => (
+                  <div key={s.label} style={{ background: "#0F172A", borderRadius: "12px", padding: "12px", textAlign: "center", border: "1px solid #2D3348" }}>
+                    <p style={{ margin: 0, fontSize: "10px", color: "#475569", fontWeight: "600", letterSpacing: "0.3px" }}>{s.label.toUpperCase()}</p>
+                    <p style={{ margin: "6px 0 0", fontSize: "18px", fontWeight: "800", color: s.color, fontFamily: "'DM Mono', monospace" }}>{s.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {reporte.movimientos.length === 0 ? (
+                <p style={{ margin: 0, color: "#475569", fontSize: "13px", textAlign: "center", padding: "12px 0 0" }}>
+                  No hubo movimientos ese día.
+                </p>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(212,168,67,0.15)" }}>
+                        {["Hora", "Boleta", "Cliente", "Teléfono", "Tipo", "Monto", "Vendedor"].map((h) => (
+                          <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: "700", fontSize: "10px", color: "#475569", letterSpacing: "0.5px" }}>{h.toUpperCase()}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reporte.movimientos.map((m: any) => {
+                        const hora = new Date(m.hora);
+                        const hh = String(hora.getHours()).padStart(2, "0");
+                        const mm = String(hora.getMinutes()).padStart(2, "0");
+                        const tipoInfo =
+                          m.tipo === "PAGO_COMPLETO" ? { label: "✅ Pago completo", bg: "rgba(5,150,105,0.15)", color: "#6EE7B7" } :
+                          m.tipo === "ABONO" ? { label: "⏳ Abono", bg: "rgba(217,119,6,0.15)", color: "#FCD34D" } :
+                          { label: "● Sin abono", bg: "rgba(148,163,184,0.15)", color: "#94A3B8" };
+                        return (
+                          <tr key={m.id} style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                            <td style={{ padding: "9px 10px", color: "#64748B", fontSize: "12px", fontFamily: "'DM Mono', monospace" }}>{hh}:{mm}</td>
+                            <td style={{ padding: "9px 10px", color: "#D4A843", fontSize: "13px", fontWeight: "700", fontFamily: "'DM Mono', monospace" }}>{String(m.ticketNumber).padStart(4, "0")}</td>
+                            <td style={{ padding: "9px 10px", color: "#E2E8F0", fontSize: "12px" }}>{m.clienteName}{m.esVentaNueva && <span style={{ marginLeft: "6px", fontSize: "10px", color: "#7DD3FC", fontWeight: "700" }}>NUEVA</span>}</td>
+                            <td style={{ padding: "9px 10px", color: "#64748B", fontSize: "12px" }}>{m.clientePhone}</td>
+                            <td style={{ padding: "9px 10px" }}>
+                              <span style={{ background: tipoInfo.bg, color: tipoInfo.color, padding: "3px 9px", borderRadius: "999px", fontSize: "10px", fontWeight: "700" }}>{tipoInfo.label}</span>
+                            </td>
+                            <td style={{ padding: "9px 10px", color: "#6EE7B7", fontSize: "12px", fontWeight: "700" }}>{m.monto > 0 ? formatPeso(m.monto) : "-"}</td>
+                            <td style={{ padding: "9px 10px", color: "#64748B", fontSize: "12px" }}>{m.vendedor}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
         {/* Buscador + Filtros */}
         <div style={{ display: "flex", gap: "12px", marginBottom: "16px", alignItems: "center", flexWrap: "wrap" }}>
           <input
@@ -447,10 +547,10 @@ export default function AdminPage() {
                   <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#64748B" }}>{clientPhone} {clientCity ? `· ${clientCity}` : ""}</p>
                 </div>
 
-                {selectedTicket.payments && selectedTicket.payments.length > 0 && (
+                {selectedTicket.payments && selectedTicket.payments.filter((p: any) => Number(p.amount) > 0).length > 0 && (
                   <div style={{ background: "rgba(5,150,105,0.08)", borderRadius: "12px", padding: "14px", marginBottom: "16px", border: "1px solid rgba(5,150,105,0.3)" }}>
                     <p style={{ margin: 0, fontSize: "11px", color: "#475569", fontWeight: "700", letterSpacing: "1px" }}>HISTORIAL DE ABONOS</p>
-                    {selectedTicket.payments.map((p: any, i: number) => {
+                    {selectedTicket.payments.filter((p: any) => Number(p.amount) > 0).map((p: any, i: number) => {
                       const fecha = new Date(p.createdAt);
                       const dia = String(fecha.getDate()).padStart(2, "0");
                       const mes = String(fecha.getMonth() + 1).padStart(2, "0");
