@@ -362,7 +362,7 @@ export default function AdminPage() {
                     <td style={{ padding: "14px 16px", color: "#E2E8F0", fontSize: "13px", fontWeight: "500" }}>{ticket.client?.name || "-"}</td>
                     <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.client?.phone || "-"}</td>
                     <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.client?.city || "-"}</td>
-                    <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.client?.notes?.replace("Vendedor: ", "").split(" (")[0] || "-"}</td>
+                    <td style={{ padding: "14px 16px", color: "#64748B", fontSize: "13px" }}>{ticket.assignedByName || ticket.client?.notes?.replace("Vendedor: ", "").split(" (")[0] || "-"}</td>
                     <td style={{ padding: "14px 16px", fontSize: "12px" }}>
                       {ticket.status === "PARTIAL" ? (
                         <span style={{ color: "#FCD34D", fontWeight: "600" }}>{formatPeso(abonado)} <span style={{ color: "#F87171" }}>· Resta {formatPeso(resta)}</span></span>
@@ -408,6 +408,9 @@ export default function AdminPage() {
                   {String(selectedTicket.number).padStart(4, "0")}
                 </h2>
                 <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#475569" }}>Valor total: {formatPeso(TICKET_PRICE)}</p>
+                {selectedTicket.assignedByName && (
+                  <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#D4A843" }}>🧑‍💼 Registrado por: {selectedTicket.assignedByName}</p>
+                )}
               </div>
               <button onClick={() => setShowModal(false)} style={{ background: "#0F172A", border: "1px solid #2D3348", borderRadius: "10px", padding: "8px 12px", color: "#64748B", cursor: "pointer", fontSize: "16px" }}>✕</button>
             </div>
@@ -453,9 +456,14 @@ export default function AdminPage() {
                       const mes = String(fecha.getMonth() + 1).padStart(2, "0");
                       const anio = fecha.getFullYear();
                       return (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", paddingTop: i > 0 ? "8px" : "0", borderTop: i > 0 ? "1px solid rgba(5,150,105,0.2)" : "none" }}>
-                          <span style={{ fontSize: "13px", color: "#64748B" }}>{dia}/{mes}/{anio}</span>
-                          <span style={{ fontSize: "13px", fontWeight: "700", color: "#6EE7B7" }}>{formatPeso(Number(p.amount))}</span>
+                        <div key={i} style={{ display: "flex", flexDirection: "column", marginTop: "8px", paddingTop: i > 0 ? "8px" : "0", borderTop: i > 0 ? "1px solid rgba(5,150,105,0.2)" : "none" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "13px", color: "#64748B" }}>{dia}/{mes}/{anio}</span>
+                            <span style={{ fontSize: "13px", fontWeight: "700", color: "#6EE7B7" }}>{formatPeso(Number(p.amount))}</span>
+                          </div>
+                          {p.createdByName && (
+                            <span style={{ fontSize: "11px", color: "#D4A843" }}>🧑‍💼 {p.createdByName}</span>
+                          )}
                         </div>
                       );
                     })}
