@@ -66,6 +66,8 @@ export async function POST(request: Request) {
             amount: amount,
             status: "CONFIRMED",
             notes: `Abono registrado por ${session.name}`,
+            createdById: session.id,
+            createdByName: session.name,
           },
         });
       }
@@ -86,6 +88,8 @@ export async function POST(request: Request) {
           amountPaid: amount,
           reservedAt: new Date(),
           paidAt: newStatus === "PAID" ? new Date() : null,
+          assignedById: session.id,
+          assignedByName: session.name,
         },
         include: {
           client: true,
