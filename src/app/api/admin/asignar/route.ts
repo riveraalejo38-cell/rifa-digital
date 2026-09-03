@@ -58,19 +58,20 @@ export async function POST(request: Request) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      if (amount > 0) {
-        await tx.payment.create({
-          data: {
-            ticketId: ticketId,
-            clientId: clientId,
-            amount: amount,
-            status: "CONFIRMED",
-            notes: `Abono registrado por ${session.name}`,
-            createdById: session.id,
-            createdByName: session.name,
-          },
-        });
-      }
+      // Se registra siempre un movimiento (incluso cuando amount es 0, es
+      // decir, una boleta que solo se separa sin abono), para poder armar
+      // un historial confiable de movimientos por día en el reporte diario.
+      await tx.payment.create({
+        data: {
+          ticketId: ticketId,
+          clientId: clientId,
+          amount: amount,
+          status: "CONFIRMED",
+          notes: amount > 0 ? `Abono registrado por ${session.name}` : `Boleta separada sin abono por ${session.name}`,
+          createdById: session.id,
+          createdByName: session.name,
+        },
+      });
 
       // Guardar el vendedor en el cliente
       await tx.client.update({
