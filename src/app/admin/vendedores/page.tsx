@@ -12,6 +12,7 @@ export default function VendedoresPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchVendedores();
@@ -61,16 +62,16 @@ export default function VendedoresPage() {
     if (data.success) fetchVendedores();
   };
 
-  const eliminarVendedor = async (id: string, nombre: string) => {
-    if (!confirm(`¿Borrar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+  const eliminarVendedor = async (id: string) => {
+    setConfirmId(null);
     setDeletingId(id);
     const res = await fetch(`/api/admin/vendedores?id=${id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.success) {
-      if (data.deactivatedInstead) setMessage(data.message);
+      setMessage(data.deactivatedInstead ? data.message : "Usuario borrado correctamente.");
       fetchVendedores();
     } else {
-      alert(data.error || "Error al borrar");
+      setMessage(data.error || "Error al borrar");
     }
     setDeletingId(null);
   };
@@ -153,14 +154,32 @@ export default function VendedoresPage() {
                   }}>
                     {v.isActive ? "Desactivar" : "Activar"}
                   </button>
-                  <button onClick={() => eliminarVendedor(v.id, v.name)} disabled={deletingId === v.id} style={{
-                    background: "#F3F4F6",
-                    border: "none", borderRadius: "8px", padding: "8px 14px",
-                    color: "#6B7280",
-                    fontSize: "13px", cursor: "pointer", fontWeight: "600"
-                  }}>
-                    {deletingId === v.id ? "Borrando..." : "Borrar"}
-                  </button>
+                  {confirmId === v.id ? (
+                    <>
+                      <span style={{ fontSize: "12px", color: "#6B7280" }}>¿Seguro?</span>
+                      <button onClick={() => eliminarVendedor(v.id)} disabled={deletingId === v.id} style={{
+                        background: "#DC2626", border: "none", borderRadius: "8px", padding: "8px 14px",
+                        color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                      }}>
+                        {deletingId === v.id ? "Borrando..." : "Sí, borrar"}
+                      </button>
+                      <button onClick={() => setConfirmId(null)} style={{
+                        background: "#F3F4F6", border: "none", borderRadius: "8px", padding: "8px 14px",
+                        color: "#6B7280", fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                      }}>
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button onClick={() => setConfirmId(v.id)} style={{
+                      background: "#F3F4F6",
+                      border: "none", borderRadius: "8px", padding: "8px 14px",
+                      color: "#6B7280",
+                      fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                    }}>
+                      Borrar
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
