@@ -79,6 +79,46 @@ export async function POST(request: Request) {
   }
 }
 
+export async function DELETE(request: Request) {
+  try {
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "No autorizado. Solo el administrador puede eliminar vendedores." },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "ID obligatorio" },
+        { status: 400 }
+      );
+    }
+
+    try {
+      await prisma.user.delete({ where: { id } });
+    } catch (deleteError) {
+      // Si tiene boletas o pagos asociados, no se puede borrar por completo:
+      // lo desactivamos en su lugar para no perder el historial.
+      await prisma.user.update({ where: { id }, data: { isActive: false } });
+      return NextResponse.json({
+        success: true,
+        deactivatedInstead: true,
+        message: "Este usuario tiene historial asociado, así que se desactivó en lugar de borrarse.",
+      });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ success: false, error: "Error" }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: Request) {
   try {
     const session = await requireAdmin();
