@@ -221,7 +221,7 @@ export default function AdminPage() {
         tr:hover td { background: rgba(139,147,255,0.05); }
         input::placeholder { color: #475569; }
         .sg-shell { display: flex; gap: 18px; }
-        .sg-side { width: 428px; flex: none; display: flex; flex-direction: column; gap: 20px; }
+        .sg-side { width: 380px; flex: none; display: flex; flex-direction: column; gap: 16px; }
         .sg-main { flex: 1; min-width: 0; }
         @media (max-width: 1040px) {
           .sg-shell { flex-direction: column; }
@@ -262,70 +262,70 @@ export default function AdminPage() {
         <aside className="sg-side">
 
           {/* Recaudo */}
-          <div style={{ background: "#241F6B", borderRadius: "22px", padding: "26px", border: "1px solid rgba(139,147,255,0.16)" }}>
-            <p style={{ margin: 0, fontSize: "18px", fontWeight: "700" }}>Recaudo</p>
-            <p style={{ margin: "3px 0 16px", fontSize: "14.5px", color: "#8A84C4" }}>Meta del sorteo</p>
-            <p style={{ margin: 0, fontSize: "36px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", textShadow: "0 0 22px rgba(255,255,255,0.28)" }}>
+          <div style={{ background: "#241F6B", borderRadius: "20px", padding: "20px", border: "1px solid rgba(139,147,255,0.16)" }}>
+            <p style={{ margin: 0, fontSize: "13px", fontWeight: "700" }}>Recaudo</p>
+            <p style={{ margin: "3px 0 12px", fontSize: "11px", color: "#8A84C4" }}>Meta del sorteo</p>
+            <p style={{ margin: 0, fontSize: "22px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", textShadow: "0 0 22px rgba(255,255,255,0.28)" }}>
               {formatPeso(stats.paid * TICKET_PRICE)}
             </p>
-            <div style={{ height: "11px", borderRadius: "99px", background: "#1B1854", overflow: "hidden", margin: "16px 0 9px" }}>
+            <div style={{ height: "9px", borderRadius: "99px", background: "#1B1854", overflow: "hidden", margin: "12px 0 6px" }}>
               <div style={{ height: "100%", width: `${metaPct}%`, borderRadius: "99px", background: "linear-gradient(90deg, #8B93FF, #5B62FF)" }} />
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14.5px", color: "#8A84C4" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#8A84C4" }}>
               <span>{metaPct.toFixed(0)}% de la meta</span>
               <span>Meta {formatPeso(stats.total * TICKET_PRICE)}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "12px 0 0", marginTop: "12px", borderTop: "1px solid rgba(139,147,255,0.16)" }}>
-              <span style={{ fontSize: "14.5px", color: "#8A84C4" }}>Total abonos registrados</span>
-              <span style={{ fontSize: "21px", fontWeight: "700", color: "#FFFFFF" }}>{formatPeso(stats.recaudado)}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "9px 0 0", marginTop: "9px", borderTop: "1px solid rgba(139,147,255,0.16)" }}>
+              <span style={{ fontSize: "11px", color: "#8A84C4" }}>Total abonos registrados</span>
+              <span style={{ fontSize: "22px", fontWeight: "700", color: "#FFFFFF" }}>{formatPeso(stats.recaudado)}</span>
             </div>
           </div>
 
           {/* Estado de boletas */}
-          <div style={{ background: "#241F6B", borderRadius: "22px", padding: "26px", border: "1px solid rgba(139,147,255,0.16)" }}>
-            <p style={{ margin: 0, fontSize: "18px", fontWeight: "700" }}>Estado de las boletas</p>
-            <p style={{ margin: "3px 0 16px", fontSize: "14.5px", color: "#8A84C4" }}>
-              Total: <span style={{ color: "#FFFFFF", fontWeight: "700", fontFamily: "'DM Mono', monospace", fontSize: "15px" }}>{stats.total.toLocaleString()}</span>
+          <div style={{ background: "#241F6B", borderRadius: "20px", padding: "20px", border: "1px solid rgba(139,147,255,0.16)" }}>
+            <p style={{ margin: 0, fontSize: "13px", fontWeight: "700" }}>Estado de las boletas</p>
+            <p style={{ margin: "3px 0 12px", fontSize: "11px", color: "#8A84C4" }}>
+              Total: <span style={{ color: "#FFFFFF", fontWeight: "700", fontFamily: "'DM Mono', monospace", fontSize: "13px" }}>{stats.total.toLocaleString()}</span>
             </p>
-            <div style={{ display: "flex", height: "18px", borderRadius: "99px", overflow: "hidden", marginBottom: "18px" }}>
+            <div style={{ display: "flex", height: "14px", borderRadius: "99px", overflow: "hidden", marginBottom: "14px" }}>
               <div style={{ width: `${disponiblesPct}%`, background: "#94A3B8" }} />
               <div style={{ width: `${reservadasPct}%`, background: "#7DD3FC" }} />
               <div style={{ width: `${abonoPct}%`, background: "#FCD34D" }} />
               <div style={{ width: `${pagadasPct}%`, background: "#6EE7B7" }} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
               {[
                 { label: "Disponibles", value: stats.available, color: "#94A3B8" },
                 { label: "Reservadas", value: stats.reserved, color: "#7DD3FC" },
                 { label: "Con abono", value: stats.partial, color: "#FCD34D" },
                 { label: "Pagadas", value: stats.paid, color: "#6EE7B7" },
               ].map((s) => (
-                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "11px", fontSize: "14.5px" }}>
-                  <span style={{ width: "11px", height: "11px", borderRadius: "3px", background: s.color, flex: "none" }} />
+                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "9px", fontSize: "12px" }}>
+                  <span style={{ width: "9px", height: "9px", borderRadius: "3px", background: s.color, flex: "none" }} />
                   <span style={{ flex: 1, color: "#8A84C4" }}>{s.label}</span>
-                  <span style={{ fontWeight: "700", fontSize: "18px", color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{s.value.toLocaleString()}</span>
+                  <span style={{ fontWeight: "700", fontSize: "16px", color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{s.value.toLocaleString()}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Reporte del día */}
-          <div style={{ background: "#241F6B", borderRadius: "22px", padding: "26px", border: "1px solid rgba(139,147,255,0.16)" }}>
+          <div style={{ background: "#241F6B", borderRadius: "20px", padding: "20px", border: "1px solid rgba(139,147,255,0.16)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-              <p style={{ margin: 0, fontSize: "18px", fontWeight: "700" }}>📅 Reporte de hoy</p>
+              <p style={{ margin: 0, fontSize: "13px", fontWeight: "700" }}>📅 Reporte de hoy</p>
               <input
                 type="date"
                 value={reporteFecha}
                 onChange={(e) => handleReporteFecha(e.target.value)}
-                style={{ background: "#1B1854", border: "1px solid rgba(139,147,255,0.16)", borderRadius: "9px", padding: "8px 14px", color: "#FFFFFF", fontSize: "14.5px", fontFamily: "inherit", fontWeight: "600" }}
+                style={{ background: "#1B1854", border: "1px solid rgba(139,147,255,0.16)", borderRadius: "9px", padding: "7px 13px", color: "#FFFFFF", fontSize: "13px", fontFamily: "inherit", fontWeight: "600" }}
               />
             </div>
 
             {reporteLoading ? (
-              <p style={{ margin: "12px 0 0", color: "#8A84C4", fontSize: "14.5px" }}>Cargando reporte...</p>
+              <p style={{ margin: "12px 0 0", color: "#8A84C4", fontSize: "13px" }}>Cargando reporte...</p>
             ) : reporte && (
               <>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 18px", marginTop: "18px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 14px", marginTop: "14px" }}>
                   {[
                     { label: "Ventas nuevas", value: reporte.resumen.ventasNuevas },
                     { label: "Sin abono", value: reporte.resumen.separadasSinAbono },
@@ -335,16 +335,16 @@ export default function AdminPage() {
                     { label: "Movimientos", value: reporte.resumen.totalMovimientos },
                   ].map((s) => (
                     <div key={s.label}>
-                      <p style={{ margin: 0, fontSize: "13px", color: "#8A84C4", fontWeight: "600", letterSpacing: "0.3px", textTransform: "uppercase" }}>{s.label}</p>
-                      <p style={{ margin: "5px 0 0", fontSize: "21px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{s.value}</p>
+                      <p style={{ margin: 0, fontSize: "10px", color: "#8A84C4", fontWeight: "600", letterSpacing: "0.3px", textTransform: "uppercase" }}>{s.label}</p>
+                      <p style={{ margin: "4px 0 0", fontSize: "18px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{s.value}</p>
                     </div>
                   ))}
                 </div>
 
                 {reporte.movimientos.length === 0 ? (
-                  <p style={{ margin: "18px 0 0", color: "#8A84C4", fontSize: "14.5px" }}>No hubo movimientos ese día.</p>
+                  <p style={{ margin: "14px 0 0", color: "#8A84C4", fontSize: "13px" }}>No hubo movimientos ese día.</p>
                 ) : (
-                  <div style={{ marginTop: "18px", maxHeight: "280px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "11px" }}>
+                  <div style={{ marginTop: "14px", maxHeight: "250px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
                     {reporte.movimientos.map((m: any, i: number) => {
                       const hora = new Date(m.hora);
                       const hh = String(hora.getHours()).padStart(2, "0");
@@ -354,12 +354,12 @@ export default function AdminPage() {
                         m.tipo === "ABONO" ? { label: "Abono", bg: "rgba(217,119,6,0.15)", color: "#FCD34D" } :
                         { label: "Sin abono", bg: "rgba(148,163,184,0.15)", color: "#94A3B8" };
                       return (
-                        <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14.5px", paddingTop: i > 0 ? "11px" : 0, borderTop: i > 0 ? "1px solid rgba(139,147,255,0.16)" : "none" }}>
-                          <span style={{ color: "#8A84C4", fontFamily: "'DM Mono', monospace", fontSize: "13px" }}>{hh}:{mm}</span>
-                          <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: "700", color: "#FFFFFF" }}>{String(m.ticketNumber).padStart(4, "0")}</span>
-                          {m.esVentaNueva && <span style={{ fontSize: "12px", color: "#7DD3FC", fontWeight: "700" }}>NUEVA</span>}
-                          <span style={{ background: tipoInfo.bg, color: tipoInfo.color, padding: "3px 9px", borderRadius: "99px", fontSize: "12px", fontWeight: "700" }}>{tipoInfo.label}</span>
-                          <span style={{ marginLeft: "auto", fontWeight: "700", fontFamily: "'DM Mono', monospace", color: "#FFFFFF" }}>{m.monto > 0 ? formatPeso(m.monto) : "-"}</span>
+                        <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", paddingTop: i > 0 ? "8px" : 0, borderTop: i > 0 ? "1px solid rgba(139,147,255,0.16)" : "none" }}>
+                          <span style={{ color: "#8A84C4", fontFamily: "'DM Mono', monospace", fontSize: "12px" }}>{hh}:{mm}</span>
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: "700", color: "#FFFFFF", fontSize: "13px" }}>{String(m.ticketNumber).padStart(4, "0")}</span>
+                          {m.esVentaNueva && <span style={{ fontSize: "10px", color: "#7DD3FC", fontWeight: "700" }}>NUEVA</span>}
+                          <span style={{ background: tipoInfo.bg, color: tipoInfo.color, padding: "3px 9px", borderRadius: "99px", fontSize: "10px", fontWeight: "700" }}>{tipoInfo.label}</span>
+                          <span style={{ marginLeft: "auto", fontWeight: "700", fontFamily: "'DM Mono', monospace", color: "#FFFFFF", fontSize: "12px" }}>{m.monto > 0 ? formatPeso(m.monto) : "-"}</span>
                         </div>
                       );
                     })}
