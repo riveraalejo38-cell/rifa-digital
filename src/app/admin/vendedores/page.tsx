@@ -8,8 +8,10 @@ export default function VendedoresPage() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("VENDEDOR");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchVendedores();
@@ -33,13 +35,14 @@ export default function VendedoresPage() {
     const res = await fetch("/api/admin/vendedores", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, username, password, role: "VENDEDOR" }),
+      body: JSON.stringify({ name, username, password, role }),
     });
     const data = await res.json();
     if (data.success) {
       setName("");
       setUsername("");
       setPassword("");
+      setRole("VENDEDOR");
       setShowModal(false);
       fetchVendedores();
     } else {
@@ -56,6 +59,20 @@ export default function VendedoresPage() {
     });
     const data = await res.json();
     if (data.success) fetchVendedores();
+  };
+
+  const eliminarVendedor = async (id: string, nombre: string) => {
+    if (!confirm(`¿Borrar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+    setDeletingId(id);
+    const res = await fetch(`/api/admin/vendedores?id=${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (data.success) {
+      if (data.deactivatedInstead) setMessage(data.message);
+      fetchVendedores();
+    } else {
+      alert(data.error || "Error al borrar");
+    }
+    setDeletingId(null);
   };
 
   const formatFecha = (fecha: string) =>
@@ -82,9 +99,15 @@ export default function VendedoresPage() {
             <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#6B7280" }}>{vendedores.length} vendedor(es) registrado(s)</p>
           </div>
           <button onClick={() => { setShowModal(true); setMessage(""); }} style={{ background: "#3B5998", border: "none", borderRadius: "10px", padding: "12px 20px", color: "#FFFFFF", fontWeight: "700", fontSize: "14px", cursor: "pointer" }}>
-            + Nuevo vendedor
+            + Nuevo usuario
           </button>
         </div>
+
+        {message && !showModal && (
+          <div style={{ background: "#FEF9C3", color: "#854D0E", borderRadius: "10px", padding: "12px 16px", fontSize: "13px", marginBottom: "16px" }}>
+            {message}
+          </div>
+        )}
 
         {/* Lista de vendedores */}
         {loading ? (
@@ -102,7 +125,14 @@ export default function VendedoresPage() {
                     {v.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#1C1C2E" }}>{v.name}</p>
+                    <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#1C1C2E" }}>
+                      {v.name}
+                      {v.role === "ADMIN" && (
+                        <span style={{ marginLeft: "8px", background: "#EDE9FE", color: "#6D28D9", borderRadius: "999px", padding: "2px 9px", fontSize: "11px", fontWeight: "700", verticalAlign: "middle" }}>
+                          Administrador
+                        </span>
+                      )}
+                    </p>
                     <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#6B7280" }}>@{v.username}</p>
                     <p style={{ margin: "2px 0 0", fontSize: "11px", color: "#9CA3AF" }}>Desde {formatFecha(v.createdAt)}</p>
                   </div>
@@ -123,6 +153,14 @@ export default function VendedoresPage() {
                   }}>
                     {v.isActive ? "Desactivar" : "Activar"}
                   </button>
+                  <button onClick={() => eliminarVendedor(v.id, v.name)} disabled={deletingId === v.id} style={{
+                    background: "#F3F4F6",
+                    border: "none", borderRadius: "8px", padding: "8px 14px",
+                    color: "#6B7280",
+                    fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                  }}>
+                    {deletingId === v.id ? "Borrando..." : "Borrar"}
+                  </button>
                 </div>
               </div>
             ))}
@@ -135,7 +173,7 @@ export default function VendedoresPage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "20px" }}>
           <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#1C1C2E" }}>Nuevo vendedor</h2>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#1C1C2E" }}>Nuevo usuario</h2>
               <button onClick={() => setShowModal(false)} style={{ background: "#F2F4F7", border: "none", borderRadius: "8px", padding: "8px 12px", color: "#6B7280", cursor: "pointer", fontSize: "16px" }}>✕</button>
             </div>
             <input type="text" placeholder="Nombre completo" value={name}
@@ -148,11 +186,29 @@ export default function VendedoresPage() {
             />
             <input type="password" placeholder="Contraseña" value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "16px" }}
+              style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
             />
+            <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+              <button type="button" onClick={() => setRole("VENDEDOR")} style={{
+                flex: 1, borderRadius: "10px", padding: "10px", fontSize: "13px", fontWeight: "700", cursor: "pointer",
+                border: role === "VENDEDOR" ? "2px solid #3B5998" : "1px solid #E5E7EB",
+                background: role === "VENDEDOR" ? "#EEF2FF" : "#FFFFFF",
+                color: role === "VENDEDOR" ? "#3B5998" : "#6B7280",
+              }}>
+                Vendedor
+              </button>
+              <button type="button" onClick={() => setRole("ADMIN")} style={{
+                flex: 1, borderRadius: "10px", padding: "10px", fontSize: "13px", fontWeight: "700", cursor: "pointer",
+                border: role === "ADMIN" ? "2px solid #6D28D9" : "1px solid #E5E7EB",
+                background: role === "ADMIN" ? "#F5F3FF" : "#FFFFFF",
+                color: role === "ADMIN" ? "#6D28D9" : "#6B7280",
+              }}>
+                Administrador
+              </button>
+            </div>
             {message && <p style={{ color: "#DC2626", fontSize: "13px", marginBottom: "12px" }}>{message}</p>}
             <button onClick={crearVendedor} disabled={saving} style={{ width: "100%", background: "#3B5998", border: "none", borderRadius: "10px", padding: "14px", color: "#FFFFFF", fontWeight: "700", fontSize: "15px", cursor: "pointer" }}>
-              {saving ? "Creando..." : "Crear vendedor"}
+              {saving ? "Creando..." : role === "ADMIN" ? "Crear administrador" : "Crear vendedor"}
             </button>
           </div>
         </div>
