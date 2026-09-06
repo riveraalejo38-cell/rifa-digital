@@ -40,27 +40,33 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #0f0f0f 100%)",
+      background: "#15113F",
       display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "20px", fontFamily: "sans-serif",
+      padding: "20px", fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
     }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+        input::placeholder { color: #6B63A8; }
+        input:focus { outline: none; border-color: #8B93FF !important; }
+      `}</style>
       <div style={{
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(184,134,11,0.3)",
+        background: "#1B1854",
+        border: "1px solid rgba(139,147,255,0.16)",
         borderRadius: "24px", padding: "40px",
         maxWidth: "400px", width: "100%",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
       }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <h1 style={{ color: "#ffd700", fontSize: "28px", fontWeight: "900", margin: "0 0 4px" }}>
+          <h1 style={{ color: "#8B93FF", fontSize: "26px", fontWeight: "800", margin: "0 0 4px", letterSpacing: "0.5px" }}>
             PROYECTOS SANTIAGO GÓMEZ
           </h1>
-          <p style={{ color: "#6b7280", fontSize: "14px", margin: 0 }}>
+          <p style={{ color: "#8A84C4", fontSize: "14px", margin: 0 }}>
             Panel de Control
           </p>
         </div>
 
         <div style={{ marginBottom: "16px" }}>
-          <p style={{ color: "#9ca3af", fontSize: "12px", margin: "0 0 6px", letterSpacing: "1px" }}>
+          <p style={{ color: "#8A84C4", fontSize: "12px", margin: "0 0 6px", letterSpacing: "1px", fontWeight: "600" }}>
             USUARIO
           </p>
           <input
@@ -70,17 +76,17 @@ export default function LoginPage() {
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             placeholder="Escribe tu usuario"
             style={{
-              width: "100%", background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(184,134,11,0.3)",
+              width: "100%", background: "#241F6B",
+              border: "1.5px solid #2D2860",
               borderRadius: "12px", padding: "12px 16px",
-              color: "white", fontSize: "16px",
-              outline: "none", boxSizing: "border-box",
+              color: "#FFFFFF", fontSize: "16px",
+              boxSizing: "border-box", fontFamily: "inherit", fontWeight: "500",
             }}
           />
         </div>
 
         <div style={{ marginBottom: "24px" }}>
-          <p style={{ color: "#9ca3af", fontSize: "12px", margin: "0 0 6px", letterSpacing: "1px" }}>
+          <p style={{ color: "#8A84C4", fontSize: "12px", margin: "0 0 6px", letterSpacing: "1px", fontWeight: "600" }}>
             CONTRASEÑA
           </p>
           <input
@@ -90,18 +96,18 @@ export default function LoginPage() {
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             placeholder="Escribe tu contraseña"
             style={{
-              width: "100%", background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(184,134,11,0.3)",
+              width: "100%", background: "#241F6B",
+              border: "1.5px solid #2D2860",
               borderRadius: "12px", padding: "12px 16px",
-              color: "white", fontSize: "16px",
-              outline: "none", boxSizing: "border-box",
+              color: "#FFFFFF", fontSize: "16px",
+              boxSizing: "border-box", fontFamily: "inherit", fontWeight: "500",
             }}
           />
         </div>
 
         {error && (
-          <p style={{ color: "#ef4444", fontSize: "14px", marginBottom: "16px", textAlign: "center" }}>
-            {error}
+          <p style={{ color: "#F87171", fontSize: "14px", marginBottom: "16px", textAlign: "center", fontWeight: "500" }}>
+            ⚠ {error}
           </p>
         )}
 
@@ -110,10 +116,10 @@ export default function LoginPage() {
           disabled={loading}
           style={{
             width: "100%",
-            background: loading ? "#6b7280" : "linear-gradient(135deg, #b8860b 0%, #ffd700 50%, #b8860b 100%)",
+            background: loading ? "#2D2860" : "linear-gradient(135deg, #8B93FF, #5B62FF)",
             border: "none", borderRadius: "12px", padding: "14px",
-            color: "#1a0a00", fontWeight: "900", fontSize: "16px",
-            cursor: loading ? "not-allowed" : "pointer",
+            color: loading ? "#8A84C4" : "#15113F", fontWeight: "800", fontSize: "16px",
+            cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit",
           }}
         >
           {loading ? "Entrando..." : "Ingresar"}
