@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [reporteFecha, setReporteFecha] = useState(hoyBogota());
   const [reporte, setReporte] = useState<any>(null);
   const [reporteLoading, setReporteLoading] = useState(false);
+  const [reclamosPendientes, setReclamosPendientes] = useState(0);
 
   const TICKET_PRICE = 80000;
 
@@ -35,6 +36,9 @@ export default function AdminPage() {
     fetchTickets("", "SIN_DISPONIBLES");
     fetchVendedores();
     fetchReporte(hoyBogota());
+    fetch("/api/admin/reclamos?status=PENDING").then((r) => r.json()).then((data) => {
+      if (data.success) setReclamosPendientes(data.claims.length);
+    });
     const handleClick = (e: MouseEvent) => {
       if (vendedorMenuRef.current && !vendedorMenuRef.current.contains(e.target)) {
         setShowVendedorMenu(false);
@@ -254,6 +258,14 @@ export default function AdminPage() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+          <a href="/admin/reclamos" style={{ position: "relative", color: "#F87171", fontSize: "16px", textDecoration: "none", fontWeight: "600", padding: "9px 19px", borderRadius: "10px", border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.08)" }}>
+            ⚠️ Reclamos
+            {reclamosPendientes > 0 && (
+              <span style={{ position: "absolute", top: "-8px", right: "-8px", background: "#F87171", color: "#1B1854", fontSize: "12px", fontWeight: "800", borderRadius: "999px", minWidth: "22px", height: "22px", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>
+                {reclamosPendientes}
+              </span>
+            )}
+          </a>
           <a href="/admin/vendedores" style={{ color: "#8B93FF", fontSize: "16px", textDecoration: "none", fontWeight: "600", padding: "9px 19px", borderRadius: "10px", border: "1px solid rgba(139,147,255,0.3)", background: "rgba(139,147,255,0.08)" }}>👥 Vendedores</a>
           <a href="/api/auth/logout" style={{ color: "#8A84C4", fontSize: "16px", textDecoration: "none", fontWeight: "500", padding: "9px 19px", borderRadius: "10px", border: "1px solid #2D2860" }}>Cerrar sesión</a>
         </div>
@@ -486,6 +498,16 @@ export default function AdminPage() {
                         <span style={{ background: badge.bg, color: badge.color, padding: "5px 12px", borderRadius: "999px", fontSize: "13px", fontWeight: "700" }}>
                           {badge.label}
                         </span>
+                        {ticket.status === "AVAILABLE" && ticket.releasedByName && (
+                          <div style={{ marginTop: "5px", fontSize: "11px", color: "#F87171", fontWeight: "600" }}>
+                            🔓 Liberada por {ticket.releasedByName}
+                          </div>
+                        )}
+                        {ticket.claims && ticket.claims.length > 0 && (
+                          <div style={{ marginTop: "5px", fontSize: "11px", color: "#FCD34D", fontWeight: "600" }}>
+                            ⚠️ Reclamada por {ticket.claims[0].claimedByName}
+                          </div>
+                        )}
                       </td>
                       <td style={{ padding: "17px 19px", color: "#ECEAFB", fontSize: "16px", fontWeight: "500" }}>{ticket.client?.name || "-"}</td>
                       <td style={{ padding: "17px 19px", color: "#8A84C4", fontSize: "16px" }}>{ticket.client?.phone || "-"}</td>
