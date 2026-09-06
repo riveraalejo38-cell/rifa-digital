@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 const TICKET_PRICE = 80000;
 
 // Reporte de movimientos de un día específico: boletas separadas sin abono,
