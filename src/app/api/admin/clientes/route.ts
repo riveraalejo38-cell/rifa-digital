@@ -33,15 +33,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, phone, email, notes, city } = body;
 
-    if (!name || !phone) {
+    if (!name) {
       return NextResponse.json(
-        { success: false, error: "Nombre y teléfono son obligatorios" },
+        { success: false, error: "El nombre es obligatorio" },
         { status: 400 }
       );
     }
 
     const client = await prisma.client.create({
-     data: { name, phone, email, notes, city },
+     data: { name, phone: phone || "Sin teléfono", email, notes, city },
     });
 
     return NextResponse.json({ success: true, client });
