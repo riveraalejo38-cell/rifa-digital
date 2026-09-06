@@ -1,6 +1,15 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 
+// Esta página NUNCA se debe servir cacheada desde el borde/CDN: hacía que,
+// después de un nuevo despliegue, el navegador siguiera recibiendo el HTML
+// y el bundle de JS de una versión vieja (con datos de pruebas viejas, ej.
+// un cliente de prueba que ya no existe), aunque la base de datos ya
+// tuviera el dato correcto. Forzar renderizado dinámico evita ese HIT de
+// caché en el borde para esta ruta.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function VendedorPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
