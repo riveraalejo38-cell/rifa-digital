@@ -16,6 +16,12 @@ export default function VendedorPage() {
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Contador de operaciones de búsqueda/refresco en vuelo. Si el usuario busca
+  // varias veces seguidas, una respuesta vieja puede llegar DESPUÉS de una más
+  // nueva (la red no garantiza el orden). Sin esto, esa respuesta vieja
+  // pisaría el resultado correcto y mostraría "búsquedas anteriores" o el
+  // nombre de un cliente que ya no corresponde a la boleta en pantalla.
+  const opSeq = useRef(0);
   const [me, setMe] = useState<any>(null);
   const [showReclamoModal, setShowReclamoModal] = useState(false);
   const [reclamoReason, setReclamoReason] = useState("");
@@ -36,7 +42,9 @@ export default function VendedorPage() {
     "$" + value.toLocaleString("es-CO");
 
   const buscar = async () => {
-    if (!search.trim()) return;
+    const term = search.trim();
+    if (!term) return;
+    const mySeq = ++opSeq.current;
     setLoading(true);
     setTicket(null);
     setResultados([]);
@@ -53,10 +61,16 @@ export default function VendedorPage() {
     setReclamoMessage("");
     setReclamoEnviado(false);
 
-    const isNum = /^\d+$/.test(search.trim());
-    const query = isNum ? parseInt(search.trim()).toString() : search.trim();
-    const res = await fetch(`/api/admin/tickets?search=${query}`);
+    // Se manda el término tal cual lo escribió el usuario (sin quitarle los
+    // ceros a la izquierda): el backend decide por la cantidad de dígitos si
+    // es boleta o teléfono, así "0001" no se confunde nunca con otra boleta.
+    const res = await fetch(`/api/admin/tickets?search=${encodeURIComponent(term)}`, { cache: "no-store" });
     const data = await res.json();
+
+    // Si mientras esperábamos esta respuesta el usuario ya lanzó otra
+    // búsqueda, esta respuesta quedó vieja: se descarta para que nunca
+    // aparezca el resultado de una búsqueda anterior.
+    if (mySeq !== opSeq.current) return;
 
     if (data.success && data.tickets.length > 0) {
       if (data.tickets.length === 1) {
@@ -75,6 +89,7 @@ export default function VendedorPage() {
   };
 
   const seleccionarTicket = (t: any) => {
+    opSeq.current++; // invalida cualquier búsqueda/refresco viejo que aún esté en vuelo
     setTicket(t);
     setNotFound(false);
     setMessage("");
@@ -92,8 +107,10 @@ export default function VendedorPage() {
 
   const refrescarTicket = async () => {
     if (!ticket) return;
-    const res = await fetch(`/api/admin/tickets?search=${ticket.number}`);
+    const mySeq = ++opSeq.current;
+    const res = await fetch(`/api/admin/tickets?search=${ticket.number}`, { cache: "no-store" });
     const data = await res.json();
+    if (mySeq !== opSeq.current) return; // ya no aplica, se lanzó otra operación mientras tanto
     if (data.success) {
       const actualizado = data.tickets.find((t: any) => t.id === ticket.id);
       if (actualizado) setTicket(actualizado);
