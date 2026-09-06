@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function requireAdmin() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session");
