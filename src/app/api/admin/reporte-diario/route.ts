@@ -43,6 +43,25 @@ export async function GET(request: Request) {
     const inicio = new Date(`${dateParam}T00:00:00-05:00`);
     const fin = new Date(`${dateParam}T23:59:59.999-05:00`);
 
+    // Boletas liberadas ese día: se listan aparte (con quién la liberó),
+    // independientemente de que hoy mismo se haya vuelto a registrar con
+    // otro cliente — esto es solo un registro histórico de "quién liberó
+    // qué y cuándo", no afecta el estado actual de la boleta.
+    const liberadasDelDia = await prisma.ticket.findMany({
+      where: {
+        raffleId: raffle.id,
+        releasedAt: { gte: inicio, lte: fin },
+      },
+      select: { id: true, number: true, releasedAt: true, releasedByName: true },
+      orderBy: { releasedAt: "asc" },
+    });
+    const liberadas = liberadasDelDia.map((t) => ({
+      id: t.id,
+      hora: t.releasedAt,
+      ticketNumber: t.number,
+      liberadoPor: t.releasedByName || "-",
+    }));
+
     // Solo boletas que siguen ocupadas: si una boleta se liberó después de
     // registrar el movimiento, ese movimiento ya no debe aparecer en el
     // reporte (al liberar, la boleta queda totalmente limpia, sin rastro).
@@ -72,8 +91,10 @@ export async function GET(request: Request) {
           pagosCompletos: 0,
           separadasSinAbono: 0,
           totalMovimientos: 0,
+          boletasLiberadas: liberadas.length,
         },
         movimientos: [],
+        liberadas,
       }, { headers: NO_STORE_HEADERS });
     }
 
@@ -154,8 +175,10 @@ export async function GET(request: Request) {
         pagosCompletos,
         separadasSinAbono,
         totalMovimientos: movimientos.length,
+        boletasLiberadas: liberadas.length,
       },
       movimientos,
+      liberadas,
     }, { headers: NO_STORE_HEADERS });
   } catch (error) {
     console.error(error);
