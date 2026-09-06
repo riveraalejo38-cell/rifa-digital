@@ -46,6 +46,20 @@ export async function POST(request: Request) {
       );
     }
 
+    // Una boleta ocupada solo la puede tocar quien la vendió o un admin. Otro
+    // vendedor que intente abonarle/registrarla debe reclamarla primero.
+    if (
+      session.role !== "ADMIN" &&
+      ticket.status !== "AVAILABLE" &&
+      ticket.assignedById &&
+      ticket.assignedById !== session.id
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Esta boleta no te pertenece. Si es tuya, reclámala." },
+        { status: 403 }
+      );
+    }
+
     const amount = Number(amountPaid) || 0;
 
     const result = await prisma.$transaction(async (tx) => {
@@ -101,6 +115,11 @@ export async function POST(request: Request) {
           paidAt: newStatus === "PAID" ? new Date() : null,
           assignedById: session.id,
           assignedByName: session.name,
+          // Si esta boleta había quedado marcada como liberada antes,
+          // al volver a registrarse deja de estar "liberada".
+          releasedAt: null,
+          releasedById: null,
+          releasedByName: null,
         },
         include: {
           client: true,
