@@ -52,8 +52,11 @@ export async function GET(request: Request) {
         createdAt: { gte: inicio, lte: fin },
       },
       include: {
-        ticket: { select: { id: true, number: true } },
-        client: { select: { name: true, phone: true } },
+        // Se trae el cliente ACTUAL de la boleta (ticket.client), no solo el
+        // cliente que quedó guardado en el pago en su momento: si el nombre
+        // de una boleta se corrigió después de un pago viejo, el reporte debe
+        // mostrar siempre el nombre actual, nunca uno viejo/equivocado.
+        ticket: { select: { id: true, number: true, client: { select: { name: true, phone: true } } } },
       },
       orderBy: { createdAt: "asc" },
     });
@@ -132,8 +135,8 @@ export async function GET(request: Request) {
         id: p.id,
         hora: p.createdAt,
         ticketNumber: p.ticket.number,
-        clienteName: p.client?.name || "-",
-        clientePhone: p.client?.phone || "-",
+        clienteName: p.ticket.client?.name || "-",
+        clientePhone: p.ticket.client?.phone || "-",
         tipo,
         esVentaNueva: esPrimerToque,
         monto,
