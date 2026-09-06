@@ -82,8 +82,8 @@ export default function VendedorPage() {
   };
 
   const handleAsignar = async (tipo: "RESERVED" | "PARTIAL" | "PAID") => {
-    if (!clientName || !clientPhone) {
-      setMessage("Nombre y teléfono son obligatorios");
+    if (!clientName) {
+      setMessage("Ingresa el nombre del cliente");
       return;
     }
     if (tipo === "PARTIAL" && !abonoAmount) {
