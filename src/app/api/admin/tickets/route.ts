@@ -38,7 +38,11 @@ export async function GET(request: Request) {
         status: status ? (status as any) : undefined,
         OR: orConditions.length ? orConditions : undefined,
       },
-      include: { client: true, payments: true },
+      include: {
+        client: true,
+        payments: true,
+        claims: { where: { status: "PENDING" }, select: { id: true, claimedByName: true } },
+      },
       orderBy: { number: "asc" },
       take: 100,
     });
