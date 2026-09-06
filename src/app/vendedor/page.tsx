@@ -81,13 +81,9 @@ export default function VendedorPage() {
     if (e.key === "Enter") buscar();
   };
 
-  const handleAsignar = async (tipo: "RESERVED" | "PARTIAL" | "PAID") => {
+  const handleRegistrar = async () => {
     if (!clientName) {
       setMessage("Ingresa el nombre del cliente");
-      return;
-    }
-    if (tipo === "PARTIAL" && !abonoAmount) {
-      setMessage("Ingresa el monto a abonar");
       return;
     }
     setSaving(true);
@@ -101,7 +97,10 @@ export default function VendedorPage() {
       const dataClient = await resClient.json();
       if (!dataClient.success) { setMessage("Error al registrar cliente"); setSaving(false); return; }
 
-      const abono = tipo === "PAID" ? TICKET_PRICE : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
+      // El monto queda a criterio de quien registra: vacío o 0 = solo separar,
+      // menor al total = abono, el total completo = pagada. El backend calcula
+      // el estado final (RESERVED/PARTIAL/PAID) sobre el acumulado.
+      const abono = parseFloat(abonoAmount) || 0;
 
       const resTicket = await fetch("/api/admin/asignar", {
         method: "POST",
@@ -217,6 +216,7 @@ export default function VendedorPage() {
           <p style={{ margin: "0 0 8px", fontSize: "12px", fontWeight: "600", color: "#9B93D9", letterSpacing: "1.5px", textTransform: "uppercase" }}>Buscar boleta</p>
           <div style={{ display: "flex", gap: "10px" }}>
             <input ref={inputRef} type="text" className="search-input" placeholder="Número (ej: 0234), nombre o teléfono..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={handleKey}
+              autoComplete="off" autoCorrect="off" spellCheck={false} name="buscar-boleta-vendedor"
               style={{ flex: 1, background: "#1B1854", border: "1.5px solid #2D2860", borderRadius: "14px", padding: "14px 18px", fontSize: "15px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500" }} />
             <button onClick={buscar} disabled={loading}
               style={{ background: loading ? "#2D2860" : "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "14px", padding: "14px 24px", color: loading ? "#9B93D9" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", minWidth: "100px" }}>
@@ -278,31 +278,26 @@ export default function VendedorPage() {
             </div>
             <div style={{ background: "#241F6B", borderRadius: "20px", padding: "24px", border: "1.5px solid #2D2860" }}>
               <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>DATOS DEL CLIENTE</p>
-              <input type="text" placeholder="Nombre completo" value={clientName} onChange={(e) => setClientName(e.target.value)}
+              <input type="text" placeholder="Nombre completo" value={clientName} onChange={(e) => setClientName(e.target.value)} autoComplete="off"
                 style={{ width: "100%", background: "#1B1854", border: "1.5px solid #2D2860", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
-              <input type="text" placeholder="Teléfono celular" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)}
+              <input type="text" placeholder="Teléfono celular (opcional)" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} autoComplete="off"
                 style={{ width: "100%", background: "#1B1854", border: "1.5px solid #2D2860", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
-              <input type="text" placeholder="Ciudad" value={clientCity} onChange={(e) => setClientCity(e.target.value)}
+              <input type="text" placeholder="Ciudad" value={clientCity} onChange={(e) => setClientCity(e.target.value)} autoComplete="off"
                 style={{ width: "100%", background: "#1B1854", border: "1.5px solid #2D2860", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "16px" }} />
+              <input type="number" placeholder="Monto a abonar ($) — déjalo vacío para solo separar" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} autoComplete="off"
+                style={{ width: "100%", background: "#1B1854", border: "1.5px solid #8B93FF", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "8px" }} />
+              {abonoAmount ? (
+                <p style={{ color: "#9B93D9", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>
+                  {parseFloat(abonoAmount) >= TICKET_PRICE ? "Queda registrada como pagada completa" : `Resta por pagar: ${formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}`}
+                </p>
+              ) : (
+                <p style={{ color: "#9B93D9", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>Sin monto, queda solo separada</p>
+              )}
               {message && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <button onClick={() => handleAsignar("RESERVED")} disabled={saving}
-                  style={{ width: "100%", background: "#1B1854", border: "1.5px solid #2D2860", borderRadius: "12px", padding: "13px", color: "#9B93D9", fontSize: "14px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit" }}>
-                  Separar sin abono
-                </button>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <input type="number" placeholder="Monto abono ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)}
-                    style={{ flex: 1, background: "#1B1854", border: "1.5px solid #8B93FF", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500" }} />
-                  <button onClick={() => handleAsignar("PARTIAL")} disabled={saving}
-                    style={{ background: "rgba(139,147,255,0.15)", border: "1.5px solid rgba(139,147,255,0.35)", borderRadius: "12px", padding: "12px 16px", color: "#B9C0FF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
-                    + Abonar
-                  </button>
-                </div>
-                <button onClick={() => handleAsignar("PAID")} disabled={saving}
-                  style={{ width: "100%", background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
-                  {saving ? "Guardando..." : `✓ Pagada completa — ${formatPeso(TICKET_PRICE)}`}
-                </button>
-              </div>
+              <button onClick={handleRegistrar} disabled={saving}
+                style={{ width: "100%", background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                {saving ? "Guardando..." : "Registrar"}
+              </button>
             </div>
           </div>
         )}
@@ -395,7 +390,7 @@ export default function VendedorPage() {
                   <option value="NEQUI">Nequi</option>
                   <option value="DAVIPLATA">Daviplata</option>
                 </select>
-                <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)}
+                <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} autoComplete="off"
                   style={{ width: "100%", background: "#1B1854", border: "1.5px solid #8B93FF", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: abonoAmount ? "6px" : "14px" }} />
                 {abonoAmount && (
                   <p style={{ color: "#9B93D9", fontSize: "13px", marginBottom: "14px", fontWeight: "500" }}>
@@ -403,16 +398,10 @@ export default function VendedorPage() {
                   </p>
                 )}
                 {message && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button onClick={handleAbonar} disabled={saving}
-                    style={{ flex: 1, background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
-                    {saving ? "Guardando..." : "Registrar abono"}
-                  </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving}
-                    style={{ background: "rgba(5,150,105,0.15)", border: "1.5px solid rgba(110,231,183,0.3)", borderRadius: "12px", padding: "13px 16px", color: "#6EE7B7", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
-                    ✓ Completa
-                  </button>
-                </div>
+                <button onClick={handleAbonar} disabled={saving}
+                  style={{ width: "100%", background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                  {saving ? "Guardando..." : "Registrar"}
+                </button>
               </div>
             )}
           </div>
