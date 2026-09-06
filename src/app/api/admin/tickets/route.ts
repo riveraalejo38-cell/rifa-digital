@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Esta ruta siempre debe leer el estado actual de la base de datos: nunca se
+// debe servir una respuesta cacheada (ni por Next.js ni por el navegador),
+// porque eso puede mostrar el nombre de un cliente que ya cambió (ver bug
+// reportado: la boleta mostraba un nombre viejo en el panel de vendedor).
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE_HEADERS = { "Cache-Control": "no-store, no-cache, must-revalidate" };
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get("search") || "";
+    const search = (searchParams.get("search") || "").trim();
     const status = searchParams.get("status") || "";
 
     const raffle = await prisma.raffle.findFirst({
@@ -12,24 +21,28 @@ export async function GET(request: Request) {
     });
 
     if (!raffle) {
-      return NextResponse.json({ success: false, error: "No hay rifa activa" });
+      return NextResponse.json({ success: false, error: "No hay rifa activa" }, { headers: NO_STORE_HEADERS });
     }
 
     const isNumeric = /^\d+$/.test(search);
-    // El número de boleta es un entero de 32 bits en la base de datos: un teléfono
-    // completo (10 dígitos) desborda ese rango y hace fallar la consulta si se
-    // intenta comparar contra `number`. Solo se busca por número cuando el valor
-    // cabe en un int de 32 bits (los números de boleta reales son de máximo 4-5 cifras).
-    const numericValue = isNumeric ? Number(search) : null;
-    const numberSearchable = isNumeric && numericValue !== null && numericValue <= 2147483647;
 
     const orConditions: any[] = [];
     if (search) {
-      if (numberSearchable) {
-        orConditions.push({ number: { equals: numericValue } });
+      // Los tres modos de búsqueda son EXCLUYENTES entre sí para que buscar
+      // una boleta puntual nunca "arrastre" boletas de otros clientes:
+      //  - 1 a 4 dígitos (con o sin ceros a la izquierda, ej "0001"): se
+      //    interpreta como número de boleta y se exige coincidencia EXACTA.
+      //    No se agregan alternativas por nombre/teléfono.
+      //  - más de 4 dígitos: se interpreta como teléfono, y se busca
+      //    ÚNICAMENTE por teléfono.
+      //  - cualquier otro texto: se busca ÚNICAMENTE por nombre.
+      if (isNumeric && search.length <= 4) {
+        orConditions.push({ number: { equals: parseInt(search, 10) } });
+      } else if (isNumeric) {
+        orConditions.push({ client: { phone: { contains: search } } });
+      } else {
+        orConditions.push({ client: { name: { contains: search, mode: "insensitive" } } });
       }
-      orConditions.push({ client: { name: { contains: search, mode: "insensitive" } } });
-      orConditions.push({ client: { phone: { contains: search } } });
     }
 
     const tickets = await prisma.ticket.findMany({
@@ -56,9 +69,9 @@ export async function GET(request: Request) {
       };
     });
 
-    return NextResponse.json({ success: true, tickets: enriched });
+    return NextResponse.json({ success: true, tickets: enriched }, { headers: NO_STORE_HEADERS });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ success: false, error: "Error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Error" }, { status: 500, headers: NO_STORE_HEADERS });
   }
 }
