@@ -17,7 +17,6 @@ export default function AdminPage() {
   const [clientCity, setClientCity] = useState("");
   const [abonoAmount, setAbonoAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [step, setStep] = useState<"form" | "abono">("form");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState("");
@@ -135,28 +134,32 @@ export default function AdminPage() {
     setAbonoAmount("");
     setPaymentMethod("");
     setMessage("");
-    setStep(ticket.client ? "abono" : "form");
     setShowModal(true);
   };
 
-  const handleAsignar = async (tipo: "RESERVED" | "PARTIAL" | "PAID") => {
-    if (!clientName) { setMessage("Ingresa el nombre del cliente"); return; }
-    if (tipo === "PARTIAL" && !abonoAmount) { setMessage("Ingresa el monto abonado"); return; }
+  const handleRegistrar = async () => {
+    if (!selectedTicket.client && !clientName) { setMessage("Ingresa el nombre del cliente"); return; }
     setSaving(true);
     try {
-      const resClient = await fetch("/api/admin/clientes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: clientName, phone: clientPhone, city: clientCity }),
-      });
-      const dataClient = await resClient.json();
-      if (!dataClient.success) { setMessage("Error al crear cliente"); setSaving(false); return; }
-      const yaAbonado = selectedTicket.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
-      const abono = tipo === "PAID" ? Math.max(0, TICKET_PRICE - yaAbonado) : tipo === "PARTIAL" ? parseFloat(abonoAmount) || 0 : 0;
+      let clientId = selectedTicket.client?.id;
+      if (!clientId) {
+        const resClient = await fetch("/api/admin/clientes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: clientName, phone: clientPhone, city: clientCity }),
+        });
+        const dataClient = await resClient.json();
+        if (!dataClient.success) { setMessage("Error al crear cliente"); setSaving(false); return; }
+        clientId = dataClient.client.id;
+      }
+      // El monto queda a criterio de quien registra: vacío o 0 = solo separar,
+      // un valor menor al total = abono, el total completo = pagada. El backend
+      // calcula el estado final (RESERVED/PARTIAL/PAID) sobre el acumulado.
+      const abono = parseFloat(abonoAmount) || 0;
       const resTicket = await fetch("/api/admin/asignar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: selectedTicket.id, clientId: dataClient.client.id, amountPaid: abono }),
+        body: JSON.stringify({ ticketId: selectedTicket.id, clientId, amountPaid: abono }),
       });
       const dataTicket = await resTicket.json();
       if (dataTicket.success) {
@@ -379,6 +382,10 @@ export default function AdminPage() {
               placeholder="🔍 Buscar por número, nombre o teléfono..."
               value={search}
               onChange={handleSearch}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              name="buscar-boleta-admin"
               style={{ flex: 1, minWidth: "264px", background: "#241F6B", border: "1px solid rgba(139,147,255,0.16)", borderRadius: "14px", padding: "16px 22px", color: "#ECEAFB", fontSize: "17px", outline: "none", fontFamily: "inherit", fontWeight: "500" }}
             />
             <div style={{ display: "flex", gap: "7px", flexWrap: "wrap", alignItems: "center" }}>
@@ -537,36 +544,25 @@ export default function AdminPage() {
               <button onClick={() => setShowModal(false)} style={{ background: "#1B1854", border: "1px solid #2D2860", borderRadius: "12px", padding: "10px 14px", color: "#8A84C4", cursor: "pointer", fontSize: "19px" }}>✕</button>
             </div>
 
-            {step === "form" && (
+            {!selectedTicket.client && (
               <>
-                {["Nombre del cliente", "Teléfono", "Ciudad"].map((placeholder, idx) => (
+                {["Nombre del cliente", "Teléfono (opcional)", "Ciudad"].map((placeholder, idx) => (
                   <input key={idx} type="text" placeholder={placeholder}
                     value={idx === 0 ? clientName : idx === 1 ? clientPhone : clientCity}
                     onChange={(e) => idx === 0 ? setClientName(e.target.value) : idx === 1 ? setClientPhone(e.target.value) : setClientCity(e.target.value)}
+                    autoComplete="off"
                     style={{ width: "100%", background: "#1B1854", border: "1px solid #2D2860", borderRadius: "14px", padding: "14px 17px", color: "#ECEAFB", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "12px", fontFamily: "inherit", fontWeight: "500" }}
                   />
                 ))}
-                {message && <p style={{ color: "#F87171", fontSize: "16px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <button onClick={() => handleAsignar("RESERVED")} disabled={saving} style={{ background: "#1B1854", border: "1px solid #2D2860", borderRadius: "14px", padding: "17px", color: "#8A84C4", fontWeight: "600", cursor: "pointer", fontSize: "16px", fontFamily: "inherit" }}>
-                    Solo separar
-                  </button>
-                  <button onClick={() => setStep("abono")} disabled={saving} style={{ background: "rgba(139,147,255,0.1)", border: "1px solid rgba(139,147,255,0.3)", borderRadius: "14px", padding: "17px", color: "#8B93FF", fontWeight: "700", cursor: "pointer", fontSize: "16px", fontFamily: "inherit" }}>
-                    + Registrar abono
-                  </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ gridColumn: "1 / -1", background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "14px", padding: "17px", color: "#15113F", fontWeight: "800", cursor: "pointer", fontSize: "18px", fontFamily: "inherit" }}>
-                    ✓ Pagada completa — {formatPeso(TICKET_PRICE)}
-                  </button>
-                </div>
               </>
             )}
 
-            {step === "abono" && (
+            {selectedTicket.client && (
               <>
                 <div style={{ background: "#1B1854", borderRadius: "14px", padding: "17px", marginBottom: "19px", border: "1px solid #2D2860" }}>
                   <p style={{ margin: 0, fontSize: "13px", color: "#5F5A8E", fontWeight: "600", letterSpacing: "0.5px" }}>CLIENTE</p>
                   <p style={{ margin: "5px 0 0", fontSize: "19px", fontWeight: "700", color: "#ECEAFB" }}>{clientName}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: "16px", color: "#8A84C4" }}>{clientPhone} {clientCity ? `· ${clientCity}` : ""}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: "16px", color: "#8A84C4" }}>{clientPhone || "Sin teléfono"} {clientCity ? `· ${clientCity}` : ""}</p>
                 </div>
 
                 {selectedTicket.payments && selectedTicket.payments.filter((p: any) => Number(p.amount) > 0).length > 0 && (
@@ -597,38 +593,37 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
-
-                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                  style={{ width: "100%", background: "#1B1854", border: "1px solid #2D2860", borderRadius: "14px", padding: "14px 17px", color: "#ECEAFB", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "12px", fontFamily: "inherit" }}>
-                  <option value="">Medio de pago</option>
-                  <option value="EFECTIVO">Efectivo</option>
-                  <option value="TRANSFERENCIA">Transferencia bancaria</option>
-                  <option value="NEQUI">Nequi</option>
-                  <option value="DAVIPLATA">Daviplata</option>
-                </select>
-                <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount}
-                  onChange={(e) => setAbonoAmount(e.target.value)}
-                  style={{ width: "100%", background: "#1B1854", border: "1px solid rgba(139,147,255,0.4)", borderRadius: "14px", padding: "14px 17px", color: "#ECEAFB", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
-                />
-                {abonoAmount && (
-                  <p style={{ color: "#5F5A8E", fontSize: "16px", marginBottom: "19px", fontWeight: "500" }}>
-                    Resta por pagar: {formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}
-                  </p>
-                )}
-                {message && <p style={{ color: "#F87171", fontSize: "16px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
-                <div style={{ display: "flex", gap: "10px" }}>
-                  {!selectedTicket.client && (
-                    <button onClick={() => setStep("form")} style={{ background: "#1B1854", border: "1px solid #2D2860", borderRadius: "14px", padding: "17px 24px", color: "#8A84C4", cursor: "pointer", fontWeight: "600", fontFamily: "inherit", fontSize: "16px" }}>← Volver</button>
-                  )}
-                  <button onClick={() => handleAsignar("PARTIAL")} disabled={saving} style={{ flex: 1, background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "14px", padding: "17px", color: "#15113F", fontWeight: "800", cursor: "pointer", fontSize: "18px", fontFamily: "inherit" }}>
-                    {saving ? "Guardando..." : "Registrar abono"}
-                  </button>
-                  <button onClick={() => handleAsignar("PAID")} disabled={saving} style={{ background: "rgba(5,150,105,0.15)", border: "1px solid rgba(5,150,105,0.3)", borderRadius: "14px", padding: "17px 19px", color: "#6EE7B7", fontWeight: "700", cursor: "pointer", fontSize: "16px", fontFamily: "inherit" }}>
-                    ✓ Completa
-                  </button>
-                </div>
               </>
             )}
+
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
+              style={{ width: "100%", background: "#1B1854", border: "1px solid #2D2860", borderRadius: "14px", padding: "14px 17px", color: "#ECEAFB", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "12px", fontFamily: "inherit" }}>
+              <option value="">Medio de pago</option>
+              <option value="EFECTIVO">Efectivo</option>
+              <option value="TRANSFERENCIA">Transferencia bancaria</option>
+              <option value="NEQUI">Nequi</option>
+              <option value="DAVIPLATA">Daviplata</option>
+            </select>
+            <input type="number" placeholder="Monto a abonar ($) — déjalo vacío para solo separar" value={abonoAmount}
+              onChange={(e) => setAbonoAmount(e.target.value)}
+              autoComplete="off"
+              style={{ width: "100%", background: "#1B1854", border: "1px solid rgba(139,147,255,0.4)", borderRadius: "14px", padding: "14px 17px", color: "#ECEAFB", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
+            />
+            {abonoAmount ? (
+              <p style={{ color: "#5F5A8E", fontSize: "16px", marginBottom: "19px", fontWeight: "500" }}>
+                {parseFloat(abonoAmount) >= TICKET_PRICE
+                  ? "Queda registrada como pagada completa"
+                  : `Resta por pagar: ${formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}`}
+              </p>
+            ) : (
+              <p style={{ color: "#5F5A8E", fontSize: "16px", marginBottom: "19px", fontWeight: "500" }}>
+                Sin monto, queda solo separada
+              </p>
+            )}
+            {message && <p style={{ color: "#F87171", fontSize: "16px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
+            <button onClick={handleRegistrar} disabled={saving} style={{ width: "100%", background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "14px", padding: "17px", color: "#15113F", fontWeight: "800", cursor: "pointer", fontSize: "18px", fontFamily: "inherit" }}>
+              {saving ? "Guardando..." : "Registrar"}
+            </button>
           </div>
         </div>
       )}
