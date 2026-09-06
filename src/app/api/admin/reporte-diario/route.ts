@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
+const NO_STORE_HEADERS = { "Cache-Control": "no-store, no-cache, must-revalidate" };
+
 const TICKET_PRICE = 80000;
 
 // Reporte de movimientos de un día específico: boletas separadas sin abono,
@@ -18,7 +20,7 @@ export async function GET(request: Request) {
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json(
         { success: false, error: "No autorizado" },
-        { status: 401 }
+        { status: 401, headers: NO_STORE_HEADERS }
       );
     }
 
@@ -28,13 +30,13 @@ export async function GET(request: Request) {
     if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
       return NextResponse.json(
         { success: false, error: "Parámetro 'date' inválido (usa YYYY-MM-DD)" },
-        { status: 400 }
+        { status: 400, headers: NO_STORE_HEADERS }
       );
     }
 
     const raffle = await prisma.raffle.findFirst({ where: { isActive: true } });
     if (!raffle) {
-      return NextResponse.json({ success: false, error: "No hay rifa activa" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "No hay rifa activa" }, { status: 400, headers: NO_STORE_HEADERS });
     }
 
     // Colombia no tiene horario de verano: offset fijo -05:00.
@@ -69,7 +71,7 @@ export async function GET(request: Request) {
           totalMovimientos: 0,
         },
         movimientos: [],
-      });
+      }, { headers: NO_STORE_HEADERS });
     }
 
     const ticketIds = [...new Set(pagosDelDia.map((p) => p.ticketId))];
@@ -151,12 +153,12 @@ export async function GET(request: Request) {
         totalMovimientos: movimientos.length,
       },
       movimientos,
-    });
+    }, { headers: NO_STORE_HEADERS });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
       { success: false, error: "Error al generar el reporte" },
-      { status: 500 }
+      { status: 500, headers: NO_STORE_HEADERS }
     );
   }
 }
