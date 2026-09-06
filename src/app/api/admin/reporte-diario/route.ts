@@ -39,9 +39,12 @@ export async function GET(request: Request) {
     const inicio = new Date(`${dateParam}T00:00:00-05:00`);
     const fin = new Date(`${dateParam}T23:59:59.999-05:00`);
 
+    // Solo boletas que siguen ocupadas: si una boleta se liberó después de
+    // registrar el movimiento, ese movimiento ya no debe aparecer en el
+    // reporte (al liberar, la boleta queda totalmente limpia, sin rastro).
     const pagosDelDia = await prisma.payment.findMany({
       where: {
-        ticket: { raffleId: raffle.id },
+        ticket: { raffleId: raffle.id, status: { not: "AVAILABLE" } },
         createdAt: { gte: inicio, lte: fin },
       },
       include: {
