@@ -1,6 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
+// Ver nota en src/app/vendedor/page.tsx: esta ruta tampoco se debe cachear
+// en el borde/CDN, para que siempre se sirva el HTML/JS de la versión
+// desplegada más reciente y nunca datos de una versión vieja.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function AdminPage() {
   const [stats, setStats] = useState({ total: 0, available: 0, reserved: 0, partial: 0, paid: 0, recaudado: 0 });
   const [tickets, setTickets] = useState<any[]>([]);
