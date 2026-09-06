@@ -140,7 +140,7 @@ export default function AdminPage() {
   };
 
   const handleAsignar = async (tipo: "RESERVED" | "PARTIAL" | "PAID") => {
-    if (!clientName || !clientPhone) { setMessage("Nombre y teléfono son obligatorios"); return; }
+    if (!clientName) { setMessage("Ingresa el nombre del cliente"); return; }
     if (tipo === "PARTIAL" && !abonoAmount) { setMessage("Ingresa el monto abonado"); return; }
     setSaving(true);
     try {
