@@ -31,6 +31,7 @@ export default function AdminClient() {
   const [reporteFecha, setReporteFecha] = useState(hoyBogota());
   const [reporte, setReporte] = useState<any>(null);
   const [reporteLoading, setReporteLoading] = useState(false);
+  const [reporteError, setReporteError] = useState("");
   const [reclamosPendientes, setReclamosPendientes] = useState(0);
 
   const TICKET_PRICE = 80000;
@@ -61,12 +62,24 @@ export default function AdminClient() {
   const fetchReporte = async (fecha: string) => {
     if (!fecha) return;
     setReporteLoading(true);
+    setReporteError("");
     try {
       const res = await fetch(`/api/admin/reporte-diario?date=${fecha}`, { cache: "no-store" });
       const data = await res.json();
-      if (data.success) setReporte(data);
-      else setReporte(null);
-    } catch { setReporte(null); }
+      if (data.success) {
+        setReporte(data);
+      } else {
+        // Antes esto se quedaba en silencio (el cuadro se veía vacío, sin
+        // ningún aviso) cuando el servidor respondía con un error — por
+        // ejemplo "No autorizado" si la sesión no es de administrador. Ahora
+        // se muestra el motivo real para poder diagnosticarlo.
+        setReporte(null);
+        setReporteError(data.error ? `${data.error} (código ${res.status})` : `Error del servidor (código ${res.status})`);
+      }
+    } catch (e: any) {
+      setReporte(null);
+      setReporteError("No se pudo conectar con el servidor: " + (e?.message || "error desconocido"));
+    }
     setReporteLoading(false);
   };
 
@@ -348,6 +361,8 @@ export default function AdminClient() {
 
             {reporteLoading ? (
               <p style={{ margin: "14px 0 0", color: "#8A84C4", fontSize: "16px" }}>Cargando reporte...</p>
+            ) : reporteError ? (
+              <p style={{ margin: "14px 0 0", color: "#F87171", fontSize: "15px", fontWeight: "600" }}>⚠ {reporteError}</p>
             ) : reporte && (
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 17px", marginTop: "17px" }}>
