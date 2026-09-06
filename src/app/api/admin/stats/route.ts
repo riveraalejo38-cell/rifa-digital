@@ -17,8 +17,11 @@ export async function GET() {
       prisma.ticket.count({ where: { raffleId: raffle.id, status: "RESERVED" } }),
       prisma.ticket.count({ where: { raffleId: raffle.id, status: "PARTIAL" } }),
       prisma.ticket.count({ where: { raffleId: raffle.id, status: "PAID" } }),
+      // Solo se cuentan abonos de boletas que siguen ocupadas: si una boleta
+      // se liberó, su historial de pagos ya no debe sumar en el recaudo total
+      // (una boleta liberada queda totalmente limpia, sin rastro).
       prisma.payment.aggregate({
-        where: { ticket: { raffleId: raffle.id }, status: "CONFIRMED" },
+        where: { ticket: { raffleId: raffle.id, status: { not: "AVAILABLE" } }, status: "CONFIRMED" },
         _sum: { amount: true },
       }),
     ]);
