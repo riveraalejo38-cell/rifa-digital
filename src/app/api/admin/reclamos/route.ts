@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 // Lista los reclamos de boletas para que el administrador los revise.
 // Por defecto solo trae los pendientes; con ?status=ALL trae todos (para
 // poder ver el historial de reclamos ya aprobados/rechazados).
