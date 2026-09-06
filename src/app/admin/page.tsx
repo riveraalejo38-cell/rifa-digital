@@ -22,6 +22,10 @@ export default function AdminPage() {
   const [copied, setCopied] = useState("");
   const timerRef = useRef<any>(null);
   const vendedorMenuRef = useRef<any>(null);
+  // Igual que en el panel de vendedor: evita que una respuesta vieja (de una
+  // búsqueda anterior que tardó más en responder) sobreescriba el resultado
+  // de la búsqueda más reciente.
+  const fetchSeq = useRef(0);
 
   const hoyBogota = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
   const [reporteFecha, setReporteFecha] = useState(hoyBogota());
@@ -78,22 +82,28 @@ export default function AdminPage() {
   };
 
   const fetchTickets = async (q = "", f = filtro, vend = vendedorFiltro) => {
+    const mySeq = ++fetchSeq.current;
     setLoading(true);
-    const searchNum = q.startsWith("0") ? parseInt(q).toString() : q;
+    // Se manda el término de búsqueda tal cual (sin quitar ceros a la
+    // izquierda): el backend distingue boleta de teléfono por la cantidad de
+    // dígitos, así "0001" no se confunde con boletas de otros clientes.
+    const searchTerm = encodeURIComponent(q.trim());
     let result: any[] = [];
     if (f === "SIN_DISPONIBLES") {
       const statuses = ["RESERVED", "PARTIAL", "PAID"];
       const responses = await Promise.all(
-        statuses.map(s => fetch(`/api/admin/tickets?search=${searchNum}&status=${s}`).then(r => r.json()))
+        statuses.map(s => fetch(`/api/admin/tickets?search=${searchTerm}&status=${s}`, { cache: "no-store" }).then(r => r.json()))
       );
+      if (mySeq !== fetchSeq.current) return; // llegó una búsqueda más nueva mientras esperábamos
       for (const data of responses) {
         if (data.success) result = [...result, ...data.tickets];
       }
       result.sort((a, b) => a.number - b.number);
     } else {
-      const url = `/api/admin/tickets?search=${searchNum}&status=${f}`;
-      const res = await fetch(url);
+      const url = `/api/admin/tickets?search=${searchTerm}&status=${f}`;
+      const res = await fetch(url, { cache: "no-store" });
       const data = await res.json();
+      if (mySeq !== fetchSeq.current) return;
       if (data.success) result = data.tickets;
     }
     if (vend) {
