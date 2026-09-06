@@ -13,15 +13,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const ticket = await prisma.ticket.update({
-      where: { id: ticketId },
-      data: {
-        clientId: null,
-        status: "AVAILABLE",
-        reservedAt: null,
-        paidAt: null,
-        amountPaid: null,
-      },
+    // Liberar una boleta debe dejarla totalmente limpia: se borra el historial
+    // de abonos (Payment) asociado, si no, al volver a registrarla el nuevo
+    // abono se suma sobre el saldo viejo (ej: $20.000 previos + $30.000 nuevos
+    // aparecía como $50.000 abonados en una boleta que se acababa de asignar
+    // a otro cliente distinto).
+    const ticket = await prisma.$transaction(async (tx) => {
+      await tx.payment.deleteMany({ where: { ticketId } });
+      return tx.ticket.update({
+        where: { id: ticketId },
+        data: {
+          clientId: null,
+          status: "AVAILABLE",
+          reservedAt: null,
+          paidAt: null,
+          amountPaid: null,
+          assignedById: null,
+          assignedByName: null,
+        },
+      });
     });
 
     return NextResponse.json({ success: true, ticket });
