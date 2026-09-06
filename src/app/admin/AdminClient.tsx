@@ -373,6 +373,7 @@ export default function AdminClient() {
                     { label: "Pagos completos", value: reporte.resumen.pagosCompletos },
                     { label: "Monto recibido", value: formatPeso(reporte.resumen.montoAbonado) },
                     { label: "Movimientos", value: reporte.resumen.totalMovimientos },
+                    { label: "Liberadas", value: reporte.resumen.boletasLiberadas },
                   ].map((s) => (
                     <div key={s.label}>
                       <p style={{ margin: 0, fontSize: "12px", color: "#8A84C4", fontWeight: "600", letterSpacing: "0.3px", textTransform: "uppercase" }}>{s.label}</p>
@@ -403,6 +404,27 @@ export default function AdminClient() {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {reporte.liberadas && reporte.liberadas.length > 0 && (
+                  <div style={{ borderTop: "1px solid rgba(139,147,255,0.16)", marginTop: "17px", paddingTop: "16px" }}>
+                    <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>BOLETAS LIBERADAS HOY</p>
+                    <div style={{ maxHeight: "220px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {reporte.liberadas.map((l: any, i: number) => {
+                        const hora = new Date(l.hora);
+                        const hh = String(hora.getHours()).padStart(2, "0");
+                        const mm = String(hora.getMinutes()).padStart(2, "0");
+                        return (
+                          <div key={l.id} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", paddingTop: i > 0 ? "8px" : 0, borderTop: i > 0 ? "1px solid rgba(139,147,255,0.16)" : "none" }}>
+                            <span style={{ color: "#8A84C4", fontFamily: "'DM Mono', monospace", fontSize: "14px" }}>{hh}:{mm}</span>
+                            <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: "700", color: "#FFFFFF", fontSize: "16px" }}>{String(l.ticketNumber).padStart(4, "0")}</span>
+                            <span style={{ background: "rgba(248,113,113,0.15)", color: "#F87171", padding: "4px 11px", borderRadius: "99px", fontSize: "12px", fontWeight: "700" }}>Liberada</span>
+                            <span style={{ marginLeft: "auto", color: "#8A84C4", fontSize: "13px", fontWeight: "600" }}>por {l.liberadoPor}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </>
