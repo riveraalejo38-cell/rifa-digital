@@ -40,7 +40,7 @@ export default function AdminClient() {
     fetchTickets("", "SIN_DISPONIBLES");
     fetchVendedores();
     fetchReporte(hoyBogota());
-    fetch("/api/admin/reclamos?status=PENDING").then((r) => r.json()).then((data) => {
+    fetch("/api/admin/reclamos?status=PENDING", { cache: "no-store" }).then((r) => r.json()).then((data) => {
       if (data.success) setReclamosPendientes(data.claims.length);
     });
     const handleClick = (e: MouseEvent) => {
@@ -53,7 +53,7 @@ export default function AdminClient() {
   }, []);
 
   const fetchStats = async () => {
-    const res = await fetch("/api/admin/stats");
+    const res = await fetch("/api/admin/stats", { cache: "no-store" });
     const data = await res.json();
     if (data.success) setStats(data.stats);
   };
@@ -62,7 +62,7 @@ export default function AdminClient() {
     if (!fecha) return;
     setReporteLoading(true);
     try {
-      const res = await fetch(`/api/admin/reporte-diario?date=${fecha}`);
+      const res = await fetch(`/api/admin/reporte-diario?date=${fecha}`, { cache: "no-store" });
       const data = await res.json();
       if (data.success) setReporte(data);
       else setReporte(null);
@@ -76,7 +76,7 @@ export default function AdminClient() {
   };
 
   const fetchVendedores = async () => {
-    const res = await fetch("/api/admin/vendedores");
+    const res = await fetch("/api/admin/vendedores", { cache: "no-store" });
     const data = await res.json();
     if (data.success) setVendedores(data.vendedores);
   };
