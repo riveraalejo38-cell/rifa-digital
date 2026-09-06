@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function VendedorPage() {
   const [search, setSearch] = useState("");
@@ -16,6 +16,19 @@ export default function VendedorPage() {
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [me, setMe] = useState<any>(null);
+  const [showReclamoModal, setShowReclamoModal] = useState(false);
+  const [reclamoReason, setReclamoReason] = useState("");
+  const [reclamoImage, setReclamoImage] = useState<string | null>(null);
+  const [reclamoSaving, setReclamoSaving] = useState(false);
+  const [reclamoMessage, setReclamoMessage] = useState("");
+  const [reclamoEnviado, setReclamoEnviado] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me").then((r) => r.json()).then((data) => {
+      if (data.success) setMe(data.user);
+    });
+  }, []);
 
   const TICKET_PRICE = 80000;
 
@@ -34,6 +47,11 @@ export default function VendedorPage() {
     setClientCity("");
     setAbonoAmount("");
     setPaymentMethod("");
+    setShowReclamoModal(false);
+    setReclamoReason("");
+    setReclamoImage(null);
+    setReclamoMessage("");
+    setReclamoEnviado(false);
 
     const isNum = /^\d+$/.test(search.trim());
     const query = isNum ? parseInt(search.trim()).toString() : search.trim();
@@ -65,6 +83,11 @@ export default function VendedorPage() {
     setClientCity(t.client?.city || "");
     setAbonoAmount("");
     setPaymentMethod("");
+    setShowReclamoModal(false);
+    setReclamoReason("");
+    setReclamoImage(null);
+    setReclamoMessage("");
+    setReclamoEnviado(false);
   };
 
   const refrescarTicket = async () => {
@@ -162,6 +185,66 @@ export default function VendedorPage() {
     if (data.success) { setTicket(null); setSearch(""); setResultados([]); }
   };
 
+  // Reduce la foto de evidencia a un tamaño manejable antes de convertirla a
+  // base64 (una foto de celular sin comprimir pesa varios MB).
+  const comprimirImagen = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxAncho = 900;
+          const escala = Math.min(1, maxAncho / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width * escala;
+          canvas.height = img.height * escala;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) { reject("No se pudo procesar la imagen"); return; }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
+        };
+        img.onerror = () => reject("No se pudo leer la imagen");
+        img.src = reader.result as string;
+      };
+      reader.onerror = () => reject("No se pudo leer el archivo");
+      reader.readAsDataURL(file);
+    });
+
+  const handleReclamoImagen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await comprimirImagen(file);
+      setReclamoImage(dataUrl);
+    } catch {
+      setReclamoMessage("No se pudo procesar la foto, intenta con otra");
+    }
+  };
+
+  const enviarReclamo = async () => {
+    if (!reclamoReason.trim()) { setReclamoMessage("Cuéntanos por qué es tuya esta boleta"); return; }
+    if (!reclamoImage) { setReclamoMessage("Adjunta una foto como evidencia"); return; }
+    setReclamoSaving(true);
+    setReclamoMessage("");
+    try {
+      const res = await fetch("/api/vendedor/reclamar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketId: ticket.id, reason: reclamoReason, evidenceImage: reclamoImage }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReclamoEnviado(true);
+        setShowReclamoModal(false);
+      } else {
+        setReclamoMessage(data.error || "Error al enviar el reclamo");
+      }
+    } catch {
+      setReclamoMessage("Error de conexión");
+    }
+    setReclamoSaving(false);
+  };
+
   const copiarLink = () => {
     const link = `${window.location.origin}/boleta/${ticket.token}`;
     navigator.clipboard.writeText(link);
@@ -174,6 +257,8 @@ export default function VendedorPage() {
 
   const isAvailable = ticket?.status === "AVAILABLE";
   const isTaken = ticket && !isAvailable;
+  const esMia = !ticket?.assignedById || !me || ticket.assignedById === me.id || me.role === "ADMIN";
+  const tieneReclamoPendiente = ticket?.claims && ticket.claims.length > 0;
 
   return (
     <div style={{ minHeight: "100vh", background: "#15113F", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
@@ -321,9 +406,11 @@ export default function VendedorPage() {
                   <button onClick={copiarLink} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
                     {copied ? "✓ Copiado" : "🔗 Link"}
                   </button>
-                  <button onClick={liberarBoleta} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
-                    Liberar
-                  </button>
+                  {esMia && (
+                    <button onClick={liberarBoleta} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
+                      Liberar
+                    </button>
+                  )}
                 </div>
               </div>
               <span style={{ background: "rgba(255,255,255,0.2)", color: "#FFFFFF", borderRadius: "999px", padding: "5px 14px", fontSize: "12px", fontWeight: "700" }}>
@@ -379,7 +466,7 @@ export default function VendedorPage() {
               )}
             </div>
 
-            {ticket.status !== "PAID" && (
+            {ticket.status !== "PAID" && esMia && (
               <div style={{ background: "#241F6B", borderRadius: "20px", padding: "24px", border: "1.5px solid #2D2860" }}>
                 <p style={{ margin: "0 0 14px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>REGISTRAR NUEVO ABONO</p>
                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
@@ -402,6 +489,55 @@ export default function VendedorPage() {
                   style={{ width: "100%", background: "linear-gradient(135deg, #8B93FF, #5B62FF)", border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
                   {saving ? "Guardando..." : "Registrar"}
                 </button>
+              </div>
+            )}
+
+            {/* Boleta de otro vendedor: no se puede abonar ni liberar, solo reclamar */}
+            {!esMia && (
+              <div style={{ background: "#2A1B3D", borderRadius: "20px", padding: "24px", border: "1.5px solid rgba(248,113,113,0.4)" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: reclamoEnviado || tieneReclamoPendiente ? 0 : "16px" }}>
+                  <span style={{ fontSize: "22px" }}>🔒</span>
+                  <div>
+                    <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#F87171" }}>Esta boleta no te pertenece</p>
+                    <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#D8B4D8", fontWeight: "500" }}>
+                      Fue vendida por <strong>{ticket.assignedByName || "otro vendedor"}</strong>. No puedes abonarle ni liberarla. Si es tuya, reclámala y envía una evidencia.
+                    </p>
+                  </div>
+                </div>
+
+                {reclamoEnviado ? (
+                  <p style={{ margin: "12px 0 0", fontSize: "13px", color: "#FCD34D", fontWeight: "600" }}>✓ Reclamo enviado. El administrador lo va a revisar.</p>
+                ) : tieneReclamoPendiente ? (
+                  <p style={{ margin: "12px 0 0", fontSize: "13px", color: "#FCD34D", fontWeight: "600" }}>⏳ Esta boleta ya tiene un reclamo en revisión.</p>
+                ) : !showReclamoModal ? (
+                  <button onClick={() => setShowReclamoModal(true)}
+                    style={{ width: "100%", background: "rgba(248,113,113,0.15)", border: "1.5px solid #F87171", borderRadius: "12px", padding: "12px", color: "#F87171", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                    Reclamar esta boleta
+                  </button>
+                ) : (
+                  <div style={{ marginTop: "16px" }}>
+                    <textarea placeholder="Explica por qué es tuya (ej: nombre y teléfono del cliente, cuándo la vendiste...)" value={reclamoReason} onChange={(e) => setReclamoReason(e.target.value)} rows={3}
+                      style={{ width: "100%", background: "#1B1854", border: "1.5px solid #2D2860", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px", resize: "vertical" }} />
+                    <label style={{ display: "block", background: "#1B1854", border: "1.5px dashed #2D2860", borderRadius: "12px", padding: "12px 16px", fontSize: "13px", color: "#9B93D9", fontWeight: "600", marginBottom: "10px", cursor: "pointer", textAlign: "center" }}>
+                      {reclamoImage ? "✓ Foto adjuntada — toca para cambiarla" : "📷 Adjuntar foto de evidencia"}
+                      <input type="file" accept="image/*" onChange={handleReclamoImagen} style={{ display: "none" }} />
+                    </label>
+                    {reclamoImage && (
+                      <img src={reclamoImage} alt="Evidencia" style={{ width: "100%", maxHeight: "180px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }} />
+                    )}
+                    {reclamoMessage && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "10px", fontWeight: "500" }}>⚠ {reclamoMessage}</p>}
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button onClick={() => setShowReclamoModal(false)}
+                        style={{ flex: 1, background: "transparent", border: "1.5px solid #2D2860", borderRadius: "12px", padding: "12px", color: "#9B93D9", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                        Cancelar
+                      </button>
+                      <button onClick={enviarReclamo} disabled={reclamoSaving}
+                        style={{ flex: 2, background: "linear-gradient(135deg, #F87171, #DC2626)", border: "none", borderRadius: "12px", padding: "12px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                        {reclamoSaving ? "Enviando..." : "Enviar reclamo"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
