@@ -261,7 +261,12 @@ export default function AdminClient() {
   const metaPct = stats.total ? (stats.paid / stats.total) * 100 : 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0B1F17", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(180deg, rgba(11,31,23,0.55) 0%, rgba(11,31,23,0.88) 70%, #0B1F17 100%), url('/premios/hero-grupo.jpg')",
+      backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "no-repeat",
+      fontFamily: "'DM Sans', 'Segoe UI', sans-serif", position: "relative", overflow: "hidden",
+    }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
         * { box-sizing: border-box; }
