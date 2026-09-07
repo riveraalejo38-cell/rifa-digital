@@ -10,12 +10,15 @@ const NO_STORE_HEADERS = { "Cache-Control": "no-store, no-cache, must-revalidate
 // por un vendedor. Regla explícita del dueño del negocio.
 const MAX_BOLETAS_POR_CLIENTE = 4;
 
-// Ruta PÚBLICA (sin sesión): permite que un visitante reserve/abone una
-// boleta él mismo desde la página de compra, sin necesitar un vendedor.
+// Ruta PÚBLICA (sin sesión): permite que un visitante reserve una boleta él
+// mismo desde la página de compra, sin necesitar un vendedor. A propósito
+// SOLO reserva (nunca registra abono/pago aquí): el cliente separa el
+// número y después envía el comprobante por WhatsApp; el vendedor o admin
+// es quien registra el abono/pago ya confirmado en su panel.
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { number, name, phone, city, amountPaid } = body;
+    const { number, name, phone, city } = body;
 
     const nombre = typeof name === "string" ? name.trim() : "";
     const telefono = typeof phone === "string" ? phone.trim() : "";
@@ -41,10 +44,6 @@ export async function POST(request: Request) {
     }
 
     const ticketPrice = Number(raffle.ticketPrice);
-    const amount = Number(amountPaid) || 0;
-    if (amount < 0) {
-      return NextResponse.json({ success: false, error: "El monto no puede ser negativo" }, { status: 400, headers: NO_STORE_HEADERS });
-    }
 
     const ticket = await prisma.ticket.findFirst({ where: { raffleId: raffle.id, number } });
     if (!ticket) {
@@ -84,18 +83,16 @@ export async function POST(request: Request) {
         throw new Error("BOLETA_YA_NO_DISPONIBLE");
       }
 
-      let newStatus: "RESERVED" | "PARTIAL" | "PAID";
-      if (amount <= 0) newStatus = "RESERVED";
-      else if (amount >= ticketPrice) newStatus = "PAID";
-      else newStatus = "PARTIAL";
-
+      // Siempre RESERVED con monto 0: la página pública solo separa el
+      // número. El abono/pago se registra después, ya con el comprobante
+      // en mano, desde el panel de vendedor/admin.
       await tx.payment.create({
         data: {
           ticketId: ticket.id,
           clientId: client.id,
-          amount,
+          amount: 0,
           status: "CONFIRMED",
-          notes: amount > 0 ? "Abono registrado desde la página web" : "Boleta reservada desde la página web",
+          notes: "Boleta reservada desde la página web",
           createdByName: "Cliente (página web)",
         },
       });
@@ -104,10 +101,10 @@ export async function POST(request: Request) {
         where: { id: ticket.id },
         data: {
           clientId: client.id,
-          status: newStatus,
-          amountPaid: amount,
+          status: "RESERVED",
+          amountPaid: 0,
           reservedAt: new Date(),
-          paidAt: newStatus === "PAID" ? new Date() : null,
+          paidAt: null,
           assignedByName: "Compra web",
           releasedAt: null,
           releasedById: null,
@@ -124,8 +121,7 @@ export async function POST(request: Request) {
         ticket: {
           number: result.number,
           status: result.status,
-          amountPaid: amount,
-          restante: Math.max(0, ticketPrice - amount),
+          ticketPrice,
         },
       },
       { headers: NO_STORE_HEADERS }
