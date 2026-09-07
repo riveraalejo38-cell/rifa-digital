@@ -122,6 +122,7 @@ export async function POST(request: Request) {
           number: result.number,
           status: result.status,
           ticketPrice,
+          token: result.token,
         },
       },
       { headers: NO_STORE_HEADERS }
