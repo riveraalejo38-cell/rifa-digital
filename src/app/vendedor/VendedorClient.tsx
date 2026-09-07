@@ -304,7 +304,7 @@ export default function VendedorClient() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
           <div>
-            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#4ADE80", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
+            <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#D9AD52", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
             <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "500" }}>Panel Vendedor</p>
           </div>
         </div>
@@ -321,7 +321,7 @@ export default function VendedorClient() {
               autoComplete="off" autoCorrect="off" spellCheck={false} name="buscar-boleta-vendedor"
               style={{ flex: 1, background: "#16283A", border: "1.5px solid #28405A", borderRadius: "14px", padding: "14px 18px", fontSize: "15px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500" }} />
             <button onClick={buscar} disabled={loading}
-              style={{ background: loading ? "#28405A" : "linear-gradient(135deg, #4ADE80, #16A34A)", border: "none", borderRadius: "14px", padding: "14px 24px", color: loading ? "#8FA6BD" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", minWidth: "100px" }}>
+              style={{ background: loading ? "#28405A" : "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "14px", padding: "14px 24px", color: loading ? "#8FA6BD" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", minWidth: "100px" }}>
               {loading ? "Buscando…" : "Buscar"}
             </button>
           </div>
@@ -368,11 +368,11 @@ export default function VendedorClient() {
         {isAvailable && (
           <div className="fade-up">
             {resultados.length > 1 && (
-              <button onClick={() => setTicket(null)} style={{ background: "none", border: "none", color: "#86EFAC", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", padding: "0 0 12px", display: "flex", alignItems: "center", gap: "4px" }}>
+              <button onClick={() => setTicket(null)} style={{ background: "none", border: "none", color: "#E4C983", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", padding: "0 0 12px", display: "flex", alignItems: "center", gap: "4px" }}>
                 ← Ver todas las boletas ({resultados.length})
               </button>
             )}
-            <div style={{ background: "linear-gradient(135deg, #4ADE80 0%, #16A34A 100%)", borderRadius: "20px", padding: "28px", marginBottom: "16px", position: "relative", overflow: "hidden" }}>
+            <div style={{ background: "linear-gradient(135deg, #D9AD52 0%, #B58A2E 100%)", borderRadius: "20px", padding: "28px", marginBottom: "16px", position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "120px", height: "120px", background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
               <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.7)", fontWeight: "600", letterSpacing: "1.5px" }}>BOLETA</p>
               <p style={{ margin: "0 0 12px", fontSize: "52px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px", lineHeight: 1, textShadow: "0 0 22px rgba(255,255,255,0.3)" }}>{String(ticket.number).padStart(4, "0")}</p>
@@ -387,7 +387,7 @@ export default function VendedorClient() {
               <input type="text" placeholder="Ciudad" value={clientCity} onChange={(e) => setClientCity(e.target.value)} autoComplete="off"
                 style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "16px" }} />
               <input type="number" placeholder="Monto a abonar ($) — déjalo vacío para solo separar" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} autoComplete="off"
-                style={{ width: "100%", background: "#16283A", border: "1.5px solid #4ADE80", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "8px" }} />
+                style={{ width: "100%", background: "#16283A", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "8px" }} />
               {abonoAmount ? (
                 <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>
                   {parseFloat(abonoAmount) >= TICKET_PRICE ? "Queda registrada como pagada completa" : `Resta por pagar: ${formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}`}
@@ -397,7 +397,7 @@ export default function VendedorClient() {
               )}
               {message && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
               <button onClick={handleRegistrar} disabled={saving}
-                style={{ width: "100%", background: "linear-gradient(135deg, #4ADE80, #16A34A)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ width: "100%", background: "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
                 {saving ? "Guardando..." : "Registrar"}
               </button>
             </div>
@@ -408,7 +408,7 @@ export default function VendedorClient() {
         {isTaken && (
           <div className="fade-up">
             {resultados.length > 1 && (
-              <button onClick={() => setTicket(null)} style={{ background: "none", border: "none", color: "#86EFAC", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", padding: "0 0 12px", display: "flex", alignItems: "center", gap: "4px" }}>
+              <button onClick={() => setTicket(null)} style={{ background: "none", border: "none", color: "#E4C983", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", padding: "0 0 12px", display: "flex", alignItems: "center", gap: "4px" }}>
                 ← Ver todas las boletas ({resultados.length})
               </button>
             )}
@@ -495,7 +495,7 @@ export default function VendedorClient() {
                   <option value="DAVIPLATA">Daviplata</option>
                 </select>
                 <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} autoComplete="off"
-                  style={{ width: "100%", background: "#16283A", border: "1.5px solid #4ADE80", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: abonoAmount ? "6px" : "14px" }} />
+                  style={{ width: "100%", background: "#16283A", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: abonoAmount ? "6px" : "14px" }} />
                 {abonoAmount && (
                   <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "14px", fontWeight: "500" }}>
                     Quedaría pendiente: {formatPeso(Math.max(0, TICKET_PRICE - totalAbonado - parseFloat(abonoAmount || "0")))}
@@ -503,7 +503,7 @@ export default function VendedorClient() {
                 )}
                 {message && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
                 <button onClick={handleAbonar} disabled={saving}
-                  style={{ width: "100%", background: "linear-gradient(135deg, #4ADE80, #16A34A)", border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                  style={{ width: "100%", background: "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
                   {saving ? "Guardando..." : "Registrar"}
                 </button>
               </div>
