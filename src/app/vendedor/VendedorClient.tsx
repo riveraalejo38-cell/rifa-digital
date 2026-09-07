@@ -30,9 +30,25 @@ export default function VendedorClient() {
   const [reclamoMessage, setReclamoMessage] = useState("");
   const [reclamoEnviado, setReclamoEnviado] = useState(false);
 
+  // Si el servidor dice que la sesión ya no es válida (código 401) —por
+  // ejemplo porque en otra pestaña se cerró sesión o se inició con otro
+  // usuario, ya que el navegador comparte una sola sesión entre todas las
+  // pestañas del mismo sitio— se manda de vuelta al login en vez de dejar
+  // la pantalla pegada o mostrando un error críptico.
+  const sesionInvalida = (status: number) => {
+    if (status === 401) {
+      window.location.href = "/login";
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
-    fetch("/api/auth/me").then((r) => r.json()).then((data) => {
-      if (data.success) setMe(data.user);
+    fetch("/api/auth/me").then((r) => {
+      if (sesionInvalida(r.status)) return null;
+      return r.json();
+    }).then((data) => {
+      if (data && data.success) setMe(data.user);
     });
   }, []);
 
@@ -151,6 +167,7 @@ export default function VendedorClient() {
           amountPaid: abono,
         }),
       });
+      if (sesionInvalida(resTicket.status)) return;
       const dataTicket = await resTicket.json();
       if (dataTicket.success) {
         await refrescarTicket();
@@ -177,6 +194,7 @@ export default function VendedorClient() {
           amountPaid: parseFloat(abonoAmount),
         }),
       });
+      if (sesionInvalida(res.status)) return;
       const data = await res.json();
       if (data.success) {
         setAbonoAmount("");
@@ -198,6 +216,7 @@ export default function VendedorClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ticketId: ticket.id }),
     });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) { setTicket(null); setSearch(""); setResultados([]); }
   };
@@ -249,6 +268,7 @@ export default function VendedorClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticketId: ticket.id, reason: reclamoReason, evidenceImage: reclamoImage }),
       });
+      if (sesionInvalida(res.status)) return;
       const data = await res.json();
       if (data.success) {
         setReclamoEnviado(true);
