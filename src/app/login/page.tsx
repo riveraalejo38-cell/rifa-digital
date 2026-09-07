@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#0F1B2A",
+      background: "#0B1F17",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "20px", fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
     }}>
@@ -50,7 +50,7 @@ export default function LoginPage() {
         input:focus { outline: none; border-color: #D9AD52 !important; }
       `}</style>
       <div style={{
-        background: "#16283A",
+        background: "#142B21",
         border: "1px solid rgba(217,173,82,0.16)",
         borderRadius: "24px", padding: "40px",
         maxWidth: "400px", width: "100%",
@@ -85,7 +85,7 @@ export default function LoginPage() {
             spellCheck={false}
             name="usuario-panel"
             style={{
-              width: "100%", background: "#1E3348",
+              width: "100%", background: "#142B21",
               border: "1.5px solid #28405A",
               borderRadius: "12px", padding: "12px 16px",
               color: "#FFFFFF", fontSize: "16px",
@@ -107,7 +107,7 @@ export default function LoginPage() {
             autoComplete="new-password"
             name="clave-panel"
             style={{
-              width: "100%", background: "#1E3348",
+              width: "100%", background: "#142B21",
               border: "1.5px solid #28405A",
               borderRadius: "12px", padding: "12px 16px",
               color: "#FFFFFF", fontSize: "16px",
@@ -129,7 +129,7 @@ export default function LoginPage() {
             width: "100%",
             background: loading ? "#28405A" : "linear-gradient(135deg, #D9AD52, #B58A2E)",
             border: "none", borderRadius: "12px", padding: "14px",
-            color: loading ? "#7C93AC" : "#0F1B2A", fontWeight: "800", fontSize: "16px",
+            color: loading ? "#7C93AC" : "#0B1F17", fontWeight: "800", fontSize: "16px",
             cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit",
           }}
         >
