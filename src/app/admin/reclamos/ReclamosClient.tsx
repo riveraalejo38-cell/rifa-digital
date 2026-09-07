@@ -8,9 +8,23 @@ export default function ReclamosClient() {
   const [resolviendo, setResolviendo] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
 
+  // Si el servidor dice que la sesión ya no es válida para admin (código
+  // 401) —por ejemplo porque en otra pestaña se inició sesión con otro
+  // usuario, ya que el navegador comparte una sola sesión entre todas las
+  // pestañas del mismo sitio— se manda de vuelta al login en vez de dejar
+  // la pantalla pegada en "cargando".
+  const sesionInvalida = (status: number) => {
+    if (status === 401) {
+      window.location.href = "/login";
+      return true;
+    }
+    return false;
+  };
+
   const fetchClaims = async (status: string) => {
     setLoading(true);
     const res = await fetch(`/api/admin/reclamos?status=${status}`);
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) setClaims(data.claims);
     setLoading(false);
@@ -27,6 +41,7 @@ export default function ReclamosClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ claimId, decision }),
     });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) await fetchClaims(filtro);
     setResolviendo(null);
