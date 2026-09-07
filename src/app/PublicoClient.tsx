@@ -22,7 +22,7 @@ const DRAW_DATE = new Date("2026-12-12T20:00:00-05:00");
 const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 
 type CheckResult = { number: number; available: boolean; ticketPrice: number } | null;
-type ReservaExito = { number: number; status: string; ticketPrice: number } | null;
+type ReservaExito = { number: number; status: string; ticketPrice: number; token: string } | null;
 
 export default function PublicoClient() {
   const [tiempo, setTiempo] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
@@ -130,10 +130,13 @@ export default function PublicoClient() {
     }
   };
 
+  const linkBoleta = (token: string) =>
+    typeof window !== "undefined" ? `${window.location.origin}/boleta/${token}` : "";
+
   const compartirWhatsApp = () => {
     if (!reservaExito) return;
     const numero = String(reservaExito.number).padStart(4, "0");
-    const mensaje = `¡Hola! Acabo de reservar la boleta *${numero}* de ${RAFFLE_NAME} (${RAFFLE_PRIZE}). Aquí les envío el comprobante de pago.`;
+    const mensaje = `¡Hola! Acabo de reservar la boleta *${numero}* de ${RAFFLE_NAME} (${RAFFLE_PRIZE}). Aquí les envío el comprobante de pago.\n\nMi boleta: ${linkBoleta(reservaExito.token)}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, "_blank");
   };
 
@@ -278,6 +281,10 @@ export default function PublicoClient() {
               Tu boleta quedó apartada. Ahora haz el pago y envíanos el comprobante por WhatsApp para confirmarla — tu vendedor la registra apenas lo reciba.
             </p>
 
+            <a href={`/boleta/${reservaExito.token}`} target="_blank" rel="noopener noreferrer"
+              style={{ width: "100%", boxSizing: "border-box", background: "#16283A", border: "1.5px solid #4ADE80", borderRadius: "12px", padding: "15px", color: "#4ADE80", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
+              <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
+            </a>
             <button onClick={compartirWhatsApp} style={{ width: "100%", background: "#25D366", border: "none", borderRadius: "12px", padding: "15px", color: "#0F1B2A", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
               <span style={{ fontSize: "17px" }}>📲</span> ENVIAR COMPROBANTE POR WHATSAPP
             </button>
