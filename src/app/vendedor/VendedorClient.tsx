@@ -278,7 +278,7 @@ export default function VendedorClient() {
   const tieneReclamoPendiente = ticket?.claims && ticket.claims.length > 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F1B2A", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#0B1F17", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
         * { box-sizing: border-box; }
@@ -300,7 +300,7 @@ export default function VendedorClient() {
       `}</style>
 
       {/* Header */}
-      <div style={{ background: "#16283A", borderBottom: "1px solid #28405A", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: "#142B21", borderBottom: "1px solid #28405A", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
           <div>
@@ -319,7 +319,7 @@ export default function VendedorClient() {
           <div style={{ display: "flex", gap: "10px" }}>
             <input ref={inputRef} type="text" className="search-input" placeholder="Número (ej: 0234), nombre o teléfono..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={handleKey}
               autoComplete="off" autoCorrect="off" spellCheck={false} name="buscar-boleta-vendedor"
-              style={{ flex: 1, background: "#16283A", border: "1.5px solid #28405A", borderRadius: "14px", padding: "14px 18px", fontSize: "15px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500" }} />
+              style={{ flex: 1, background: "#142B21", border: "1.5px solid #28405A", borderRadius: "14px", padding: "14px 18px", fontSize: "15px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500" }} />
             <button onClick={buscar} disabled={loading}
               style={{ background: loading ? "#28405A" : "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "14px", padding: "14px 24px", color: loading ? "#8FA6BD" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: loading ? "not-allowed" : "pointer", fontFamily: "inherit", minWidth: "100px" }}>
               {loading ? "Buscando…" : "Buscar"}
@@ -329,7 +329,7 @@ export default function VendedorClient() {
 
         {/* Not found */}
         {notFound && (
-          <div className="fade-up" style={{ background: "#1E3348", borderRadius: "20px", padding: "40px", textAlign: "center", border: "1.5px solid #28405A" }}>
+          <div className="fade-up" style={{ background: "#142B21", borderRadius: "20px", padding: "40px", textAlign: "center", border: "1.5px solid #28405A" }}>
             <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
             <p style={{ margin: 0, fontWeight: "700", color: "#FFFFFF", fontSize: "16px" }}>No se encontró ninguna boleta</p>
             <p style={{ margin: "6px 0 0", color: "#8FA6BD", fontSize: "14px" }}>Verifica el número o teléfono e intenta de nuevo</p>
@@ -338,7 +338,7 @@ export default function VendedorClient() {
 
         {/* Resultados múltiples — varias boletas del mismo cliente (o coincidencias por nombre) */}
         {!ticket && resultados.length > 0 && (
-          <div className="fade-up" style={{ background: "#1E3348", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A" }}>
+          <div className="fade-up" style={{ background: "#142B21", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A" }}>
             <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>
               {resultados.length} BOLETAS ENCONTRADAS
             </p>
@@ -348,7 +348,7 @@ export default function VendedorClient() {
                 const color = t.status === "PAID" ? "#6EE7B7" : t.status === "PARTIAL" ? "#FCD34D" : t.status === "RESERVED" ? "#7DD3FC" : "#94A3B8";
                 return (
                   <button key={t.id} onClick={() => seleccionarTicket(t)}
-                    style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "14px", padding: "14px 18px", cursor: "pointer", fontFamily: "inherit", textAlign: "left", width: "100%" }}>
+                    style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "14px", padding: "14px 18px", cursor: "pointer", fontFamily: "inherit", textAlign: "left", width: "100%" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                       <span style={{ fontSize: "13px", fontWeight: "700", color: "#FFFFFF" }}>{t.client?.name || "Sin nombre"}</span>
                       <span style={{ fontSize: "11px", color: "#8FA6BD" }}>{t.client?.phone || "—"}</span>
@@ -378,16 +378,16 @@ export default function VendedorClient() {
               <p style={{ margin: "0 0 12px", fontSize: "52px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px", lineHeight: 1, textShadow: "0 0 22px rgba(255,255,255,0.3)" }}>{String(ticket.number).padStart(4, "0")}</p>
               <span style={{ background: "rgba(255,255,255,0.2)", color: "#FFFFFF", borderRadius: "999px", padding: "5px 14px", fontSize: "12px", fontWeight: "700" }}>✦ Disponible</span>
             </div>
-            <div style={{ background: "#1E3348", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A" }}>
+            <div style={{ background: "#142B21", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A" }}>
               <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>DATOS DEL CLIENTE</p>
               <input type="text" placeholder="Nombre completo" value={clientName} onChange={(e) => setClientName(e.target.value)} autoComplete="off"
-                style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
+                style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
               <input type="text" placeholder="Teléfono celular (opcional)" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} autoComplete="off"
-                style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
+                style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
               <input type="text" placeholder="Ciudad" value={clientCity} onChange={(e) => setClientCity(e.target.value)} autoComplete="off"
-                style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "16px" }} />
+                style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "16px" }} />
               <input type="number" placeholder="Monto a abonar ($) — déjalo vacío para solo separar" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} autoComplete="off"
-                style={{ width: "100%", background: "#16283A", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "8px" }} />
+                style={{ width: "100%", background: "#142B21", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "8px" }} />
               {abonoAmount ? (
                 <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>
                   {parseFloat(abonoAmount) >= TICKET_PRICE ? "Queda registrada como pagada completa" : `Resta por pagar: ${formatPeso(Math.max(0, TICKET_PRICE - parseFloat(abonoAmount || "0")))}`}
@@ -435,22 +435,22 @@ export default function VendedorClient() {
               </span>
             </div>
 
-            <div style={{ background: "#1E3348", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A", marginBottom: "12px" }}>
+            <div style={{ background: "#142B21", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A", marginBottom: "12px" }}>
               <p style={{ margin: "0 0 16px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>DATOS DEL CLIENTE</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
-                <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ background: "#142B21", borderRadius: "12px", padding: "14px" }}>
                   <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>NOMBRE</p>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: "#FFFFFF" }}>{ticket.client?.name || "-"}</p>
                 </div>
-                <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ background: "#142B21", borderRadius: "12px", padding: "14px" }}>
                   <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>TELÉFONO</p>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: "#FFFFFF" }}>{ticket.client?.phone || "-"}</p>
                 </div>
-                <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ background: "#142B21", borderRadius: "12px", padding: "14px" }}>
                   <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>CIUDAD</p>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: "#FFFFFF" }}>{ticket.client?.city || "-"}</p>
                 </div>
-                <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ background: "#142B21", borderRadius: "12px", padding: "14px" }}>
                   <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>SALDO PENDIENTE</p>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: "700", color: resta > 0 ? "#F87171" : "#6EE7B7" }}>
                     {resta > 0 ? formatPeso(resta) : "Pagado ✓"}
@@ -484,10 +484,10 @@ export default function VendedorClient() {
             </div>
 
             {ticket.status !== "PAID" && esMia && (
-              <div style={{ background: "#1E3348", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A" }}>
+              <div style={{ background: "#142B21", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A" }}>
                 <p style={{ margin: "0 0 14px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>REGISTRAR NUEVO ABONO</p>
                 <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-                  style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }}>
+                  style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }}>
                   <option value="">Método de pago</option>
                   <option value="EFECTIVO">Efectivo</option>
                   <option value="TRANSFERENCIA">Transferencia bancaria</option>
@@ -495,7 +495,7 @@ export default function VendedorClient() {
                   <option value="DAVIPLATA">Daviplata</option>
                 </select>
                 <input type="number" placeholder="Monto a abonar ($)" value={abonoAmount} onChange={(e) => setAbonoAmount(e.target.value)} autoComplete="off"
-                  style={{ width: "100%", background: "#16283A", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: abonoAmount ? "6px" : "14px" }} />
+                  style={{ width: "100%", background: "#142B21", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: abonoAmount ? "6px" : "14px" }} />
                 {abonoAmount && (
                   <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "14px", fontWeight: "500" }}>
                     Quedaría pendiente: {formatPeso(Math.max(0, TICKET_PRICE - totalAbonado - parseFloat(abonoAmount || "0")))}
@@ -534,8 +534,8 @@ export default function VendedorClient() {
                 ) : (
                   <div style={{ marginTop: "16px" }}>
                     <textarea placeholder="Explica por qué es tuya (ej: nombre y teléfono del cliente, cuándo la vendiste...)" value={reclamoReason} onChange={(e) => setReclamoReason(e.target.value)} rows={3}
-                      style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px", resize: "vertical" }} />
-                    <label style={{ display: "block", background: "#16283A", border: "1.5px dashed #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "13px", color: "#8FA6BD", fontWeight: "600", marginBottom: "10px", cursor: "pointer", textAlign: "center" }}>
+                      style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px", resize: "vertical" }} />
+                    <label style={{ display: "block", background: "#142B21", border: "1.5px dashed #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "13px", color: "#8FA6BD", fontWeight: "600", marginBottom: "10px", cursor: "pointer", textAlign: "center" }}>
                       {reclamoImage ? "✓ Foto adjuntada — toca para cambiarla" : "📷 Adjuntar foto de evidencia"}
                       <input type="file" accept="image/*" onChange={handleReclamoImagen} style={{ display: "none" }} />
                     </label>
