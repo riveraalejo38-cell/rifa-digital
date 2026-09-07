@@ -146,7 +146,7 @@ export default function PublicoClient() {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
         * { box-sizing: border-box; }
         input:focus { outline: none; }
-        @keyframes brillo { 0%, 100% { box-shadow: 0 0 30px rgba(74,222,128,0.10); } 50% { box-shadow: 0 0 46px rgba(74,222,128,0.22); } }
+        @keyframes brillo { 0%, 100% { box-shadow: 0 0 30px rgba(217,173,82,0.10); } 50% { box-shadow: 0 0 46px rgba(217,173,82,0.22); } }
       `}</style>
 
       {/* Encabezado */}
@@ -161,7 +161,7 @@ export default function PublicoClient() {
       <div style={{ maxWidth: "460px", margin: "0 auto", padding: "0 20px 48px" }}>
 
         {/* Hero */}
-        <div style={{ background: "linear-gradient(135deg, #4ADE80 0%, #16A34A 100%)", borderRadius: "24px", padding: "32px 26px", marginBottom: "18px", position: "relative", overflow: "hidden" }}>
+        <div style={{ background: "linear-gradient(135deg, #D9AD52 0%, #B58A2E 100%)", borderRadius: "24px", padding: "32px 26px", marginBottom: "18px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "-30px", right: "-30px", width: "140px", height: "140px", background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
           <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: "700", letterSpacing: "2px" }}>{RAFFLE_NAME.toUpperCase()}</p>
           <h1 style={{ margin: "0 0 10px", fontSize: "26px", fontWeight: "800", color: "#FFFFFF", lineHeight: 1.25 }}>{RAFFLE_PRIZE}</h1>
@@ -183,7 +183,7 @@ export default function PublicoClient() {
               { valor: tiempo.segundos, label: "SEG" },
             ].map((item) => (
               <div key={item.label} style={{ background: "#16283A", borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: "1px solid #28405A" }}>
-                <p style={{ margin: "0 0 2px", fontSize: "24px", fontWeight: "800", color: "#4ADE80", fontFamily: "'DM Mono', monospace" }}>{String(item.valor).padStart(2, "0")}</p>
+                <p style={{ margin: "0 0 2px", fontSize: "24px", fontWeight: "800", color: "#D9AD52", fontFamily: "'DM Mono', monospace" }}>{String(item.valor).padStart(2, "0")}</p>
                 <p style={{ margin: 0, fontSize: "9px", color: "#7C93AC", fontWeight: "700", letterSpacing: "1px" }}>{item.label}</p>
               </div>
             ))}
@@ -210,7 +210,7 @@ export default function PublicoClient() {
                     style={{ flex: 1, background: "#16283A", border: "1.5px solid #28405A", borderRadius: "14px", padding: "14px 18px", fontSize: "18px", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "2px" }}
                   />
                   <button onClick={verificarNumero} disabled={checking || !numeroInput}
-                    style={{ background: checking || !numeroInput ? "#28405A" : "linear-gradient(135deg, #4ADE80, #16A34A)", border: "none", borderRadius: "14px", padding: "14px 22px", color: checking || !numeroInput ? "#8FA6BD" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: checking || !numeroInput ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                    style={{ background: checking || !numeroInput ? "#28405A" : "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "14px", padding: "14px 22px", color: checking || !numeroInput ? "#8FA6BD" : "#FFFFFF", fontSize: "14px", fontWeight: "700", cursor: checking || !numeroInput ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
                     {checking ? "..." : "Verificar"}
                   </button>
                 </div>
@@ -224,7 +224,7 @@ export default function PublicoClient() {
                   <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: "700", letterSpacing: "1.5px" }}>BOLETA {String(checkResult.number).padStart(4, "0")}</p>
                   <p style={{ margin: 0, fontSize: "15px", color: "#FFFFFF", fontWeight: "700" }}>Uy, esa boleta ya no está disponible</p>
                 </div>
-                <button onClick={otroNumero} style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "13px", color: "#86EFAC", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+                <button onClick={otroNumero} style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "13px", color: "#E4C983", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
                   Probar otro número
                 </button>
               </div>
@@ -232,12 +232,12 @@ export default function PublicoClient() {
 
             {checkResult && checkResult.available && (
               <div className="fade-up">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#16283A", borderRadius: "14px", padding: "14px 18px", border: "1.5px solid #4ADE80", marginBottom: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#16283A", borderRadius: "14px", padding: "14px 18px", border: "1.5px solid #D9AD52", marginBottom: "16px" }}>
                   <div>
                     <p style={{ margin: "0 0 2px", fontSize: "10px", color: "#8FA6BD", fontWeight: "700", letterSpacing: "1px" }}>BOLETA</p>
                     <p style={{ margin: 0, fontSize: "28px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "3px" }}>{String(checkResult.number).padStart(4, "0")}</p>
                   </div>
-                  <span style={{ background: "rgba(74,222,128,0.15)", color: "#4ADE80", borderRadius: "999px", padding: "6px 14px", fontSize: "12px", fontWeight: "700" }}>✦ Disponible</span>
+                  <span style={{ background: "rgba(217,173,82,0.15)", color: "#D9AD52", borderRadius: "999px", padding: "6px 14px", fontSize: "12px", fontWeight: "700" }}>✦ Disponible</span>
                 </div>
 
                 <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF" }}>TUS DATOS</p>
@@ -253,10 +253,10 @@ export default function PublicoClient() {
                 {reservaError && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {reservaError}</p>}
 
                 <button onClick={handleReservar} disabled={reservando}
-                  style={{ width: "100%", background: "linear-gradient(135deg, #4ADE80, #16A34A)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: reservando ? "not-allowed" : "pointer", fontFamily: "inherit", marginBottom: "10px" }}>
+                  style={{ width: "100%", background: "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", cursor: reservando ? "not-allowed" : "pointer", fontFamily: "inherit", marginBottom: "10px" }}>
                   {reservando ? "Reservando..." : "Reservar esta boleta"}
                 </button>
-                <button onClick={otroNumero} style={{ width: "100%", background: "none", border: "none", padding: "4px", color: "#86EFAC", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit" }}>
+                <button onClick={otroNumero} style={{ width: "100%", background: "none", border: "none", padding: "4px", color: "#E4C983", fontSize: "13px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit" }}>
                   ← Elegir otro número
                 </button>
               </div>
@@ -267,7 +267,7 @@ export default function PublicoClient() {
         {/* Confirmación de reserva */}
         {reservaExito && (
           <div className="fade-up" style={{ background: "#1E3348", borderRadius: "20px", padding: "24px", border: "1.5px solid #28405A", marginBottom: "16px" }}>
-            <div style={{ background: "linear-gradient(135deg, #4ADE80 0%, #16A34A 100%)", borderRadius: "18px", padding: "24px", marginBottom: "18px", textAlign: "center", animation: "brillo 3s ease-in-out infinite" }}>
+            <div style={{ background: "linear-gradient(135deg, #D9AD52 0%, #B58A2E 100%)", borderRadius: "18px", padding: "24px", marginBottom: "18px", textAlign: "center", animation: "brillo 3s ease-in-out infinite" }}>
               <p style={{ margin: "0 0 6px", fontSize: "12px", color: "rgba(255,255,255,0.8)", fontWeight: "700", letterSpacing: "1.5px" }}>✓ ¡BOLETA RESERVADA!</p>
               <p style={{ margin: 0, fontSize: "48px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>{String(reservaExito.number).padStart(4, "0")}</p>
             </div>
@@ -282,13 +282,13 @@ export default function PublicoClient() {
             </p>
 
             <a href={`/boleta/${reservaExito.token}`} target="_blank" rel="noopener noreferrer"
-              style={{ width: "100%", boxSizing: "border-box", background: "#16283A", border: "1.5px solid #4ADE80", borderRadius: "12px", padding: "15px", color: "#4ADE80", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
+              style={{ width: "100%", boxSizing: "border-box", background: "#16283A", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "15px", color: "#D9AD52", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
               <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
             </a>
             <button onClick={compartirWhatsApp} style={{ width: "100%", background: "#25D366", border: "none", borderRadius: "12px", padding: "15px", color: "#0F1B2A", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
               <span style={{ fontSize: "17px" }}>📲</span> ENVIAR COMPROBANTE POR WHATSAPP
             </button>
-            <button onClick={otroNumero} style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "13px", color: "#86EFAC", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
+            <button onClick={otroNumero} style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "13px", color: "#E4C983", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
               Reservar otra boleta
             </button>
           </div>
@@ -296,7 +296,7 @@ export default function PublicoClient() {
 
         <p style={{ textAlign: "center", fontSize: "11px", color: "#57708A", lineHeight: 1.6, margin: 0 }}>
           Recuerda que cada persona puede reservar hasta 4 boletas con el mismo teléfono.<br />
-          ¿Eres vendedor? <a href="/login" style={{ color: "#86EFAC", fontWeight: "600" }}>Inicia sesión aquí</a>.
+          ¿Eres vendedor? <a href="/login" style={{ color: "#E4C983", fontWeight: "600" }}>Inicia sesión aquí</a>.
         </p>
       </div>
     </div>
