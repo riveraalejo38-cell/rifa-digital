@@ -14,6 +14,19 @@ export default function VendedoresPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
+  // Si el servidor dice que la sesión ya no es válida para admin (código
+  // 401) —por ejemplo porque en otra pestaña se inició sesión con otro
+  // usuario, ya que el navegador comparte una sola sesión entre todas las
+  // pestañas del mismo sitio— se manda de vuelta al login en vez de dejar
+  // la pantalla pegada en "cargando".
+  const sesionInvalida = (status: number) => {
+    if (status === 401) {
+      window.location.href = "/login";
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
     fetchVendedores();
   }, []);
@@ -21,6 +34,7 @@ export default function VendedoresPage() {
   const fetchVendedores = async () => {
     setLoading(true);
     const res = await fetch("/api/admin/vendedores");
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) setVendedores(data.vendedores);
     setLoading(false);
@@ -38,6 +52,7 @@ export default function VendedoresPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, username, password, role }),
     });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) {
       setName("");
@@ -58,6 +73,7 @@ export default function VendedoresPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, isActive: !isActive }),
     });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) fetchVendedores();
   };
@@ -66,6 +82,7 @@ export default function VendedoresPage() {
     setConfirmId(null);
     setDeletingId(id);
     const res = await fetch(`/api/admin/vendedores?id=${id}`, { method: "DELETE" });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) {
       setMessage(data.deactivatedInstead ? data.message : "Usuario borrado correctamente.");
