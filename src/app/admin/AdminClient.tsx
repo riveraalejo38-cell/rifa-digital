@@ -36,13 +36,29 @@ export default function AdminClient() {
 
   const TICKET_PRICE = 80000;
 
+  // Si el servidor dice que la sesión ya no es válida para el panel de
+  // admin (código 401) —por ejemplo porque en otra pestaña se inició sesión
+  // con otro usuario, ya que el navegador comparte una sola sesión entre
+  // todas las pestañas del mismo sitio— se manda de vuelta al login en vez
+  // de dejar la pantalla pegada en "cargando" o mostrando un error críptico.
+  const sesionInvalida = (status: number) => {
+    if (status === 401) {
+      window.location.href = "/login";
+      return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
     fetchStats();
     fetchTickets("", "SIN_DISPONIBLES");
     fetchVendedores();
     fetchReporte(hoyBogota());
-    fetch("/api/admin/reclamos?status=PENDING", { cache: "no-store" }).then((r) => r.json()).then((data) => {
-      if (data.success) setReclamosPendientes(data.claims.length);
+    fetch("/api/admin/reclamos?status=PENDING", { cache: "no-store" }).then((r) => {
+      if (sesionInvalida(r.status)) return null;
+      return r.json();
+    }).then((data) => {
+      if (data && data.success) setReclamosPendientes(data.claims.length);
     });
     const handleClick = (e: MouseEvent) => {
       if (vendedorMenuRef.current && !vendedorMenuRef.current.contains(e.target)) {
@@ -65,6 +81,7 @@ export default function AdminClient() {
     setReporteError("");
     try {
       const res = await fetch(`/api/admin/reporte-diario?date=${fecha}`, { cache: "no-store" });
+      if (sesionInvalida(res.status)) return;
       const data = await res.json();
       if (data.success) {
         setReporte(data);
@@ -90,6 +107,7 @@ export default function AdminClient() {
 
   const fetchVendedores = async () => {
     const res = await fetch("/api/admin/vendedores", { cache: "no-store" });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) setVendedores(data.vendedores);
   };
@@ -188,6 +206,7 @@ export default function AdminClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticketId: selectedTicket.id, clientId, amountPaid: abono }),
       });
+      if (sesionInvalida(resTicket.status)) return;
       const dataTicket = await resTicket.json();
       if (dataTicket.success) {
         await Promise.all([fetchStats(), fetchTickets(search, filtro, vendedorFiltro)]);
@@ -211,6 +230,7 @@ export default function AdminClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ticketId }),
     });
+    if (sesionInvalida(res.status)) return;
     const data = await res.json();
     if (data.success) { fetchStats(); fetchTickets(search, filtro, vendedorFiltro); }
   };
