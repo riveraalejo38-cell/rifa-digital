@@ -248,7 +248,7 @@ export default function AdminClient() {
         input:focus { outline: none; }
         select:focus { outline: none; }
         button:active { transform: scale(0.98); }
-        tr:hover td { background: rgba(74,222,128,0.05); }
+        tr:hover td { background: rgba(217,173,82,0.05); }
         input::placeholder { color: #475569; }
         .sg-shell { display: flex; gap: 22px; }
         .sg-side { width: 456px; flex: none; display: flex; flex-direction: column; gap: 19px; }
@@ -261,22 +261,22 @@ export default function AdminClient() {
 
       {/* Marca de agua esquina inferior derecha */}
       <div style={{ position: "fixed", bottom: "24px", right: "24px", pointerEvents: "none", zIndex: 0, textAlign: "center", lineHeight: 1 }}>
-        <div style={{ fontSize: "96px", fontWeight: 900, color: "rgba(74,222,128,0.08)", fontFamily: "monospace", letterSpacing: "-4px" }}>SG</div>
-        <div style={{ fontSize: "17px", fontWeight: 700, color: "rgba(74,222,128,0.08)", fontFamily: "monospace", letterSpacing: "5px", marginTop: "-8px" }}>PROYECTOS</div>
+        <div style={{ fontSize: "96px", fontWeight: 900, color: "rgba(217,173,82,0.08)", fontFamily: "monospace", letterSpacing: "-4px" }}>SG</div>
+        <div style={{ fontSize: "17px", fontWeight: 700, color: "rgba(217,173,82,0.08)", fontFamily: "monospace", letterSpacing: "5px", marginTop: "-8px" }}>PROYECTOS</div>
       </div>
 
       {/* Marca de agua esquina superior izquierda */}
       <div style={{ position: "fixed", top: "80px", left: "24px", pointerEvents: "none", zIndex: 0, textAlign: "center", lineHeight: 1 }}>
-        <div style={{ fontSize: "96px", fontWeight: 900, color: "rgba(74,222,128,0.08)", fontFamily: "monospace", letterSpacing: "-4px" }}>SG</div>
-        <div style={{ fontSize: "17px", fontWeight: 700, color: "rgba(74,222,128,0.08)", fontFamily: "monospace", letterSpacing: "5px", marginTop: "-8px" }}>PROYECTOS</div>
+        <div style={{ fontSize: "96px", fontWeight: 900, color: "rgba(217,173,82,0.08)", fontFamily: "monospace", letterSpacing: "-4px" }}>SG</div>
+        <div style={{ fontSize: "17px", fontWeight: 700, color: "rgba(217,173,82,0.08)", fontFamily: "monospace", letterSpacing: "5px", marginTop: "-8px" }}>PROYECTOS</div>
       </div>
 
       {/* Header */}
-      <div style={{ background: "#16283A", borderBottom: "1px solid rgba(74,222,128,0.2)", padding: "0 38px", height: "84px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: "#16283A", borderBottom: "1px solid rgba(217,173,82,0.2)", padding: "0 38px", height: "84px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "58px", height: "58px", borderRadius: "12px", objectFit: "cover" }} />
           <div>
-            <p style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#4ADE80", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
+            <p style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#D9AD52", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
             <p style={{ margin: 0, fontSize: "13px", color: "#57708A", fontWeight: "500" }}>Panel Administrador</p>
           </div>
         </div>
@@ -289,7 +289,7 @@ export default function AdminClient() {
               </span>
             )}
           </a>
-          <a href="/admin/vendedores" style={{ color: "#4ADE80", fontSize: "16px", textDecoration: "none", fontWeight: "600", padding: "9px 19px", borderRadius: "10px", border: "1px solid rgba(74,222,128,0.3)", background: "rgba(74,222,128,0.08)" }}>👥 Vendedores</a>
+          <a href="/admin/vendedores" style={{ color: "#D9AD52", fontSize: "16px", textDecoration: "none", fontWeight: "600", padding: "9px 19px", borderRadius: "10px", border: "1px solid rgba(217,173,82,0.3)", background: "rgba(217,173,82,0.08)" }}>👥 Vendedores</a>
           <a href="/api/auth/logout" style={{ color: "#7C93AC", fontSize: "16px", textDecoration: "none", fontWeight: "500", padding: "9px 19px", borderRadius: "10px", border: "1px solid #28405A" }}>Cerrar sesión</a>
         </div>
       </div>
@@ -300,27 +300,27 @@ export default function AdminClient() {
         <aside className="sg-side">
 
           {/* Recaudo */}
-          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "24px", border: "1px solid rgba(74,222,128,0.16)" }}>
+          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "24px", border: "1px solid rgba(217,173,82,0.16)" }}>
             <p style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>Recaudo</p>
             <p style={{ margin: "3px 0 14px", fontSize: "13px", color: "#7C93AC" }}>Meta del sorteo</p>
             <p style={{ margin: 0, fontSize: "26px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", textShadow: "0 0 22px rgba(255,255,255,0.28)" }}>
               {formatPeso(stats.paid * TICKET_PRICE)}
             </p>
             <div style={{ height: "11px", borderRadius: "99px", background: "#16283A", overflow: "hidden", margin: "14px 0 7px" }}>
-              <div style={{ height: "100%", width: `${metaPct}%`, borderRadius: "99px", background: "linear-gradient(90deg, #4ADE80, #16A34A)" }} />
+              <div style={{ height: "100%", width: `${metaPct}%`, borderRadius: "99px", background: "linear-gradient(90deg, #D9AD52, #B58A2E)" }} />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#7C93AC" }}>
               <span>{metaPct.toFixed(0)}% de la meta</span>
               <span>Meta {formatPeso(stats.total * TICKET_PRICE)}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "11px 0 0", marginTop: "11px", borderTop: "1px solid rgba(74,222,128,0.16)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "11px 0 0", marginTop: "11px", borderTop: "1px solid rgba(217,173,82,0.16)" }}>
               <span style={{ fontSize: "13px", color: "#7C93AC" }}>Total abonos registrados</span>
               <span style={{ fontSize: "26px", fontWeight: "700", color: "#FFFFFF" }}>{formatPeso(stats.recaudado)}</span>
             </div>
           </div>
 
           {/* Estado de boletas */}
-          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "24px", border: "1px solid rgba(74,222,128,0.16)" }}>
+          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "24px", border: "1px solid rgba(217,173,82,0.16)" }}>
             <p style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>Estado de las boletas</p>
             <p style={{ margin: "3px 0 14px", fontSize: "13px", color: "#7C93AC" }}>
               Total: <span style={{ color: "#FFFFFF", fontWeight: "700", fontFamily: "'DM Mono', monospace", fontSize: "15px" }}>{stats.total.toLocaleString()}</span>
@@ -348,14 +348,14 @@ export default function AdminClient() {
           </div>
 
           {/* Reporte del día */}
-          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "24px", border: "1px solid rgba(74,222,128,0.16)" }}>
+          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "24px", border: "1px solid rgba(217,173,82,0.16)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "5px" }}>
               <p style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>📅 Reporte de hoy</p>
               <input
                 type="date"
                 value={reporteFecha}
                 onChange={(e) => handleReporteFecha(e.target.value)}
-                style={{ background: "#16283A", border: "1px solid rgba(74,222,128,0.16)", borderRadius: "11px", padding: "8px 16px", color: "#FFFFFF", fontSize: "16px", fontFamily: "inherit", fontWeight: "600" }}
+                style={{ background: "#16283A", border: "1px solid rgba(217,173,82,0.16)", borderRadius: "11px", padding: "8px 16px", color: "#FFFFFF", fontSize: "16px", fontFamily: "inherit", fontWeight: "600" }}
               />
             </div>
 
@@ -395,7 +395,7 @@ export default function AdminClient() {
                         m.tipo === "ABONO" ? { label: "Abono", bg: "rgba(217,119,6,0.15)", color: "#FCD34D" } :
                         { label: "Sin abono", bg: "rgba(148,163,184,0.15)", color: "#94A3B8" };
                       return (
-                        <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", paddingTop: i > 0 ? "10px" : 0, borderTop: i > 0 ? "1px solid rgba(74,222,128,0.16)" : "none" }}>
+                        <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", paddingTop: i > 0 ? "10px" : 0, borderTop: i > 0 ? "1px solid rgba(217,173,82,0.16)" : "none" }}>
                           <span style={{ color: "#7C93AC", fontFamily: "'DM Mono', monospace", fontSize: "14px" }}>{hh}:{mm}</span>
                           <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: "700", color: "#FFFFFF", fontSize: "16px" }}>{String(m.ticketNumber).padStart(4, "0")}</span>
                           {m.esVentaNueva && <span style={{ fontSize: "12px", color: "#7DD3FC", fontWeight: "700" }}>NUEVA</span>}
@@ -408,7 +408,7 @@ export default function AdminClient() {
                 )}
 
                 {reporte.liberadas && reporte.liberadas.length > 0 && (
-                  <div style={{ borderTop: "1px solid rgba(74,222,128,0.16)", marginTop: "17px", paddingTop: "16px" }}>
+                  <div style={{ borderTop: "1px solid rgba(217,173,82,0.16)", marginTop: "17px", paddingTop: "16px" }}>
                     <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: "700", color: "#FFFFFF", letterSpacing: "0.5px" }}>BOLETAS LIBERADAS HOY</p>
                     <div style={{ maxHeight: "220px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
                       {reporte.liberadas.map((l: any, i: number) => {
@@ -416,7 +416,7 @@ export default function AdminClient() {
                         const hh = String(hora.getHours()).padStart(2, "0");
                         const mm = String(hora.getMinutes()).padStart(2, "0");
                         return (
-                          <div key={l.id} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", paddingTop: i > 0 ? "8px" : 0, borderTop: i > 0 ? "1px solid rgba(74,222,128,0.16)" : "none" }}>
+                          <div key={l.id} style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "14px", paddingTop: i > 0 ? "8px" : 0, borderTop: i > 0 ? "1px solid rgba(217,173,82,0.16)" : "none" }}>
                             <span style={{ color: "#7C93AC", fontFamily: "'DM Mono', monospace", fontSize: "14px" }}>{hh}:{mm}</span>
                             <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: "700", color: "#FFFFFF", fontSize: "16px" }}>{String(l.ticketNumber).padStart(4, "0")}</span>
                             <span style={{ background: "rgba(248,113,113,0.15)", color: "#F87171", padding: "4px 11px", borderRadius: "99px", fontSize: "12px", fontWeight: "700" }}>Liberada</span>
@@ -445,7 +445,7 @@ export default function AdminClient() {
               autoCorrect="off"
               spellCheck={false}
               name="buscar-boleta-admin"
-              style={{ flex: 1, minWidth: "264px", background: "#1E3348", border: "1px solid rgba(74,222,128,0.16)", borderRadius: "14px", padding: "16px 22px", color: "#E7EEF4", fontSize: "17px", outline: "none", fontFamily: "inherit", fontWeight: "500" }}
+              style={{ flex: 1, minWidth: "264px", background: "#1E3348", border: "1px solid rgba(217,173,82,0.16)", borderRadius: "14px", padding: "16px 22px", color: "#E7EEF4", fontSize: "17px", outline: "none", fontFamily: "inherit", fontWeight: "500" }}
             />
             <div style={{ display: "flex", gap: "7px", flexWrap: "wrap", alignItems: "center" }}>
               {filtros.map((f) => {
@@ -453,8 +453,8 @@ export default function AdminClient() {
                 return (
                   <button key={f.key} onClick={() => handleFiltro(f.key)}
                     style={{
-                      background: activo ? "linear-gradient(135deg, #4ADE80, #16A34A)" : "#1E3348",
-                      border: activo ? "none" : "1px solid rgba(74,222,128,0.16)",
+                      background: activo ? "linear-gradient(135deg, #D9AD52, #B58A2E)" : "#1E3348",
+                      border: activo ? "none" : "1px solid rgba(217,173,82,0.16)",
                       borderRadius: "12px", padding: "12px 17px",
                       color: activo ? "#0F1B2A" : "#7C93AC",
                       fontSize: "16px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
@@ -462,8 +462,8 @@ export default function AdminClient() {
                     }}>
                     {f.label}
                     <span style={{
-                      background: activo ? "rgba(0,0,0,0.15)" : "rgba(74,222,128,0.15)",
-                      color: activo ? "#0F1B2A" : "#4ADE80",
+                      background: activo ? "rgba(0,0,0,0.15)" : "rgba(217,173,82,0.15)",
+                      color: activo ? "#0F1B2A" : "#D9AD52",
                       borderRadius: "999px",
                       padding: "2px 9px",
                       fontSize: "13px",
@@ -478,8 +478,8 @@ export default function AdminClient() {
               <div ref={vendedorMenuRef} style={{ position: "relative" }}>
                 <button onClick={() => setShowVendedorMenu(!showVendedorMenu)}
                   style={{
-                    background: vendedorFiltro ? "linear-gradient(135deg, #4ADE80, #16A34A)" : "#1E3348",
-                    border: vendedorFiltro ? "none" : "1px solid rgba(74,222,128,0.16)",
+                    background: vendedorFiltro ? "linear-gradient(135deg, #D9AD52, #B58A2E)" : "#1E3348",
+                    border: vendedorFiltro ? "none" : "1px solid rgba(217,173,82,0.16)",
                     borderRadius: "12px", padding: "12px 17px",
                     color: vendedorFiltro ? "#0F1B2A" : "#7C93AC",
                     fontSize: "16px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
@@ -488,7 +488,7 @@ export default function AdminClient() {
                   {vendedorFiltro || "Vendedor"} ▾
                 </button>
                 {showVendedorMenu && (
-                  <div style={{ position: "absolute", top: "calc(100% + 7px)", right: 0, background: "#1E3348", border: "1px solid rgba(74,222,128,0.16)", borderRadius: "14px", padding: "7px", minWidth: "216px", zIndex: 20, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
+                  <div style={{ position: "absolute", top: "calc(100% + 7px)", right: 0, background: "#1E3348", border: "1px solid rgba(217,173,82,0.16)", borderRadius: "14px", padding: "7px", minWidth: "216px", zIndex: 20, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}>
                     {vendedorFiltro && (
                       <button onClick={limpiarVendedor} style={{ width: "100%", background: "rgba(239,68,68,0.1)", border: "none", borderRadius: "10px", padding: "11px 17px", color: "#F87171", fontSize: "16px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", textAlign: "left", marginBottom: "5px" }}>
                         ✕ Quitar filtro
@@ -496,7 +496,7 @@ export default function AdminClient() {
                     )}
                     {vendedores.filter(v => v.isActive).map((v) => (
                       <button key={v.id} onClick={() => handleVendedor(v.name)}
-                        style={{ width: "100%", background: vendedorFiltro === v.name ? "rgba(74,222,128,0.15)" : "transparent", border: "none", borderRadius: "10px", padding: "11px 17px", color: vendedorFiltro === v.name ? "#4ADE80" : "#E7EEF4", fontSize: "16px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+                        style={{ width: "100%", background: vendedorFiltro === v.name ? "rgba(217,173,82,0.15)" : "transparent", border: "none", borderRadius: "10px", padding: "11px 17px", color: vendedorFiltro === v.name ? "#D9AD52" : "#E7EEF4", fontSize: "16px", fontWeight: "600", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
                         {v.name}
                       </button>
                     ))}
@@ -509,7 +509,7 @@ export default function AdminClient() {
           {/* Etiqueta vendedor activo */}
           {vendedorFiltro && (
             <div style={{ marginBottom: "14px", display: "flex", alignItems: "center", gap: "12px" }}>
-              <span style={{ fontSize: "16px", color: "#4ADE80", fontWeight: "600" }}>
+              <span style={{ fontSize: "16px", color: "#D9AD52", fontWeight: "600" }}>
                 🧑‍💼 Boletas de: <strong>{vendedorFiltro}</strong>
               </span>
               <span style={{ fontSize: "14px", color: "#57708A" }}>— {tickets.length} boleta(s)</span>
@@ -518,10 +518,10 @@ export default function AdminClient() {
           )}
 
           {/* Tabla */}
-          <div style={{ background: "#1E3348", borderRadius: "24px", overflow: "hidden", border: "1px solid rgba(74,222,128,0.16)" }}>
+          <div style={{ background: "#1E3348", borderRadius: "24px", overflow: "hidden", border: "1px solid rgba(217,173,82,0.16)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "#16283A", borderBottom: "1px solid rgba(74,222,128,0.16)" }}>
+                <tr style={{ background: "#16283A", borderBottom: "1px solid rgba(217,173,82,0.16)" }}>
                   {["Número", "Estado", "Cliente", "Teléfono", "Ciudad", "Vendedor", "Abono / Resta", "Acciones"].map((h) => (
                     <th key={h} style={{ padding: "17px 19px", textAlign: "left", fontWeight: "700", fontSize: "13px", color: "#57708A", letterSpacing: "0.8px" }}>{h.toUpperCase()}</th>
                   ))}
@@ -575,7 +575,7 @@ export default function AdminClient() {
                             </button>
                           )}
                           {ticket.status !== "PAID" && (
-                            <button onClick={() => openModal(ticket)} style={{ background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.35)", borderRadius: "10px", padding: "6px 12px", color: "#4ADE80", fontSize: "14px", cursor: "pointer", fontWeight: "700" }}>
+                            <button onClick={() => openModal(ticket)} style={{ background: "rgba(217,173,82,0.12)", border: "1px solid rgba(217,173,82,0.35)", borderRadius: "10px", padding: "6px 12px", color: "#D9AD52", fontSize: "14px", cursor: "pointer", fontWeight: "700" }}>
                               {ticket.status === "AVAILABLE" ? "Asignar" : "Abonar"}
                             </button>
                           )}
@@ -598,7 +598,7 @@ export default function AdminClient() {
       {/* Modal */}
       {showModal && selectedTicket && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "24px" }}>
-          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "34px", width: "100%", maxWidth: "504px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", maxHeight: "90vh", overflowY: "auto", border: "1px solid rgba(74,222,128,0.2)" }}>
+          <div style={{ background: "#1E3348", borderRadius: "24px", padding: "34px", width: "100%", maxWidth: "504px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)", maxHeight: "90vh", overflowY: "auto", border: "1px solid rgba(217,173,82,0.2)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
               <div>
                 <p style={{ margin: 0, fontSize: "13px", color: "#57708A", letterSpacing: "2px", fontWeight: "600" }}>BOLETA</p>
@@ -607,7 +607,7 @@ export default function AdminClient() {
                 </h2>
                 <p style={{ margin: "5px 0 0", fontSize: "16px", color: "#57708A" }}>Valor total: {formatPeso(TICKET_PRICE)}</p>
                 {selectedTicket.assignedByName && (
-                  <p style={{ margin: "5px 0 0", fontSize: "14px", color: "#4ADE80" }}>🧑‍💼 Registrado por: {selectedTicket.assignedByName}</p>
+                  <p style={{ margin: "5px 0 0", fontSize: "14px", color: "#D9AD52" }}>🧑‍💼 Registrado por: {selectedTicket.assignedByName}</p>
                 )}
               </div>
               <button onClick={() => setShowModal(false)} style={{ background: "#16283A", border: "1px solid #28405A", borderRadius: "12px", padding: "10px 14px", color: "#7C93AC", cursor: "pointer", fontSize: "19px" }}>✕</button>
@@ -649,7 +649,7 @@ export default function AdminClient() {
                             <span style={{ fontSize: "16px", fontWeight: "700", color: "#6EE7B7" }}>{formatPeso(Number(p.amount))}</span>
                           </div>
                           {p.createdByName && (
-                            <span style={{ fontSize: "13px", color: "#4ADE80" }}>🧑‍💼 {p.createdByName}</span>
+                            <span style={{ fontSize: "13px", color: "#D9AD52" }}>🧑‍💼 {p.createdByName}</span>
                           )}
                         </div>
                       );
@@ -676,7 +676,7 @@ export default function AdminClient() {
             <input type="number" placeholder="Monto a abonar ($) — déjalo vacío para solo separar" value={abonoAmount}
               onChange={(e) => setAbonoAmount(e.target.value)}
               autoComplete="off"
-              style={{ width: "100%", background: "#16283A", border: "1px solid rgba(74,222,128,0.4)", borderRadius: "14px", padding: "14px 17px", color: "#E7EEF4", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
+              style={{ width: "100%", background: "#16283A", border: "1px solid rgba(217,173,82,0.4)", borderRadius: "14px", padding: "14px 17px", color: "#E7EEF4", fontSize: "17px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
             />
             {abonoAmount ? (
               <p style={{ color: "#57708A", fontSize: "16px", marginBottom: "19px", fontWeight: "500" }}>
@@ -690,7 +690,7 @@ export default function AdminClient() {
               </p>
             )}
             {message && <p style={{ color: "#F87171", fontSize: "16px", marginBottom: "12px", fontWeight: "500" }}>⚠ {message}</p>}
-            <button onClick={handleRegistrar} disabled={saving} style={{ width: "100%", background: "linear-gradient(135deg, #4ADE80, #16A34A)", border: "none", borderRadius: "14px", padding: "17px", color: "#0F1B2A", fontWeight: "800", cursor: "pointer", fontSize: "18px", fontFamily: "inherit" }}>
+            <button onClick={handleRegistrar} disabled={saving} style={{ width: "100%", background: "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "14px", padding: "17px", color: "#0F1B2A", fontWeight: "800", cursor: "pointer", fontSize: "18px", fontFamily: "inherit" }}>
               {saving ? "Guardando..." : "Registrar"}
             </button>
           </div>
