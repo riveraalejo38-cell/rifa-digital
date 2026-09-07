@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 
 // Página pública de venta: cualquier visitante que entre al dominio puede
 // escribir el número de boleta que quiere, ver si está disponible y
-// reservarla/abonarla ahí mismo, sin necesitar un vendedor. El comprobante
-// de pago se maneja después por WhatsApp (eso es aparte, no se hace aquí).
+// separarla ahí mismo, sin necesitar un vendedor. A propósito esta página
+// SOLO reserva (no recibe abonos/pagos): el cliente separa el número y
+// después envía el comprobante de pago por WhatsApp; el vendedor o admin
+// registra el abono/pago ya confirmado en su panel.
 
 // Datos de la rifa activa — coinciden con lo que hay hoy en la base de
 // datos (Raffle.isActive = true). Si el nombre, el premio, el precio de la
@@ -20,7 +22,7 @@ const DRAW_DATE = new Date("2026-12-12T20:00:00-05:00");
 const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 
 type CheckResult = { number: number; available: boolean; ticketPrice: number } | null;
-type ReservaExito = { number: number; status: string; amountPaid: number; restante: number } | null;
+type ReservaExito = { number: number; status: string; ticketPrice: number } | null;
 
 export default function PublicoClient() {
   const [tiempo, setTiempo] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
@@ -33,7 +35,6 @@ export default function PublicoClient() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [ciudad, setCiudad] = useState("");
-  const [monto, setMonto] = useState("");
   const [reservando, setReservando] = useState(false);
   const [reservaError, setReservaError] = useState("");
   const [reservaExito, setReservaExito] = useState<ReservaExito>(null);
@@ -70,7 +71,6 @@ export default function PublicoClient() {
     setNombre("");
     setTelefono("");
     setCiudad("");
-    setMonto("");
     try {
       const res = await fetch(`/api/public/ticket-status?number=${encodeURIComponent(term)}`, { cache: "no-store" });
       const data = await res.json();
@@ -115,7 +115,6 @@ export default function PublicoClient() {
           name: nombre.trim(),
           phone: telefono.trim(),
           city: ciudad.trim(),
-          amountPaid: monto ? parseFloat(monto) : 0,
         }),
       });
       const data = await res.json();
@@ -245,15 +244,9 @@ export default function PublicoClient() {
                   style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "10px" }} />
                 <input type="text" placeholder="Ciudad (opcional)" value={ciudad} onChange={(e) => setCiudad(e.target.value)} autoComplete="off"
                   style={{ width: "100%", background: "#16283A", border: "1.5px solid #28405A", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "16px" }} />
-                <input type="number" placeholder="Monto a abonar ($) — déjalo vacío para solo reservar" value={monto} onChange={(e) => setMonto(e.target.value)} autoComplete="off"
-                  style={{ width: "100%", background: "#16283A", border: "1.5px solid #4ADE80", borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: "#FFFFFF", fontFamily: "inherit", fontWeight: "500", marginBottom: "8px" }} />
-                {monto ? (
-                  <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>
-                    {parseFloat(monto) >= TICKET_PRICE ? "Queda registrada como pagada completa" : `Resta por pagar: ${formatPeso(Math.max(0, TICKET_PRICE - parseFloat(monto || "0")))}`}
-                  </p>
-                ) : (
-                  <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>Sin monto, tu boleta queda reservada</p>
-                )}
+                <p style={{ color: "#8FA6BD", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>
+                  Tu boleta queda apartada. El pago se confirma después, enviando el comprobante por WhatsApp.
+                </p>
                 {reservaError && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px", fontWeight: "500" }}>⚠ {reservaError}</p>}
 
                 <button onClick={handleReservar} disabled={reservando}
@@ -276,23 +269,13 @@ export default function PublicoClient() {
               <p style={{ margin: 0, fontSize: "48px", fontWeight: "800", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>{String(reservaExito.number).padStart(4, "0")}</p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "18px" }}>
-              <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px" }}>
-                <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>ABONADO</p>
-                <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: "700", color: "#4ADE80" }}>{formatPeso(reservaExito.amountPaid)}</p>
-              </div>
-              <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px" }}>
-                <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>SALDO PENDIENTE</p>
-                <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: "700", color: reservaExito.restante > 0 ? "#FCD34D" : "#4ADE80" }}>
-                  {reservaExito.restante > 0 ? formatPeso(reservaExito.restante) : "Pagado ✓"}
-                </p>
-              </div>
+            <div style={{ background: "#16283A", borderRadius: "12px", padding: "14px", marginBottom: "18px", textAlign: "center" }}>
+              <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "600" }}>VALOR A PAGAR</p>
+              <p style={{ margin: "4px 0 0", fontSize: "20px", fontWeight: "700", color: "#FFFFFF" }}>{formatPeso(reservaExito.ticketPrice)}</p>
             </div>
 
             <p style={{ margin: "0 0 14px", fontSize: "13px", color: "#8FA6BD", lineHeight: 1.6 }}>
-              {reservaExito.amountPaid > 0
-                ? "Para confirmar tu abono, envíanos el comprobante de pago por WhatsApp."
-                : "Tu boleta quedó apartada. Cuando hagas el pago, envíanos el comprobante por WhatsApp."}
+              Tu boleta quedó apartada. Ahora haz el pago y envíanos el comprobante por WhatsApp para confirmarla — tu vendedor la registra apenas lo reciba.
             </p>
 
             <button onClick={compartirWhatsApp} style={{ width: "100%", background: "#25D366", border: "none", borderRadius: "12px", padding: "15px", color: "#0F1B2A", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
