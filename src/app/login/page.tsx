@@ -40,7 +40,8 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#0B1F17",
+      background: "linear-gradient(180deg, rgba(11,31,23,0.55) 0%, rgba(11,31,23,0.88) 70%, #0B1F17 100%), url('/premios/hero-grupo.jpg')",
+      backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "no-repeat",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "20px", fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
     }}>
