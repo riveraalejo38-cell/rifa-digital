@@ -255,8 +255,9 @@ export default function BoletaPage() {
                 { label: "Ciudad", value: ticket.client.city || "—" },
                 { label: "Celular", value: ticket.client.phone },
                 { label: "Sorteo", value: "Lotería de Boyacá" },
+                { label: "Fecha del sorteo", value: fechaSorteo, full: true },
               ].map((item) => (
-                <div key={item.label} style={{ background: "#0B1F17", borderRadius: "12px", padding: "12px 14px", border: "1px solid rgba(217,173,82,0.1)" }}>
+                <div key={item.label} style={{ gridColumn: item.full ? "1 / -1" : undefined, background: "#0B1F17", borderRadius: "12px", padding: "12px 14px", border: "1px solid rgba(217,173,82,0.1)" }}>
                   <p style={{ margin: 0, fontSize: "10px", color: "#6B8674", fontWeight: "600", letterSpacing: "0.5px" }}>{item.label.toUpperCase()}</p>
                   <p style={{ margin: "4px 0 0", fontSize: "14px", fontWeight: "700", color: "#E7F3EA" }}>{item.value}</p>
                 </div>
