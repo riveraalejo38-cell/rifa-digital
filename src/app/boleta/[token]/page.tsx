@@ -111,7 +111,7 @@ export default function BoletaPage() {
       <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${HERO_IMG})`, backgroundSize: "cover", backgroundPosition: "center", filter: "brightness(0.55) saturate(1.05)" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,31,23,0.55) 0%, rgba(11,31,23,0.88) 70%, #0B1F17 100%)" }} />
       <div style={{ position: "relative", background: "rgba(20,43,33,0.9)", backdropFilter: "blur(6px)", borderRadius: "24px", padding: "36px 28px", width: "100%", maxWidth: "380px", textAlign: "center", border: "1px solid rgba(217,173,82,0.25)", boxShadow: "0 20px 60px rgba(0,0,0,0.55)" }}>
-        <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "68px", height: "68px", borderRadius: "16px", objectFit: "cover", marginBottom: "14px", border: "2px solid rgba(217,173,82,0.4)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "68px", height: "68px", borderRadius: "16px", objectFit: "cover", marginBottom: "14px", border: "2px solid rgba(217,173,82,0.4)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
         <p style={{ margin: "0 0 2px", fontSize: "11px", color: "#9CC2A8", fontWeight: "600", letterSpacing: "2px" }}>PROYECTOS SANTIAGO GÓMEZ</p>
         <p style={{ margin: "0 0 18px", fontSize: "10px", color: "#D9AD52", fontWeight: "700", letterSpacing: "2px" }}>VIAJE SIN LÍMITES · VIVE SIN EXCUSAS</p>
         <h2 style={{ margin: "0 0 6px", fontSize: "22px", fontWeight: "800", color: "#D9AD52" }}>Verificación</h2>
@@ -181,7 +181,7 @@ export default function BoletaPage() {
           <img src={HERO_IMG} alt="Proyectos Santiago Gómez — Viaje sin límites" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "brightness(0.7)" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,31,23,0.15) 0%, rgba(11,31,23,0.35) 55%, #0B1F17 100%)" }} />
           <div style={{ position: "absolute", top: "18px", left: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-            <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "38px", height: "38px", borderRadius: "10px", objectFit: "cover", border: "1.5px solid rgba(217,173,82,0.6)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "38px", height: "38px", borderRadius: "10px", objectFit: "cover", border: "1.5px solid rgba(217,173,82,0.6)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
             <p style={{ margin: 0, fontSize: "12px", fontWeight: "800", color: "#FFFFFF", letterSpacing: "1px", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
           </div>
           <div style={{ position: "absolute", top: "18px", right: "20px" }}>
