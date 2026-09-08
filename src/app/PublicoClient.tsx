@@ -25,8 +25,6 @@ type CheckResult = { number: number; available: boolean; ticketPrice: number } |
 type ReservaExito = { number: number; status: string; ticketPrice: number; token: string } | null;
 
 export default function PublicoClient() {
-  const [tiempo, setTiempo] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
-
   const [numeroInput, setNumeroInput] = useState("");
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState("");
@@ -39,26 +37,19 @@ export default function PublicoClient() {
   const [reservaError, setReservaError] = useState("");
   const [reservaExito, setReservaExito] = useState<ReservaExito>(null);
 
-  useEffect(() => {
-    const calcular = () => {
-      const diff = DRAW_DATE.getTime() - Date.now();
-      if (diff <= 0) {
-        setTiempo({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
-        return;
-      }
-      setTiempo({
-        dias: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        horas: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutos: Math.floor((diff / (1000 * 60)) % 60),
-        segundos: Math.floor((diff / 1000) % 60),
-      });
-    };
-    calcular();
-    const intervalo = setInterval(calcular, 1000);
-    return () => clearInterval(intervalo);
-  }, []);
-
   const fechaSorteo = DRAW_DATE.toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
+
+  // Antes esto era una cuenta regresiva (días/horas/min/seg) que se
+  // actualizaba cada segundo. Por pedido suyo, esos mismos 4 recuadros
+  // ahora muestran la fecha del sorteo ya fija (día/mes/año/hora), sin
+  // contador en vivo.
+  const diaSorteo = String(DRAW_DATE.getDate()).padStart(2, "0");
+  const mesSorteo = DRAW_DATE.toLocaleDateString("es-CO", { month: "short" }).replace(".", "").toUpperCase();
+  const anioSorteo = String(DRAW_DATE.getFullYear());
+  const horas24Sorteo = DRAW_DATE.getHours();
+  const horas12Sorteo = horas24Sorteo % 12 === 0 ? 12 : horas24Sorteo % 12;
+  const minutosSorteo = String(DRAW_DATE.getMinutes()).padStart(2, "0");
+  const horaSorteo = `${horas12Sorteo}:${minutosSorteo} ${horas24Sorteo >= 12 ? "PM" : "AM"}`;
 
   const verificarNumero = async () => {
     const term = numeroInput.trim();
@@ -183,18 +174,18 @@ export default function PublicoClient() {
           </div>
         </div>
 
-        {/* Contador regresivo */}
+        {/* Fecha del sorteo (antes era un contador regresivo en vivo) */}
         <div style={{ background: "#142B21", borderRadius: "20px", padding: "20px", marginBottom: "18px", border: "1.5px solid #28405A" }}>
-          <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "1.5px", color: "#8FA6BD", fontWeight: "700", textAlign: "center" }}>SORTEO · {fechaSorteo.toUpperCase()}</p>
+          <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "1.5px", color: "#8FA6BD", fontWeight: "700", textAlign: "center" }}>📅 FECHA DEL SORTEO</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
             {[
-              { valor: tiempo.dias, label: "DÍAS" },
-              { valor: tiempo.horas, label: "HORAS" },
-              { valor: tiempo.minutos, label: "MIN" },
-              { valor: tiempo.segundos, label: "SEG" },
+              { valor: diaSorteo, label: "DÍA" },
+              { valor: mesSorteo, label: "MES" },
+              { valor: anioSorteo, label: "AÑO" },
+              { valor: horaSorteo, label: "HORA" },
             ].map((item) => (
               <div key={item.label} style={{ background: "#142B21", borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: "1px solid #28405A" }}>
-                <p style={{ margin: "0 0 2px", fontSize: "24px", fontWeight: "800", color: "#D9AD52", fontFamily: "'DM Mono', monospace" }}>{String(item.valor).padStart(2, "0")}</p>
+                <p style={{ margin: "0 0 2px", fontSize: "18px", fontWeight: "800", color: "#D9AD52", fontFamily: "'DM Mono', monospace" }}>{item.valor}</p>
                 <p style={{ margin: 0, fontSize: "9px", color: "#7C93AC", fontWeight: "700", letterSpacing: "1px" }}>{item.label}</p>
               </div>
             ))}
