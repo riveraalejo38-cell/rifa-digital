@@ -319,7 +319,7 @@ export default function AdminClient() {
       {/* Header */}
       <div style={{ background: "#142B21", borderBottom: "1px solid rgba(217,173,82,0.2)", padding: "0 38px", height: "84px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "58px", height: "58px", borderRadius: "12px", objectFit: "cover" }} />
+          <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "58px", height: "58px", borderRadius: "12px", objectFit: "cover" }} />
           <div>
             <p style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#D9AD52", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
             <p style={{ margin: 0, fontSize: "13px", color: "#57708A", fontWeight: "500" }}>Panel Administrador</p>
