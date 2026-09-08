@@ -47,12 +47,18 @@ export async function POST(request: Request) {
     }
 
     // Una boleta ocupada solo la puede tocar quien la vendió o un admin. Otro
-    // vendedor que intente abonarle/registrarla debe reclamarla primero.
+    // vendedor que intente abonarle/registrarla debe reclamarla primero. Esto
+    // también aplica a una boleta reservada por el cliente directamente desde
+    // la página web (assignedByName = "Compra web", sin assignedById porque
+    // ningún vendedor intervino) — antes se colaba porque solo se revisaba
+    // assignedById, y una boleta de la web no tiene ese campo. Ahora se
+    // bloquea igual salvo que la boleta sea realmente antigua, de antes de
+    // que existiera esta atribución (ni assignedById ni assignedByName).
     if (
       session.role !== "ADMIN" &&
       ticket.status !== "AVAILABLE" &&
-      ticket.assignedById &&
-      ticket.assignedById !== session.id
+      ticket.assignedById !== session.id &&
+      (ticket.assignedById || ticket.assignedByName)
     ) {
       return NextResponse.json(
         { success: false, error: "Esta boleta no te pertenece. Si es tuya, reclámala." },
