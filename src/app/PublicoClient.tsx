@@ -133,11 +133,16 @@ export default function PublicoClient() {
   const linkBoleta = (token: string) =>
     typeof window !== "undefined" ? `${window.location.origin}/boleta/${token}` : "";
 
+  // Número de WhatsApp del negocio al que llegan los comprobantes de pago.
+  // Sin este número, el botón solo abría un selector de contactos y el
+  // mensaje no llegaba de forma confiable.
+  const WHATSAPP_NEGOCIO = "573148008489";
+
   const compartirWhatsApp = () => {
     if (!reservaExito) return;
     const numero = String(reservaExito.number).padStart(4, "0");
     const mensaje = `¡Hola! Acabo de reservar la boleta *${numero}* de ${RAFFLE_NAME} (${RAFFLE_PRIZE}). Aquí les envío el comprobante de pago.\n\nMi boleta: ${linkBoleta(reservaExito.token)}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`, "_blank");
   };
 
   return (
