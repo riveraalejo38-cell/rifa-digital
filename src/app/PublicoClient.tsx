@@ -162,7 +162,7 @@ export default function PublicoClient() {
       {/* Encabezado */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", maxWidth: "520px", margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", border: "1.5px solid #28405A" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "36px", height: "36px", borderRadius: "10px", objectFit: "cover", border: "1.5px solid #28405A" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
           <p style={{ margin: 0, fontSize: "12px", fontWeight: "800", color: "#FFFFFF", letterSpacing: "0.5px", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
         </div>
         <a href="/login" style={{ fontSize: "12px", fontWeight: "600", color: "#8FA6BD", textDecoration: "none" }}>Vendedores →</a>

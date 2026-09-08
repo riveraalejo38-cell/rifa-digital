@@ -12,13 +12,38 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://www.rifassantiagogomez.com";
+const SITE_TITLE = "Rifas Santiago Gómez";
+const SITE_DESCRIPTION = "Separa tu boleta y participa por increíbles premios con Proyectos Santiago Gómez.";
+
 export const metadata: Metadata = {
-  title: "Rifas Santiago Gómez",
-  description: "Rifas digitales de Proyectos Santiago Gómez",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   icons: {
-    icon: "/logo-rg.jpeg.jpeg",
-    shortcut: "/logo-rg.jpeg.jpeg",
-    apple: "/logo-rg.jpeg.jpeg",
+    icon: "/logo-santiago-gomez.jpg",
+    shortcut: "/logo-santiago-gomez.jpg",
+    apple: "/logo-santiago-gomez.jpg",
+  },
+  // Sin esto, cuando alguien comparte el link por WhatsApp/Facebook/etc., la
+  // vista previa (tarjeta con imagen) no tiene de dónde sacar el logo del
+  // negocio y termina mostrando el ícono por defecto del proyecto (el de
+  // Next.js/Vercel que venía de fábrica). Con openGraph definido, la tarjeta
+  // usa el logo real.
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_TITLE,
+    images: [{ url: "/logo-santiago-gomez.jpg", width: 800, height: 800, alt: SITE_TITLE }],
+    locale: "es_CO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/logo-santiago-gomez.jpg"],
   },
 };
 
