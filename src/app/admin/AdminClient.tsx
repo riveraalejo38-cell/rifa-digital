@@ -237,6 +237,26 @@ export default function AdminClient() {
 
   const formatPeso = (value: number) => "$" + value.toLocaleString("es-CO");
 
+  // Medios de pago que se incluyen en el recordatorio que se le envía al
+  // cliente por WhatsApp (mismo número, dos formas de pago).
+  const MEDIOS_DE_PAGO = "💵 Nequi: 314 800 8489\n🔑 Llave Bre-B: 314 800 8489";
+
+  // Abre WhatsApp ya con el chat del CLIENTE (no el del negocio) y un
+  // recordatorio de pago prellenado, para que el admin/vendedor le escriba
+  // apenas vea la boleta separada/con abono pendiente.
+  const enviarPlantilla = (ticket: any, abonado: number, resta: number) => {
+    const digitos = (ticket.client?.phone || "").replace(/\D/g, "");
+    if (!digitos) return;
+    const numeroWa = digitos.length === 10 ? `57${digitos}` : digitos;
+    const numeroBoleta = String(ticket.number).padStart(4, "0");
+    const nombre = ticket.client?.name || "";
+    const saldoTexto = ticket.status === "PARTIAL"
+      ? `Ya abonaste ${formatPeso(abonado)}, te falta ${formatPeso(resta)} para completarla.`
+      : `El valor de la boleta es ${formatPeso(TICKET_PRICE)}.`;
+    const mensaje = `¡Hola ${nombre}! 👋 Vimos que separaste la boleta *${numeroBoleta}* de Proyectos Santiago Gómez 🎉\n\n${saldoTexto}\n\nPuedes pagar por:\n${MEDIOS_DE_PAGO}\n\nCuando hagas el pago, envíanos el comprobante por este mismo chat. ¡Gracias! 🙌`;
+    window.open(`https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
   const getStatusBadge = (ticket: any) => {
     if (ticket.status === "PAID") return { label: "✅ Pagada", bg: "rgba(5,150,105,0.15)", color: "#6EE7B7" };
     if (ticket.status === "PARTIAL") return { label: "⏳ Abono", bg: "rgba(217,119,6,0.15)", color: "#FCD34D" };
@@ -607,6 +627,11 @@ export default function AdminClient() {
                           {ticket.status !== "AVAILABLE" && (
                             <button onClick={() => liberarBoleta(ticket.id)} style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "10px", padding: "6px 12px", color: "#F87171", fontSize: "14px", cursor: "pointer", fontWeight: "700" }}>
                               Liberar
+                            </button>
+                          )}
+                          {ticket.client?.phone && (ticket.status === "RESERVED" || ticket.status === "PARTIAL") && (
+                            <button onClick={() => enviarPlantilla(ticket, abonado, resta)} title="Enviar recordatorio de pago por WhatsApp" style={{ background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.4)", borderRadius: "10px", padding: "6px 12px", color: "#25D366", fontSize: "14px", cursor: "pointer", fontWeight: "700" }}>
+                              📲
                             </button>
                           )}
                         </div>
