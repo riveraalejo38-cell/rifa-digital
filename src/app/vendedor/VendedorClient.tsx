@@ -313,7 +313,20 @@ export default function VendedorClient() {
 
   const isAvailable = ticket?.status === "AVAILABLE";
   const isTaken = ticket && !isAvailable;
-  const esMia = !ticket?.assignedById || !me || ticket.assignedById === me.id || me.role === "ADMIN";
+  // Una boleta es "mía" si está disponible, si soy admin, si yo mismo la
+  // registré, o si es una boleta antigua sin ningún registro de quién la
+  // asignó (de antes de que existiera esta atribución). Una boleta comprada
+  // por la página web (assignedByName = "Compra web", sin assignedById
+  // porque ningún vendedor intervino) NO es "mía": debe tratarse igual que
+  // una boleta de otro vendedor — no se puede abonar ni liberar, solo
+  // reclamar.
+  const esMia =
+    !ticket ||
+    isAvailable ||
+    !me ||
+    me.role === "ADMIN" ||
+    ticket.assignedById === me.id ||
+    (!ticket.assignedById && !ticket.assignedByName);
   const tieneReclamoPendiente = ticket?.claims && ticket.claims.length > 0;
 
   return (
@@ -566,7 +579,9 @@ export default function VendedorClient() {
                   <div>
                     <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#F87171" }}>Esta boleta no te pertenece</p>
                     <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#D8B4D8", fontWeight: "500" }}>
-                      Fue vendida por <strong>{ticket.assignedByName || "otro vendedor"}</strong>. No puedes abonarle ni liberarla. Si es tuya, reclámala y envía una evidencia.
+                      {ticket.assignedByName === "Compra web"
+                        ? "Fue separada por el cliente directamente desde la página web."
+                        : <>Fue vendida por <strong>{ticket.assignedByName || "otro vendedor"}</strong>.</>} No puedes abonarle ni liberarla. Si es tuya, reclámala y envía una evidencia.
                     </p>
                   </div>
                 </div>
