@@ -157,6 +157,7 @@ export default function PublicoClient() {
         * { box-sizing: border-box; }
         input:focus { outline: none; }
         @keyframes brillo { 0%, 100% { box-shadow: 0 0 30px rgba(217,173,82,0.10); } 50% { box-shadow: 0 0 46px rgba(217,173,82,0.22); } }
+        @keyframes latido { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(217,173,82,0.5); } 50% { transform: scale(1.04); box-shadow: 0 0 24px rgba(217,173,82,0.55); } }
       `}</style>
 
       {/* Encabezado */}
@@ -295,8 +296,8 @@ export default function PublicoClient() {
               style={{ width: "100%", boxSizing: "border-box", background: "#142B21", border: "1.5px solid #D9AD52", borderRadius: "12px", padding: "15px", color: "#D9AD52", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
               <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
             </a>
-            <button onClick={compartirWhatsApp} style={{ width: "100%", background: "#25D366", border: "none", borderRadius: "12px", padding: "15px", color: "#0B1F17", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-              <span style={{ fontSize: "17px" }}>📲</span> CONFIRMAR COMPRA DE MI BOLETA
+            <button onClick={compartirWhatsApp} style={{ width: "100%", background: "linear-gradient(135deg, #D9AD52 0%, #B58A2E 100%)", border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", animation: "latido 1.6s ease-in-out infinite" }}>
+              <span style={{ fontSize: "17px" }}>📲</span> CONFIRMAR MI BOLETA
             </button>
             <button onClick={otroNumero} style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "13px", color: "#E4C983", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
               Reservar otra boleta
