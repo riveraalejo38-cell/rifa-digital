@@ -346,7 +346,7 @@ export default function VendedorClient() {
       {/* Header */}
       <div style={{ background: "#142B21", borderBottom: "1px solid #28405A", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <img src="/logo-rg.jpeg.jpeg" alt="Proyectos Santiago Gómez" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
+          <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} />
           <div>
             <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#D9AD52", letterSpacing: "0.5px" }}>Proyectos Santiago Gómez</p>
             <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "500" }}>Panel Vendedor</p>
