@@ -12,7 +12,6 @@ export default function BoletaPage() {
   const [errorTel, setErrorTel] = useState("");
   const [fotoActiva, setFotoActiva] = useState(0);
   const [guardado, setGuardado] = useState(false);
-  const [tiempoRestante, setTiempoRestante] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
 
   // Premios con fotografías reales de la campaña "Viaje sin límites"
   const premios = [
@@ -47,6 +46,18 @@ export default function BoletaPage() {
   // Fecha del sorteo — cambia esta línea si la fecha cambia
   const FECHA_SORTEO = new Date("2026-12-12T20:00:00-05:00");
 
+  // Antes esto era una cuenta regresiva (días/horas/min/seg) que se
+  // actualizaba cada segundo. Por pedido suyo, esos mismos 4 recuadros
+  // ahora muestran la fecha del sorteo ya fija (día/mes/año/hora), sin
+  // contador en vivo.
+  const diaSorteo = String(FECHA_SORTEO.getDate()).padStart(2, "0");
+  const mesSorteo = FECHA_SORTEO.toLocaleDateString("es-CO", { month: "short" }).replace(".", "").toUpperCase();
+  const anioSorteo = String(FECHA_SORTEO.getFullYear());
+  const horas24Sorteo = FECHA_SORTEO.getHours();
+  const horas12Sorteo = horas24Sorteo % 12 === 0 ? 12 : horas24Sorteo % 12;
+  const minutosSorteo = String(FECHA_SORTEO.getMinutes()).padStart(2, "0");
+  const horaSorteo = `${horas12Sorteo}:${minutosSorteo} ${horas24Sorteo >= 12 ? "PM" : "AM"}`;
+
   useEffect(() => {
     fetch(`/api/boleta/${token}`)
       .then((r) => r.json())
@@ -55,26 +66,6 @@ export default function BoletaPage() {
         setLoading(false);
       });
   }, [token]);
-
-  useEffect(() => {
-    const calcular = () => {
-      const ahora = new Date().getTime();
-      const diff = FECHA_SORTEO.getTime() - ahora;
-      if (diff <= 0) {
-        setTiempoRestante({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
-        return;
-      }
-      setTiempoRestante({
-        dias: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        horas: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutos: Math.floor((diff / (1000 * 60)) % 60),
-        segundos: Math.floor((diff / 1000) % 60),
-      });
-    };
-    calcular();
-    const intervalo = setInterval(calcular, 1000);
-    return () => clearInterval(intervalo);
-  }, []);
 
   const verificarTelefono = () => {
     if (!ticket?.client) { setErrorTel("Esta boleta no tiene cliente registrado"); return; }
@@ -209,18 +200,18 @@ export default function BoletaPage() {
           </div>
         </div>
 
-        {/* Contador regresivo */}
+        {/* Fecha del sorteo (antes era un contador regresivo en vivo) */}
         <div style={{ background: "#142B21", padding: "22px 24px", border: "1px solid rgba(217,173,82,0.15)", borderTop: "none" }}>
-          <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "2px", color: "#9CC2A8", fontWeight: "600", textAlign: "center" }}>🧭 SALIDA HACIA EL SORTEO · {fechaSorteo.toUpperCase()}</p>
+          <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "2px", color: "#9CC2A8", fontWeight: "600", textAlign: "center" }}>📅 FECHA DEL SORTEO</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
             {[
-              { valor: tiempoRestante.dias, label: "DÍAS" },
-              { valor: tiempoRestante.horas, label: "HORAS" },
-              { valor: tiempoRestante.minutos, label: "MIN" },
-              { valor: tiempoRestante.segundos, label: "SEG" },
+              { valor: diaSorteo, label: "DÍA" },
+              { valor: mesSorteo, label: "MES" },
+              { valor: anioSorteo, label: "AÑO" },
+              { valor: horaSorteo, label: "HORA" },
             ].map((item) => (
               <div key={item.label} style={{ background: "#0B1F17", borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: "1px solid rgba(217,173,82,0.2)" }}>
-                <p style={{ margin: "0 0 2px", fontSize: "26px", fontWeight: "800", color: "#D9AD52", fontFamily: "'DM Mono', monospace" }}>{String(item.valor).padStart(2, "0")}</p>
+                <p style={{ margin: "0 0 2px", fontSize: "20px", fontWeight: "800", color: "#D9AD52", fontFamily: "'DM Mono', monospace" }}>{item.valor}</p>
                 <p style={{ margin: 0, fontSize: "9px", color: "#6B8674", fontWeight: "700", letterSpacing: "1px" }}>{item.label}</p>
               </div>
             ))}
