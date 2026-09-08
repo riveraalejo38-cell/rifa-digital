@@ -141,7 +141,7 @@ export default function PublicoClient() {
   const compartirWhatsApp = () => {
     if (!reservaExito) return;
     const numero = String(reservaExito.number).padStart(4, "0");
-    const mensaje = `¡Hola! Acabo de reservar la boleta *${numero}* de ${RAFFLE_NAME} (${RAFFLE_PRIZE}). Aquí les envío el comprobante de pago.\n\nMi boleta: ${linkBoleta(reservaExito.token)}`;
+    const mensaje = `¡Hola! Quiero confirmar la compra de mi boleta *${numero}* de ${RAFFLE_NAME} (${RAFFLE_PRIZE}). Ya les envío el comprobante de pago.\n\nMi boleta: ${linkBoleta(reservaExito.token)}`;
     window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`, "_blank");
   };
 
@@ -296,7 +296,7 @@ export default function PublicoClient() {
               <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
             </a>
             <button onClick={compartirWhatsApp} style={{ width: "100%", background: "#25D366", border: "none", borderRadius: "12px", padding: "15px", color: "#0B1F17", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-              <span style={{ fontSize: "17px" }}>📲</span> ENVIAR COMPROBANTE POR WHATSAPP
+              <span style={{ fontSize: "17px" }}>📲</span> CONFIRMAR COMPRA DE MI BOLETA
             </button>
             <button onClick={otroNumero} style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "12px", padding: "13px", color: "#E4C983", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" }}>
               Reservar otra boleta
