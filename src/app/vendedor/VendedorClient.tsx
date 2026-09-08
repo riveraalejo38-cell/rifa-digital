@@ -292,6 +292,25 @@ export default function VendedorClient() {
   const totalAbonado = ticket?.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
   const resta = TICKET_PRICE - totalAbonado;
 
+  // Medios de pago que se incluyen en el recordatorio que se le envía al
+  // cliente por WhatsApp (mismo número, dos formas de pago).
+  const MEDIOS_DE_PAGO = "💵 Nequi: 314 800 8489\n🔑 Llave Bre-B: 314 800 8489";
+
+  // Abre WhatsApp ya con el chat del CLIENTE (no el del negocio) y un
+  // recordatorio de pago prellenado.
+  const enviarPlantilla = () => {
+    const digitos = (ticket?.client?.phone || "").replace(/\D/g, "");
+    if (!digitos) return;
+    const numeroWa = digitos.length === 10 ? `57${digitos}` : digitos;
+    const numeroBoleta = String(ticket.number).padStart(4, "0");
+    const nombre = ticket.client?.name || "";
+    const saldoTexto = ticket.status === "PARTIAL"
+      ? `Ya abonaste ${formatPeso(totalAbonado)}, te falta ${formatPeso(resta)} para completarla.`
+      : `El valor de la boleta es ${formatPeso(TICKET_PRICE)}.`;
+    const mensaje = `¡Hola ${nombre}! 👋 Vimos que separaste la boleta *${numeroBoleta}* de Proyectos Santiago Gómez 🎉\n\n${saldoTexto}\n\nPuedes pagar por:\n${MEDIOS_DE_PAGO}\n\nCuando hagas el pago, envíanos el comprobante por este mismo chat. ¡Gracias! 🙌`;
+    window.open(`https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
   const isAvailable = ticket?.status === "AVAILABLE";
   const isTaken = ticket && !isAvailable;
   const esMia = !ticket?.assignedById || !me || ticket.assignedById === me.id || me.role === "ADMIN";
@@ -451,6 +470,11 @@ export default function VendedorClient() {
                   {esMia && (
                     <button onClick={liberarBoleta} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
                       Liberar
+                    </button>
+                  )}
+                  {ticket.client?.phone && (ticket.status === "RESERVED" || ticket.status === "PARTIAL") && (
+                    <button onClick={enviarPlantilla} title="Enviar recordatorio de pago por WhatsApp" style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
+                      📲
                     </button>
                   )}
                 </div>
