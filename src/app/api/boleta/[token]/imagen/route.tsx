@@ -86,19 +86,21 @@ export async function GET(
 
   let acumulado = 0;
 
-  const filas = ticket.payments.map((p) => {
-    acumulado += Number(p.amount);
+  const filas = ticket.payments
+    .filter((p) => Number(p.amount) > 0)
+    .map((p) => {
+      acumulado += Number(p.amount);
 
-    const f = new Date(p.createdAt);
+      const f = new Date(p.createdAt);
 
-    return {
-      fecha: `${String(f.getDate()).padStart(2, "0")}/${String(
-        f.getMonth() + 1
-      ).padStart(2, "0")}/${f.getFullYear()}`,
-      abono: formatPeso(Number(p.amount)),
-      saldo: formatPeso(Math.max(0, TICKET_PRICE - acumulado)),
-    };
-  });
+      return {
+        fecha: `${String(f.getDate()).padStart(2, "0")}/${String(
+          f.getMonth() + 1
+        ).padStart(2, "0")}/${f.getFullYear()}`,
+        abono: formatPeso(Number(p.amount)),
+        saldo: formatPeso(Math.max(0, TICKET_PRICE - acumulado)),
+      };
+    });
 
   const filasVisibles = filas.slice(0, 4);
 
@@ -122,8 +124,8 @@ export async function GET(
   const INK = "#1C1C1C";
 
   const ROWS = [
-    { top: 653, height: 52 },
-    { top: 681, height: 22 },
+    { top: 653, height: 23 },
+    { top: 681, height: 23 },
     { top: 709, height: 23 },
     { top: 735, height: 23 },
   ];
@@ -326,7 +328,8 @@ export async function GET(
                 style={{
                   display: "flex",
                   width: "115px",
-                  paddingLeft: "2px",
+                  justifyContent: "center",
+                  textAlign: "center",
                 }}
               >
                 {fila.fecha}
@@ -336,7 +339,8 @@ export async function GET(
                 style={{
                   display: "flex",
                   width: "114px",
-                  paddingLeft: "2px",
+                  justifyContent: "center",
+                  textAlign: "center",
                 }}
               >
                 {fila.abono}
@@ -346,7 +350,8 @@ export async function GET(
                 style={{
                   display: "flex",
                   width: "109px",
-                  paddingLeft: "2px",
+                  justifyContent: "center",
+                  textAlign: "center",
                 }}
               >
                 {fila.saldo}
