@@ -100,7 +100,7 @@ export async function GET(
     };
   });
 
-  const filasVisibles = filas.slice(-3);
+  const filasVisibles = filas.slice(0, 4);
 
   const cancelada = ticket.status === "PAID";
 
@@ -123,7 +123,8 @@ export async function GET(
 
   const ROWS = [
     { top: 653, height: 52 },
-    { top: 709, height: 22 },
+    { top: 681, height: 22 },
+    { top: 709, height: 23 },
     { top: 735, height: 23 },
   ];
 
@@ -295,7 +296,7 @@ export async function GET(
 
         {/* ══ CONTROL DE ABONOS ══ */}
 
-        {[0, 1, 2].map((i) => {
+        {[0, 1, 2, 3].map((i) => {
           const fila = filasVisibles[i];
 
           if (!fila) return null;
