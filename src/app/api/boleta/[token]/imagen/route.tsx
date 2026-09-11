@@ -212,7 +212,7 @@ export async function GET(
         {(
           [
             {
-              top: 338,
+              top: 319,
               height: 44,
               value: campos[0].value,
               fontSize:
@@ -223,7 +223,7 @@ export async function GET(
                   : 29,
             },
             {
-              top: 415,
+              top: 396,
               height: 43,
               value: campos[1].value,
               fontSize:
@@ -234,7 +234,7 @@ export async function GET(
                   : 29,
             },
             {
-              top: 487,
+              top: 468,
               height: 43,
               value: campos[2].value,
               fontSize:
@@ -245,7 +245,7 @@ export async function GET(
                   : 28,
             },
             {
-              top: 559,
+              top: 540,
               height: 42,
               value: campos[3].value,
               fontSize:
