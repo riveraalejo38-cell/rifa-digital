@@ -207,11 +207,7 @@ export async function GET(
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════
-            DATOS DEL TITULAR
-            Ajustados dentro de la zona inferior
-            de cada recuadro.
-           ═══════════════════════════════════════════════ */}
+        {/* ══ DATOS DEL TITULAR ══ */}
 
         {(
           [
@@ -267,7 +263,7 @@ export async function GET(
               display: "flex",
               position: "absolute",
               top: `${c.top}px`,
-              left: "1226px",
+              left: "1240px",
               width: "352px",
               height: `${c.height}px`,
               alignItems: "flex-end",
