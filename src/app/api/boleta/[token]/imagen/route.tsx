@@ -316,7 +316,7 @@ export async function GET(
                 alignItems: "center",
                 fontFamily: "Caveat",
                 fontWeight: 700,
-                fontSize: "20px",
+                fontSize: "22px",
                 lineHeight: 1,
                 color: INK,
               }}
