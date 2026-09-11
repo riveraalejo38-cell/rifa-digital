@@ -8,8 +8,6 @@ const TICKET_PRICE = 80000;
 
 const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 
-// Poppins se descarga una sola vez de Google Fonts.
-// Caveat se sirve como archivo estático propio del proyecto.
 const FONT_URLS: Record<string, string> = {
   "Poppins-ExtraBold.ttf":
     "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-ExtraBold.ttf",
@@ -56,7 +54,6 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  // ── Lógica de datos: SIN CAMBIOS ──
   const ticket = await prisma.ticket.findUnique({
     where: { token },
     include: {
@@ -103,7 +100,6 @@ export async function GET(
     };
   });
 
-  // La plantilla tiene 3 casillas para abonos.
   const filasVisibles = filas.slice(-3);
 
   const cancelada = ticket.status === "PAID";
@@ -125,7 +121,6 @@ export async function GET(
 
   const INK = "#1C1C1C";
 
-  // Filas de abonos
   const ROWS = [
     { top: 653, height: 52 },
     { top: 709, height: 22 },
@@ -212,56 +207,57 @@ export async function GET(
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════
+        {/* ═══════════════════════════════════════════════
             DATOS DEL TITULAR
-            Más pequeños y dentro de los recuadros
-           ═══════════════════════════════════════════ */}
+            Ajustados dentro de la zona inferior
+            de cada recuadro.
+           ═══════════════════════════════════════════════ */}
 
         {(
           [
             {
-              top: 301,
-              height: 45,
+              top: 300,
+              height: 44,
               value: campos[0].value,
               fontSize:
                 campos[0].value.length > 25
-                  ? 22
+                  ? 23
                   : campos[0].value.length > 18
-                  ? 25
-                  : 28,
+                  ? 26
+                  : 29,
             },
             {
-              top: 379,
+              top: 377,
               height: 43,
               value: campos[1].value,
               fontSize:
                 campos[1].value.length > 18
-                  ? 22
+                  ? 23
                   : campos[1].value.length > 12
-                  ? 25
-                  : 28,
+                  ? 26
+                  : 29,
             },
             {
-              top: 451,
+              top: 449,
               height: 43,
               value: campos[2].value,
               fontSize:
                 campos[2].value.length > 12
-                  ? 21
+                  ? 22
                   : campos[2].value.length > 10
-                  ? 23
-                  : 26,
+                  ? 25
+                  : 28,
             },
             {
-              top: 523,
-              height: 43,
+              top: 521,
+              height: 42,
               value: campos[3].value,
               fontSize:
                 campos[3].value.length > 20
-                  ? 22
+                  ? 23
                   : campos[3].value.length > 14
-                  ? 24
-                  : 27,
+                  ? 26
+                  : 29,
             },
           ] as const
         ).map((c, i) => (
@@ -274,7 +270,7 @@ export async function GET(
               left: "1226px",
               width: "352px",
               height: `${c.height}px`,
-              alignItems: "center",
+              alignItems: "flex-end",
               justifyContent: "flex-start",
               overflow: "hidden",
             }}
@@ -288,6 +284,7 @@ export async function GET(
                 color: INK,
                 lineHeight: 1,
                 paddingLeft: "5px",
+                paddingBottom: "1px",
                 paddingRight: "8px",
                 maxWidth: "338px",
                 whiteSpace: "nowrap",
@@ -323,7 +320,7 @@ export async function GET(
                 alignItems: "center",
                 fontFamily: "Caveat",
                 fontWeight: 700,
-                fontSize: "15px",
+                fontSize: "20px",
                 lineHeight: 1,
                 color: INK,
               }}
