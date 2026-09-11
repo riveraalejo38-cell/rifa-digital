@@ -8,11 +8,11 @@ const TICKET_PRICE = 80000;
 
 const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 
+// Poppins se descarga una sola vez de Google Fonts.
+// Caveat se sirve como archivo estático propio del proyecto.
 const FONT_URLS: Record<string, string> = {
   "Poppins-ExtraBold.ttf":
     "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-ExtraBold.ttf",
-  "Caveat-Regular.ttf":
-    "https://raw.githubusercontent.com/google/fonts/main/ofl/caveat/Caveat-Regular.ttf",
 };
 
 const fontCache = new Map<string, ArrayBuffer>();
@@ -32,12 +32,31 @@ async function loadFont(file: string): Promise<ArrayBuffer> {
   return buf;
 }
 
+async function loadLocalFont(
+  origin: string,
+  path: string
+): Promise<ArrayBuffer> {
+  const cached = fontCache.get(path);
+  if (cached) return cached;
+
+  const res = await fetch(`${origin}${path}`);
+
+  if (!res.ok) {
+    throw new Error(`No se pudo cargar la fuente local: ${path}`);
+  }
+
+  const buf = await res.arrayBuffer();
+  fontCache.set(path, buf);
+  return buf;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
 
+  // ── Lógica de datos: SIN CAMBIOS ──
   const ticket = await prisma.ticket.findUnique({
     where: { token },
     include: {
@@ -84,26 +103,29 @@ export async function GET(
     };
   });
 
+  // La plantilla tiene 3 casillas para abonos.
   const filasVisibles = filas.slice(-3);
 
   const cancelada = ticket.status === "PAID";
 
   const campos = [
-    ticket.client?.name || "—",
-    ticket.client?.city || "—",
-    ticket.client?.phone || "—",
-    ticket.assignedByName || "—",
+    { value: ticket.client?.name || "—" },
+    { value: ticket.client?.city || "—" },
+    { value: ticket.client?.phone || "—" },
+    { value: ticket.assignedByName || "—" },
   ];
 
   const [poppinsExtra, caveat] = await Promise.all([
     loadFont("Poppins-ExtraBold.ttf"),
-    loadFont("Caveat-Regular.ttf"),
+    loadLocalFont(origin, "/fonts/Caveat-Bold.ttf"),
   ]);
 
   const CANVAS_W = 1670;
   const CANVAS_H = 942;
+
   const INK = "#1C1C1C";
 
+  // Filas de abonos
   const ROWS = [
     { top: 653, height: 52 },
     { top: 709, height: 22 },
@@ -120,7 +142,7 @@ export async function GET(
           height: `${CANVAS_H}px`,
         }}
       >
-        {/* FONDO EXACTO */}
+        {/* ══ FONDO EXACTO ══ */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${origin}/boleta-plantilla-fondo.png?v=2`}
@@ -136,7 +158,7 @@ export async function GET(
           alt=""
         />
 
-        {/* NÚMERO PRINCIPAL */}
+        {/* ══ NÚMERO PRINCIPAL ══ */}
         <div
           style={{
             display: "flex",
@@ -163,7 +185,7 @@ export async function GET(
           </div>
         </div>
 
-        {/* NÚMERO COLILLA */}
+        {/* ══ NÚMERO COLILLA ══ */}
         <div
           style={{
             display: "flex",
@@ -190,37 +212,59 @@ export async function GET(
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════
+        {/* ═══════════════════════════════════════════
             DATOS DEL TITULAR
-            Solo se modifica tipografía + posición
-           ═══════════════════════════════════════ */}
+            Más pequeños y dentro de los recuadros
+           ═══════════════════════════════════════════ */}
 
-        {[
-          {
-            top: 303,
-            height: 40,
-            value: campos[0],
-            fontSize: campos[0].length > 25 ? 25 : 29,
-          },
-          {
-            top: 383,
-            height: 37,
-            value: campos[1],
-            fontSize: campos[1].length > 18 ? 25 : 29,
-          },
-          {
-            top: 455,
-            height: 37,
-            value: campos[2],
-            fontSize: campos[2].length > 12 ? 24 : 28,
-          },
-          {
-            top: 527,
-            height: 37,
-            value: campos[3],
-            fontSize: campos[3].length > 20 ? 25 : 29,
-          },
-        ].map((c, i) => (
+        {(
+          [
+            {
+              top: 301,
+              height: 45,
+              value: campos[0].value,
+              fontSize:
+                campos[0].value.length > 25
+                  ? 22
+                  : campos[0].value.length > 18
+                  ? 25
+                  : 28,
+            },
+            {
+              top: 379,
+              height: 43,
+              value: campos[1].value,
+              fontSize:
+                campos[1].value.length > 18
+                  ? 22
+                  : campos[1].value.length > 12
+                  ? 25
+                  : 28,
+            },
+            {
+              top: 451,
+              height: 43,
+              value: campos[2].value,
+              fontSize:
+                campos[2].value.length > 12
+                  ? 21
+                  : campos[2].value.length > 10
+                  ? 23
+                  : 26,
+            },
+            {
+              top: 523,
+              height: 43,
+              value: campos[3].value,
+              fontSize:
+                campos[3].value.length > 20
+                  ? 22
+                  : campos[3].value.length > 14
+                  ? 24
+                  : 27,
+            },
+          ] as const
+        ).map((c, i) => (
           <div
             key={i}
             style={{
@@ -239,12 +283,13 @@ export async function GET(
               style={{
                 display: "flex",
                 fontFamily: "Caveat",
-                fontWeight: 400,
+                fontWeight: 700,
                 fontSize: `${c.fontSize}px`,
                 color: INK,
                 lineHeight: 1,
                 paddingLeft: "5px",
-                maxWidth: "346px",
+                paddingRight: "8px",
+                maxWidth: "338px",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -255,9 +300,7 @@ export async function GET(
           </div>
         ))}
 
-        {/* ═══════════════════════════════════════
-            CONTROL DE ABONOS
-           ═══════════════════════════════════════ */}
+        {/* ══ CONTROL DE ABONOS ══ */}
 
         {[0, 1, 2].map((i) => {
           const fila = filasVisibles[i];
@@ -279,8 +322,8 @@ export async function GET(
                 flexDirection: "row",
                 alignItems: "center",
                 fontFamily: "Caveat",
-                fontWeight: 400,
-                fontSize: "16px",
+                fontWeight: 700,
+                fontSize: "15px",
                 lineHeight: 1,
                 color: INK,
               }}
@@ -318,7 +361,7 @@ export async function GET(
           );
         })}
 
-        {/* QR */}
+        {/* ══ QR ══ */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrDataUrl}
@@ -334,7 +377,7 @@ export async function GET(
           alt=""
         />
 
-        {/* CANCELADO */}
+        {/* ══ CANCELADO ══ */}
         {cancelada && (
           <div
             style={{
@@ -381,7 +424,7 @@ export async function GET(
         {
           name: "Caveat",
           data: caveat,
-          weight: 400,
+          weight: 700,
           style: "normal",
         },
       ],
