@@ -96,21 +96,21 @@ export async function GET(
 
   // ══════════════════════════════════════════════════════════════════════════
   // La imagen de referencia del cliente se usa TAL CUAL, como fondo fijo del
-  // lienzo, en su tamaño original (1152×648). No se redibuja ni se modifica:
+  // lienzo, en su tamaño original (1152×632). No se redibuja ni se modifica:
   // solo se colocan campos dinámicos encima, en las coordenadas exactas de
   // cada casilla ya impresa en la plantilla (medidas píxel por píxel).
   // ══════════════════════════════════════════════════════════════════════════
   const CANVAS_W = 1152;
-  const CANVAS_H = 648;
+  const CANVAS_H = 632;
   const CREAM = "#F2EBDD";
   const INK = "#1C1C1C";
   const GOLD_GRAD = "linear-gradient(90deg, #A6702F 0%, #F7D27A 25%, #FFF8E8 50%, #F7D27A 75%, #A6702F 100%)";
 
   // Filas de abonos: 3 casillas fijas, con alturas tal como están impresas.
   const ROWS = [
-    { top: 453, height: 23 },
-    { top: 477, height: 15 },
-    { top: 493, height: 15 },
+    { top: 452, height: 22 },
+    { top: 476, height: 17 },
+    { top: 495, height: 14 },
   ];
 
   return new ImageResponse(
@@ -127,31 +127,31 @@ export async function GET(
         />
 
         {/* ══ N.° de boleta — afiche (panel izquierdo) ══ */}
-        <div style={{ display: "flex", position: "absolute", top: "130px", left: "33px", width: "167px", height: "50px", background: GOLD_GRAD, borderRadius: "6px" }} />
-        <div style={{ display: "flex", position: "absolute", top: "130px", left: "33px", width: "167px", height: "50px", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", position: "absolute", top: "128px", left: "43px", width: "165px", height: "54px", background: GOLD_GRAD, borderRadius: "6px" }} />
+        <div style={{ display: "flex", position: "absolute", top: "128px", left: "43px", width: "165px", height: "54px", alignItems: "center", justifyContent: "center" }}>
           <div style={{ display: "flex", fontFamily: "Poppins", fontWeight: 800, fontSize: "36px", color: "#171205", letterSpacing: "1px" }}>{numero}</div>
         </div>
 
         {/* ══ N.° de boleta — colilla ══ */}
-        <div style={{ display: "flex", position: "absolute", top: "150px", left: "915px", width: "175px", height: "45px", background: GOLD_GRAD, borderRadius: "6px" }} />
-        <div style={{ display: "flex", position: "absolute", top: "150px", left: "915px", width: "175px", height: "45px", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", position: "absolute", top: "152px", left: "905px", width: "163px", height: "46px", background: GOLD_GRAD, borderRadius: "6px" }} />
+        <div style={{ display: "flex", position: "absolute", top: "152px", left: "905px", width: "163px", height: "46px", alignItems: "center", justifyContent: "center" }}>
           <div style={{ display: "flex", fontFamily: "Poppins", fontWeight: 800, fontSize: "32px", color: "#171205", letterSpacing: "1px" }}>{numero}</div>
         </div>
 
         {/* ══ Datos del titular — casillas de la colilla ══ */}
         {(
           [
-            { top: 221, height: 29, value: campos[0].value },
-            { top: 276, height: 24, value: campos[1].value },
-            { top: 326, height: 26, value: campos[2].value },
-            { top: 378, height: 25, value: campos[3].value },
+            { top: 221, height: 28, value: campos[0].value },
+            { top: 276, height: 27, value: campos[1].value },
+            { top: 329, height: 26, value: campos[2].value },
+            { top: 379, height: 27, value: campos[3].value },
           ] as const
         ).map((c, i) => {
           const len = c.value.length;
           const fontSize = len > 28 ? 18 : len > 22 ? 21 : len > 17 ? 24 : 26;
           return (
-            <div key={i} style={{ display: "flex", position: "absolute", top: `${c.top}px`, left: "864px", width: "244px", height: `${c.height}px` }}>
-              <div style={{ display: "flex", width: "244px", height: `${c.height}px`, background: CREAM, position: "absolute", top: 0, left: 0 }} />
+            <div key={i} style={{ display: "flex", position: "absolute", top: `${c.top}px`, left: "868px", width: "240px", height: `${c.height}px` }}>
+              <div style={{ display: "flex", width: "240px", height: `${c.height}px`, background: CREAM, position: "absolute", top: 0, left: 0 }} />
               <div
                 style={{
                   display: "flex",
@@ -164,7 +164,7 @@ export async function GET(
                   height: `${c.height}px`,
                   paddingLeft: "6px",
                   paddingBottom: "3px",
-                  maxWidth: "238px",
+                  maxWidth: "234px",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -181,10 +181,10 @@ export async function GET(
           style={{
             display: "flex",
             position: "absolute",
-            top: "453px",
-            left: "864px",
-            width: "244px",
-            height: "70px",
+            top: "452px",
+            left: "868px",
+            width: "240px",
+            height: "72px",
             background: CREAM,
           }}
         />
@@ -200,8 +200,8 @@ export async function GET(
                 display: "flex",
                 position: "absolute",
                 top: `${row.top}px`,
-                left: "866px",
-                width: "240px",
+                left: "870px",
+                width: "236px",
                 height: `${row.height}px`,
                 flexDirection: "row",
                 alignItems: "flex-end",
@@ -224,19 +224,19 @@ export async function GET(
           style={{
             display: "flex",
             position: "absolute",
-            top: "521px",
-            left: "864px",
-            width: "78px",
-            height: "58px",
+            top: "522px",
+            left: "868px",
+            width: "70px",
+            height: "62px",
             background: CREAM,
           }}
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrDataUrl}
-          width={70}
-          height={53}
-          style={{ position: "absolute", top: "524px", left: "868px", width: "70px", height: "53px" }}
+          width={62}
+          height={62}
+          style={{ position: "absolute", top: "523px", left: "872px", width: "62px", height: "62px" }}
           alt=""
         />
 
@@ -246,8 +246,8 @@ export async function GET(
             style={{
               display: "flex",
               position: "absolute",
-              top: "312px",
-              left: "985px",
+              top: "306px",
+              left: "988px",
               transform: "translate(-50%, -50%) rotate(-14deg)",
               border: "4px solid #B4232C",
               borderRadius: "10px 20px 11px 18px",
