@@ -121,7 +121,7 @@ export async function GET(
         {/* ══ Fondo exacto — la imagen de referencia del cliente, sin alterar ══ */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`${origin}/boleta-plantilla-fondo.png`}
+          src={`${origin}/boleta-plantilla-fondo.png?v=2`}
           width={CANVAS_W}
           height={CANVAS_H}
           style={{ position: "absolute", top: 0, left: 0, width: `${CANVAS_W}px`, height: `${CANVAS_H}px` }}
