@@ -11,8 +11,8 @@ const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
 const FONT_URLS: Record<string, string> = {
   "Poppins-ExtraBold.ttf":
     "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-ExtraBold.ttf",
-  "Kalam-Regular.ttf":
-    "https://raw.githubusercontent.com/google/fonts/main/ofl/kalam/Kalam-Regular.ttf",
+  "Caveat-Regular.ttf":
+    "https://raw.githubusercontent.com/google/fonts/main/ofl/caveat/Caveat-Regular.ttf",
 };
 
 const fontCache = new Map<string, ArrayBuffer>();
@@ -38,7 +38,6 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  // ── Lógica de datos: SIN CAMBIOS ──
   const ticket = await prisma.ticket.findUnique({
     where: { token },
     include: {
@@ -96,17 +95,15 @@ export async function GET(
     ticket.assignedByName || "—",
   ];
 
-  const [poppinsExtra, kalam] = await Promise.all([
+  const [poppinsExtra, caveat] = await Promise.all([
     loadFont("Poppins-ExtraBold.ttf"),
-    loadFont("Kalam-Regular.ttf"),
+    loadFont("Caveat-Regular.ttf"),
   ]);
 
   const CANVAS_W = 1670;
   const CANVAS_H = 942;
-
   const INK = "#1C1C1C";
 
-  // Filas de abonos
   const ROWS = [
     { top: 653, height: 52 },
     { top: 709, height: 22 },
@@ -123,7 +120,7 @@ export async function GET(
           height: `${CANVAS_H}px`,
         }}
       >
-        {/* Fondo exacto */}
+        {/* FONDO EXACTO */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${origin}/boleta-plantilla-fondo.png?v=2`}
@@ -139,7 +136,7 @@ export async function GET(
           alt=""
         />
 
-        {/* ══ NÚMERO PRINCIPAL ══ */}
+        {/* NÚMERO PRINCIPAL */}
         <div
           style={{
             display: "flex",
@@ -166,7 +163,7 @@ export async function GET(
           </div>
         </div>
 
-        {/* ══ NÚMERO COLILLA ══ */}
+        {/* NÚMERO COLILLA */}
         <div
           style={{
             display: "flex",
@@ -193,35 +190,35 @@ export async function GET(
           </div>
         </div>
 
-        {/* ══════════════════════════════════════════════════════
+        {/* ═══════════════════════════════════════
             DATOS DEL TITULAR
-            Fuente manuscrita tipo lapicero
-           ══════════════════════════════════════════════════════ */}
+            Solo se modifica tipografía + posición
+           ═══════════════════════════════════════ */}
 
         {[
           {
-            top: 297,
-            height: 75,
+            top: 303,
+            height: 40,
             value: campos[0],
-            fontSize: campos[0].length > 25 ? 28 : 34,
+            fontSize: campos[0].length > 25 ? 25 : 29,
           },
           {
-            top: 380,
-            height: 72,
+            top: 383,
+            height: 37,
             value: campos[1],
-            fontSize: campos[1].length > 18 ? 27 : 33,
+            fontSize: campos[1].length > 18 ? 25 : 29,
           },
           {
-            top: 458,
-            height: 65,
+            top: 455,
+            height: 37,
             value: campos[2],
-            fontSize: campos[2].length > 12 ? 26 : 31,
+            fontSize: campos[2].length > 12 ? 24 : 28,
           },
           {
-            top: 532,
-            height: 66,
+            top: 527,
+            height: 37,
             value: campos[3],
-            fontSize: campos[3].length > 20 ? 27 : 32,
+            fontSize: campos[3].length > 20 ? 25 : 29,
           },
         ].map((c, i) => (
           <div
@@ -241,13 +238,12 @@ export async function GET(
             <div
               style={{
                 display: "flex",
-                fontFamily: "Kalam",
+                fontFamily: "Caveat",
                 fontWeight: 400,
                 fontSize: `${c.fontSize}px`,
                 color: INK,
                 lineHeight: 1,
-                paddingLeft: "7px",
-                paddingRight: "6px",
+                paddingLeft: "5px",
                 maxWidth: "346px",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -259,7 +255,9 @@ export async function GET(
           </div>
         ))}
 
-        {/* ══ CONTROL DE ABONOS ══ */}
+        {/* ═══════════════════════════════════════
+            CONTROL DE ABONOS
+           ═══════════════════════════════════════ */}
 
         {[0, 1, 2].map((i) => {
           const fila = filasVisibles[i];
@@ -280,9 +278,9 @@ export async function GET(
                 height: `${row.height}px`,
                 flexDirection: "row",
                 alignItems: "center",
-                fontFamily: "Kalam",
+                fontFamily: "Caveat",
                 fontWeight: 400,
-                fontSize: "18px",
+                fontSize: "16px",
                 lineHeight: 1,
                 color: INK,
               }}
@@ -320,7 +318,7 @@ export async function GET(
           );
         })}
 
-        {/* ══ QR ══ */}
+        {/* QR */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrDataUrl}
@@ -336,7 +334,7 @@ export async function GET(
           alt=""
         />
 
-        {/* ══ CANCELADO ══ */}
+        {/* CANCELADO */}
         {cancelada && (
           <div
             style={{
@@ -373,7 +371,6 @@ export async function GET(
     {
       width: CANVAS_W,
       height: CANVAS_H,
-
       fonts: [
         {
           name: "Poppins",
@@ -382,13 +379,12 @@ export async function GET(
           style: "normal",
         },
         {
-          name: "Kalam",
-          data: kalam,
+          name: "Caveat",
+          data: caveat,
           weight: 400,
           style: "normal",
         },
       ],
-
       headers: {
         "Cache-Control": "public, max-age=0, must-revalidate",
       },
