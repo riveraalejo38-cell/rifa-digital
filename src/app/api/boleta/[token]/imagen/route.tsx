@@ -96,21 +96,23 @@ export async function GET(
 
   // ══════════════════════════════════════════════════════════════════════════
   // La imagen de referencia del cliente se usa TAL CUAL, como fondo fijo del
-  // lienzo, en su tamaño original (1152×632). No se redibuja ni se modifica:
+  // lienzo, en su tamaño original (1670×942). No se redibuja ni se modifica:
   // solo se colocan campos dinámicos encima, en las coordenadas exactas de
   // cada casilla ya impresa en la plantilla (medidas píxel por píxel).
+  //
+  // Esta plantilla trae sus casillas ya en blanco (sin número ni texto de
+  // muestra "quemado" en la imagen), así que no hace falta cubrir nada antes
+  // de escribir: el dato real se coloca directo sobre la casilla vacía.
   // ══════════════════════════════════════════════════════════════════════════
-  const CANVAS_W = 1152;
-  const CANVAS_H = 632;
-  const CREAM = "#F2EBDD";
+  const CANVAS_W = 1670;
+  const CANVAS_H = 942;
   const INK = "#1C1C1C";
-  const GOLD_GRAD = "linear-gradient(90deg, #A6702F 0%, #F7D27A 25%, #FFF8E8 50%, #F7D27A 75%, #A6702F 100%)";
 
   // Filas de abonos: 3 casillas fijas, con alturas tal como están impresas.
   const ROWS = [
-    { top: 452, height: 22 },
-    { top: 476, height: 17 },
-    { top: 495, height: 14 },
+    { top: 653, height: 52 },
+    { top: 709, height: 22 },
+    { top: 735, height: 23 },
   ];
 
   return new ImageResponse(
@@ -127,31 +129,28 @@ export async function GET(
         />
 
         {/* ══ N.° de boleta — afiche (panel izquierdo) ══ */}
-        <div style={{ display: "flex", position: "absolute", top: "128px", left: "43px", width: "165px", height: "54px", background: GOLD_GRAD, borderRadius: "6px" }} />
-        <div style={{ display: "flex", position: "absolute", top: "128px", left: "43px", width: "165px", height: "54px", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ display: "flex", fontFamily: "Poppins", fontWeight: 800, fontSize: "36px", color: "#171205", letterSpacing: "1px" }}>{numero}</div>
+        <div style={{ display: "flex", position: "absolute", top: "195px", left: "65px", width: "222px", height: "68px", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ display: "flex", fontFamily: "Poppins", fontWeight: 800, fontSize: "46px", color: "#171205", letterSpacing: "1px" }}>{numero}</div>
         </div>
 
         {/* ══ N.° de boleta — colilla ══ */}
-        <div style={{ display: "flex", position: "absolute", top: "152px", left: "905px", width: "163px", height: "46px", background: GOLD_GRAD, borderRadius: "6px" }} />
-        <div style={{ display: "flex", position: "absolute", top: "152px", left: "905px", width: "163px", height: "46px", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ display: "flex", fontFamily: "Poppins", fontWeight: 800, fontSize: "32px", color: "#171205", letterSpacing: "1px" }}>{numero}</div>
+        <div style={{ display: "flex", position: "absolute", top: "221px", left: "1291px", width: "250px", height: "64px", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ display: "flex", fontFamily: "Poppins", fontWeight: 800, fontSize: "42px", color: "#171205", letterSpacing: "1px" }}>{numero}</div>
         </div>
 
         {/* ══ Datos del titular — casillas de la colilla ══ */}
         {(
           [
-            { top: 221, height: 28, value: campos[0].value },
-            { top: 276, height: 27, value: campos[1].value },
-            { top: 329, height: 26, value: campos[2].value },
-            { top: 379, height: 27, value: campos[3].value },
+            { top: 326, height: 36, value: campos[0].value },
+            { top: 406, height: 30, value: campos[1].value },
+            { top: 480, height: 29, value: campos[2].value },
+            { top: 553, height: 29, value: campos[3].value },
           ] as const
         ).map((c, i) => {
           const len = c.value.length;
-          const fontSize = len > 28 ? 18 : len > 22 ? 21 : len > 17 ? 24 : 26;
+          const fontSize = len > 28 ? 26 : len > 22 ? 30 : len > 17 ? 34 : 38;
           return (
-            <div key={i} style={{ display: "flex", position: "absolute", top: `${c.top}px`, left: "868px", width: "240px", height: `${c.height}px` }}>
-              <div style={{ display: "flex", width: "240px", height: `${c.height}px`, background: CREAM, position: "absolute", top: 0, left: 0 }} />
+            <div key={i} style={{ display: "flex", position: "absolute", top: `${c.top}px`, left: "1226px", width: "352px", height: `${c.height}px` }}>
               <div
                 style={{
                   display: "flex",
@@ -164,7 +163,7 @@ export async function GET(
                   height: `${c.height}px`,
                   paddingLeft: "6px",
                   paddingBottom: "3px",
-                  maxWidth: "234px",
+                  maxWidth: "346px",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -177,18 +176,6 @@ export async function GET(
         })}
 
         {/* ══ Control de abonos — 3 casillas fijas ══ */}
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            top: "452px",
-            left: "868px",
-            width: "240px",
-            height: "72px",
-            background: CREAM,
-          }}
-        />
-
         {[0, 1, 2].map((i) => {
           const fila = filasVisibles[i];
           if (!fila) return null;
@@ -200,43 +187,32 @@ export async function GET(
                 display: "flex",
                 position: "absolute",
                 top: `${row.top}px`,
-                left: "870px",
-                width: "236px",
+                left: "1244px",
+                width: "338px",
                 height: `${row.height}px`,
                 flexDirection: "row",
                 alignItems: "flex-end",
-                paddingBottom: "1px",
+                paddingBottom: "3px",
                 fontFamily: "Caveat",
                 fontWeight: 700,
-                fontSize: "16px",
+                fontSize: "20px",
                 color: INK,
               }}
             >
-              <div style={{ display: "flex", width: "88px" }}>{fila.fecha}</div>
-              <div style={{ display: "flex", width: "74px" }}>{fila.abono}</div>
-              <div style={{ display: "flex", width: "74px" }}>{fila.saldo}</div>
+              <div style={{ display: "flex", width: "115px" }}>{fila.fecha}</div>
+              <div style={{ display: "flex", width: "114px" }}>{fila.abono}</div>
+              <div style={{ display: "flex", width: "109px" }}>{fila.saldo}</div>
             </div>
           );
         })}
 
-        {/* ══ QR — se cubre el código de muestra y se coloca el real ══ */}
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            top: "522px",
-            left: "868px",
-            width: "70px",
-            height: "62px",
-            background: CREAM,
-          }}
-        />
+        {/* ══ QR — se coloca directo sobre la casilla ya en blanco ══ */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={qrDataUrl}
-          width={62}
-          height={62}
-          style={{ position: "absolute", top: "523px", left: "872px", width: "62px", height: "62px" }}
+          width={72}
+          height={72}
+          style={{ position: "absolute", top: "768px", left: "1263px", width: "72px", height: "72px" }}
           alt=""
         />
 
@@ -246,26 +222,26 @@ export async function GET(
             style={{
               display: "flex",
               position: "absolute",
-              top: "306px",
-              left: "988px",
+              top: "440px",
+              left: "1405px",
               transform: "translate(-50%, -50%) rotate(-14deg)",
-              border: "4px solid #B4232C",
-              borderRadius: "10px 20px 11px 18px",
-              padding: "4px",
+              border: "6px solid #B4232C",
+              borderRadius: "14px 29px 16px 26px",
+              padding: "6px",
               opacity: 0.88,
             }}
           >
             <div
               style={{
                 display: "flex",
-                border: "2px solid #B4232C",
-                borderRadius: "7px 16px 8px 14px",
-                padding: "6px 22px",
+                border: "3px solid #B4232C",
+                borderRadius: "10px 23px 12px 20px",
+                padding: "9px 32px",
                 color: "#B4232C",
-                fontSize: "28px",
+                fontSize: "41px",
                 fontWeight: 800,
                 fontFamily: "Poppins",
-                letterSpacing: "1.5px",
+                letterSpacing: "2px",
               }}
             >
               CANCELADO
