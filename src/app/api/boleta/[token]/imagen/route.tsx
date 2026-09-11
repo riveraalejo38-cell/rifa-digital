@@ -141,10 +141,10 @@ export async function GET(
         {/* ══ Datos del titular — casillas de la colilla ══ */}
         {(
           [
-            { top: 203, height: 45, value: campos[0].value },
-            { top: 253, height: 47, value: campos[1].value },
-            { top: 307, height: 48, value: campos[2].value },
-            { top: 360, height: 48, value: campos[3].value },
+            { top: 221, height: 28, value: campos[0].value },
+            { top: 276, height: 27, value: campos[1].value },
+            { top: 329, height: 26, value: campos[2].value },
+            { top: 379, height: 27, value: campos[3].value },
           ] as const
         ).map((c, i) => {
           const len = c.value.length;
