@@ -30,7 +30,11 @@ export default function BoletaPage() {
   const verificarTelefono = () => {
     if (!ticket?.client) { setErrorTel("Esta boleta no tiene cliente registrado"); return; }
     const telIngresado = telefono.replace(/\s/g, "");
-    const telRegistrado = ticket.client.phone.replace(/\s/g, "");
+    const telRegistrado = ticket.client.phone?.replace(/\s/g, "");
+    if (!telRegistrado) {
+      setErrorTel("Esta boleta no tiene teléfono registrado");
+      return;
+    }
     if (telIngresado === telRegistrado || telRegistrado.endsWith(telIngresado)) {
       setVerificado(true); setErrorTel("");
     } else {
