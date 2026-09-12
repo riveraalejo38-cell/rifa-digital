@@ -220,7 +220,7 @@ export async function GET(
               value: campos[0].value,
               fontSize:
                 campos[0].value.length > 25
-                  ? 23
+                  ? 26
                   : campos[0].value.length > 18
                   ? 26
                   : 29,
@@ -231,7 +231,7 @@ export async function GET(
               value: campos[1].value,
               fontSize:
                 campos[1].value.length > 18
-                  ? 23
+                  ? 26
                   : campos[1].value.length > 12
                   ? 26
                   : 29,
@@ -242,7 +242,7 @@ export async function GET(
               value: campos[2].value,
               fontSize:
                 campos[2].value.length > 12
-                  ? 22
+                  ? 25
                   : campos[2].value.length > 10
                   ? 25
                   : 28,
@@ -253,7 +253,7 @@ export async function GET(
               value: campos[3].value,
               fontSize:
                 campos[3].value.length > 20
-                  ? 23
+                  ? 26
                   : campos[3].value.length > 14
                   ? 26
                   : 29,
@@ -319,7 +319,7 @@ export async function GET(
                 alignItems: "center",
                 fontFamily: "Caveat",
                 fontWeight: 700,
-                fontSize: "22px",
+                fontSize: "24px",
                 lineHeight: 1,
                 color: INK,
               }}
@@ -396,9 +396,9 @@ export async function GET(
                 display: "flex",
                 border: "3px solid #111111",
                 borderRadius: "9px 20px 11px 18px",
-                padding: "8px 28px",
+                padding: "7px 24px",
                 color: "#111111",
-                fontSize: "39px",
+                fontSize: "37px",
                 fontWeight: 800,
                 fontFamily: "Poppins",
                 letterSpacing: "2px",
