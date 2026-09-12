@@ -7,9 +7,6 @@ export default function BoletaPage() {
   const token = params.token as string;
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [verificado, setVerificado] = useState(false);
-  const [telefono, setTelefono] = useState("");
-  const [errorTel, setErrorTel] = useState("");
   const [imagenLista, setImagenLista] = useState(false);
   const [guardado, setGuardado] = useState(false);
 
@@ -26,21 +23,6 @@ export default function BoletaPage() {
         setLoading(false);
       });
   }, [token]);
-
-  const verificarTelefono = () => {
-    if (!ticket?.client) { setErrorTel("Esta boleta no tiene cliente registrado"); return; }
-    const telIngresado = telefono.replace(/\s/g, "");
-    const telRegistrado = ticket.client.phone?.replace(/\s/g, "");
-    if (!telRegistrado) {
-      setErrorTel("Esta boleta no tiene teléfono registrado");
-      return;
-    }
-    if (telIngresado === telRegistrado || telRegistrado.endsWith(telIngresado)) {
-      setVerificado(true); setErrorTel("");
-    } else {
-      setErrorTel("Número incorrecto. Verifica e intenta de nuevo.");
-    }
-  };
 
   if (loading) return (
     <div style={{ minHeight: "100vh", background: "#0A0A0A", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
@@ -60,37 +42,6 @@ export default function BoletaPage() {
     </div>
   );
 
-  if (!verificado) return (
-    <div style={{ minHeight: "100vh", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", overflow: "hidden" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap'); * { box-sizing: border-box; } input:focus { outline: none; }`}</style>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${HERO_IMG})`, backgroundSize: "cover", backgroundPosition: "center", filter: "brightness(0.5) saturate(1.05)" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.9) 70%, #0A0A0A 100%)" }} />
-      <div style={{ position: "relative", background: "rgba(20,20,20,0.92)", backdropFilter: "blur(6px)", borderRadius: "24px", padding: "36px 28px", width: "100%", maxWidth: "380px", textAlign: "center", border: "1px solid rgba(217,173,82,0.25)", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
-        <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "68px", height: "68px", borderRadius: "16px", objectFit: "cover", marginBottom: "14px", border: "2px solid rgba(217,173,82,0.4)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-        <p style={{ margin: "0 0 2px", fontSize: "11px", color: "#B8B8B8", fontWeight: "600", letterSpacing: "2px" }}>PROYECTOS SANTIAGO GÓMEZ</p>
-        <p style={{ margin: "0 0 18px", fontSize: "10px", color: "#D9AD52", fontWeight: "700", letterSpacing: "2px" }}>VIAJE SIN LÍMITES · VIVE SIN EXCUSAS</p>
-        <h2 style={{ margin: "0 0 6px", fontSize: "22px", fontWeight: "800", color: "#D9AD52" }}>Verificación</h2>
-        <p style={{ margin: "0 0 6px", fontSize: "14px", color: "#B8B8B8" }}>Boleta número</p>
-        <p style={{ margin: "0 0 20px", fontSize: "40px", fontWeight: "900", color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>
-          {String(ticket.number).padStart(4, "0")}
-        </p>
-        <p style={{ margin: "0 0 16px", fontSize: "14px", color: "#B8B8B8" }}>Ingresa el celular registrado en esta boleta</p>
-        <input
-          type="tel"
-          placeholder="Número de celular"
-          value={telefono}
-          onChange={(e) => setTelefono(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && verificarTelefono()}
-          style={{ width: "100%", background: "#0A0A0A", border: errorTel ? "1.5px solid #F87171" : "1.5px solid rgba(217,173,82,0.35)", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "18px", boxSizing: "border-box", marginBottom: "8px", textAlign: "center", letterSpacing: "3px", fontFamily: "inherit" }}
-        />
-        {errorTel && <p style={{ color: "#F87171", fontSize: "13px", margin: "0 0 12px", fontWeight: "500" }}>⚠ {errorTel}</p>}
-        <button onClick={verificarTelefono} style={{ width: "100%", background: "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "12px", padding: "16px", color: "#0A0A0A", fontWeight: "800", fontSize: "15px", cursor: "pointer", marginTop: "8px", fontFamily: "inherit", letterSpacing: "1px" }}>
-          VER MI BOLETA
-        </button>
-        <p style={{ margin: "16px 0 0", fontSize: "12px", color: "#6E6E6E" }}>¿Necesitas ayuda? Contacta a tu vendedor</p>
-      </div>
-    </div>
-  );
 
   const numero = String(ticket.number).padStart(4, "0");
   const fechaSorteo = FECHA_SORTEO.toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric", timeZone: "America/Bogota" });
