@@ -29,7 +29,7 @@ model Raffle {
   winnerNumber   Int?
   winnerId       String?
   winner         Client?   @relation("RaffleWinner", fields: [winnerId], references: [id])
-  tickets        Ticket[]
+  tickets        Ticket[]  @relation
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
@@ -37,11 +37,11 @@ model Raffle {
 model Client {
   id         String    @id @default(cuid())
   name       String
-  phone      String
+  phone      String?
   email      String?
   notes      String?
   city       String?
- tickets    Ticket[]
+  tickets    Ticket[]
   payments   Payment[]
   wonRaffles Raffle[]  @relation("RaffleWinner")
   createdAt  DateTime  @default(now())
@@ -86,7 +86,6 @@ enum TicketStatus {
   PARTIAL
   PAID
   RELEASED
-  
 }
 
 model Payment {
