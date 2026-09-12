@@ -15,6 +15,7 @@ export default function VendedorClient() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+  const [copiedImage, setCopiedImage] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   // Contador de operaciones de búsqueda/refresco en vuelo. Si el usuario busca
   // varias veces seguidas, una respuesta vieja puede llegar DESPUÉS de una más
@@ -283,6 +284,22 @@ export default function VendedorClient() {
   };
 
   const copiarLink = () => {
+    const copiarImagen = async () => {
+  try {
+    const link = `${window.location.origin}/api/boleta/${ticket.token}/imagen`;
+    const response = await fetch(link);
+    const blob = await response.blob();
+
+    await navigator.clipboard.write([
+      new ClipboardItem({ "image/png": blob }),
+    ]);
+
+    setCopiedImage(true);
+    setTimeout(() => setCopiedImage(false), 2000);
+  } catch {
+    alert("No fue posible copiar la imagen");
+  }
+};
     const link = `${window.location.origin}/boleta/${ticket.token}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
@@ -480,6 +497,21 @@ export default function VendedorClient() {
                   <button onClick={copiarLink} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
                     {copied ? "✓ Copiado" : "🔗 Link"}
                   </button>
+                  <button
+  onClick={copiarImagen}
+  style={{
+    background: "rgba(255,255,255,0.2)",
+    border: "none",
+    borderRadius: "10px",
+    padding: "8px 12px",
+    color: "#FFFFFF",
+    fontSize: "13px",
+    cursor: "pointer",
+    fontWeight: "600",
+  }}
+>
+  {copiedImage ? "✓ Imagen copiada" : "📋 Copiar imagen"}
+</button>
                   {esMia && (
                     <button onClick={liberarBoleta} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "8px 12px", color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600" }}>
                       Liberar
