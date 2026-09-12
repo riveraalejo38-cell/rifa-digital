@@ -284,26 +284,27 @@ export default function VendedorClient() {
   };
 
   const copiarLink = () => {
-    const copiarImagen = async () => {
-  try {
-    const link = `${window.location.origin}/api/boleta/${ticket.token}/imagen`;
-    const response = await fetch(link);
-    const blob = await response.blob();
-
-    await navigator.clipboard.write([
-      new ClipboardItem({ "image/png": blob }),
-    ]);
-
-    setCopiedImage(true);
-    setTimeout(() => setCopiedImage(false), 2000);
-  } catch {
-    alert("No fue posible copiar la imagen");
-  }
-};
     const link = `${window.location.origin}/boleta/${ticket.token}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copiarImagen = async () => {
+    try {
+      const link = `${window.location.origin}/api/boleta/${ticket.token}/imagen`;
+      const response = await fetch(link);
+      const blob = await response.blob();
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob }),
+      ]);
+
+      setCopiedImage(true);
+      setTimeout(() => setCopiedImage(false), 2000);
+    } catch {
+      alert("No fue posible copiar la imagen");
+    }
   };
 
   const totalAbonado = ticket?.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0;
