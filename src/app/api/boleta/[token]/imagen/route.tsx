@@ -121,7 +121,7 @@ export async function GET(
   const CANVAS_W = 1670;
   const CANVAS_H = 942;
 
-  const INK = "#1C1C1C";
+  const INK = "#1557C0";
 
   const ROWS = [
     { top: 653, height: 23 },
@@ -376,35 +376,35 @@ export async function GET(
           alt=""
         />
 
-        {/* ══ CANCELADO ══ */}
+        {/* ══ BOLETA PAGA ══ */}
         {cancelada && (
           <div
             style={{
               display: "flex",
               position: "absolute",
-              top: "440px",
-              left: "1405px",
-              transform: "translate(-50%, -50%) rotate(-14deg)",
-              border: "6px solid #B4232C",
-              borderRadius: "14px 29px 16px 26px",
-              padding: "6px",
-              opacity: 0.88,
+              top: "700px",
+              left: "1413px",
+              transform: "translate(-50%, -50%) rotate(-2deg)",
+              border: "5px solid #111111",
+              borderRadius: "12px 25px 15px 22px",
+              padding: "5px",
+              opacity: 0.82,
             }}
           >
             <div
               style={{
                 display: "flex",
-                border: "3px solid #B4232C",
-                borderRadius: "10px 23px 12px 20px",
-                padding: "9px 32px",
-                color: "#B4232C",
-                fontSize: "41px",
+                border: "3px solid #111111",
+                borderRadius: "9px 20px 11px 18px",
+                padding: "8px 28px",
+                color: "#111111",
+                fontSize: "39px",
                 fontWeight: 800,
                 fontFamily: "Poppins",
                 letterSpacing: "2px",
               }}
             >
-              CANCELADO
+              BOLETA PAGA
             </div>
           </div>
         )}
