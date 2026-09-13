@@ -320,12 +320,12 @@ export default function PublicoClient() {
       <div id="medios-pago" style={{ background: C.card, borderRadius: "20px", padding: "18px", border: `1.5px solid ${C.border}`, scrollMarginTop: "80px" }}>
         <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 800, color: C.text, letterSpacing: "0.5px" }}>MEDIOS DE PAGO</p>
         {[
-          { key: "nequi", icon: "💜", nombre: "Nequi", numero: NUMERO_PAGO },
-          { key: "daviplata", icon: "❤️", nombre: "Daviplata", numero: NUMERO_PAGO },
+          { key: "nequi", icon: "/logos/nequi.png", nombre: "Nequi", numero: NUMERO_PAGO },
+          { key: "daviplata", icon: "/logos/daviplata.png", nombre: "Daviplata", numero: NUMERO_PAGO },
         ].map((m) => (
           <div key={m.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, borderRadius: "12px", padding: "10px 12px", border: `1px solid ${C.border}`, marginBottom: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontSize: "16px" }}>{m.icon}</span>
+              <img src={m.icon} alt={m.nombre} style={{ width: "28px", height: "28px", borderRadius: "8px", objectFit: "cover", flexShrink: 0 }} />
               <div>
                 <p style={{ margin: "0 0 1px", fontSize: "12px", fontWeight: 700, color: C.text }}>{m.nombre}</p>
                 <p style={{ margin: 0, fontSize: "12.5px", color: C.goldLight, fontFamily: "'DM Mono', monospace" }}>{m.numero}</p>
