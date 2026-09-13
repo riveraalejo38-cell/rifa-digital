@@ -199,7 +199,6 @@ export default function PublicoClient() {
   const ORDEN_SECCIONES = [
     "eligeValor",
     "premios",
-    "mediosPago",
     "comoFunciona",
     "beneficios",
     "fechaSorteo",
@@ -207,10 +206,11 @@ export default function PublicoClient() {
 
   // ══ Elige tu número (con el valor de la boleta al lado) ══
   const seccionEligeValor = (
-    <section key="eligeValor" className="prg-reserva-grid" style={{ marginBottom: "44px" }}>
+    <section key="eligeValor" style={{ marginBottom: "44px" }}>
+    <div className="prg-reserva-grid" style={{ marginBottom: "16px" }}>
       {/* Verificar / elegir número */}
       {!reservaExito && (
-        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}`, display: "flex", flexDirection: "column" }}>
           <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 700, color: C.text, letterSpacing: "0.5px" }}>ELIGE TU NÚMERO</p>
           <p style={{ margin: "0 0 16px", fontSize: "13px", color: C.muted }}>Escribe el número de boleta que quieres (0 a {TOTAL_TICKETS - 1}).</p>
 
@@ -233,7 +233,7 @@ export default function PublicoClient() {
                 </button>
               </div>
               {checkError && <p style={{ color: C.danger, fontSize: "13px", margin: "12px 0 0", fontWeight: 500 }}>⚠ {checkError}</p>}
-              <p style={{ margin: "16px 0 0", fontSize: "12px", color: C.mutedDim, lineHeight: 1.6 }}>
+              <p style={{ margin: "16px 0 0", fontSize: "12px", color: C.mutedDim, lineHeight: 1.6, marginTop: "auto", paddingTop: "16px" }}>
                 Cada persona puede reservar hasta 4 boletas con el mismo teléfono.<br />
                 ¿Eres vendedor? <a href="/login" style={{ color: C.goldLight, fontWeight: 600 }}>Inicia sesión aquí</a>.
               </p>
@@ -316,11 +316,42 @@ export default function PublicoClient() {
         </div>
       )}
 
-      {/* Valor de la boleta (al lado de elige tu número) */}
-      <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "20px", padding: "20px", textAlign: "center", alignSelf: "start" }}>
-        <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(255,255,255,0.85)", fontWeight: 700, letterSpacing: "1.5px" }}>🎫 VALOR DE LA BOLETA</p>
-        <p style={{ margin: 0, fontSize: "30px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{formatPeso(TICKET_PRICE)}</p>
+      {/* Medios de pago + enviar comprobante (al lado de elige tu número) */}
+      <div id="medios-pago" style={{ background: C.card, borderRadius: "20px", padding: "18px", border: `1.5px solid ${C.border}`, scrollMarginTop: "80px" }}>
+        <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 800, color: C.text, letterSpacing: "0.5px" }}>MEDIOS DE PAGO</p>
+        {[
+          { key: "nequi", icon: "💜", nombre: "Nequi", numero: NUMERO_PAGO },
+          { key: "daviplata", icon: "❤️", nombre: "Daviplata", numero: NUMERO_PAGO },
+        ].map((m) => (
+          <div key={m.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, borderRadius: "12px", padding: "10px 12px", border: `1px solid ${C.border}`, marginBottom: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "16px" }}>{m.icon}</span>
+              <div>
+                <p style={{ margin: "0 0 1px", fontSize: "12px", fontWeight: 700, color: C.text }}>{m.nombre}</p>
+                <p style={{ margin: 0, fontSize: "12.5px", color: C.goldLight, fontFamily: "'DM Mono', monospace" }}>{m.numero}</p>
+              </div>
+            </div>
+            <button onClick={() => copiar(m.numero, m.key)} style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: "8px", padding: "6px 10px", color: copiado === m.key ? C.gold : C.muted, fontSize: "11px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+              {copiado === m.key ? "✓" : "Copiar"}
+            </button>
+          </div>
+        ))}
+        <button onClick={enviarComprobanteGenerico} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", background: `linear-gradient(135deg, ${C.whatsapp}, ${C.whatsappDark})`, border: "none", borderRadius: "12px", padding: "13px", color: "#FFFFFF", fontWeight: 800, fontSize: "13px", cursor: "pointer", fontFamily: "inherit", animation: "latido 1.8s ease-in-out infinite", marginTop: "4px" }}>
+          <span style={{ fontSize: "16px" }}>📲</span> Enviar comprobante
+        </button>
+        <p style={{ margin: "8px 0 0", fontSize: "10.5px", color: C.mutedDim, lineHeight: 1.5, textAlign: "center" }}>
+          ¿Ya realizaste tu abono? Incluye tu número de boleta en el mensaje.
+        </p>
       </div>
+    </div>
+
+    {/* Valor de la boleta: banda completa debajo, centrada entre las dos
+        columnas de arriba (mitad bajo "elige tu número", mitad bajo
+        "medios de pago"), tal como lo pidió. */}
+    <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "20px", padding: "18px", textAlign: "center" }}>
+      <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(255,255,255,0.85)", fontWeight: 700, letterSpacing: "1.5px" }}>🎫 VALOR DE LA BOLETA</p>
+      <p style={{ margin: 0, fontSize: "28px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{formatPeso(TICKET_PRICE)}</p>
+    </div>
     </section>
   );
 
@@ -401,51 +432,6 @@ export default function PublicoClient() {
     </section>
   );
 
-  // ══ Medios de pago + ya realizaste tu abono ══
-  const seccionMediosPago = (
-    <section key="mediosPago" id="medios-pago" style={{ marginBottom: "44px" }}>
-      <div className="prg-pago-grid">
-        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
-          <p style={{ margin: "0 0 16px", fontSize: "14px", fontWeight: 800, color: C.text, letterSpacing: "0.5px" }}>MEDIOS DE PAGO</p>
-          {[
-            { key: "nequi", icon: "💜", nombre: "Nequi", numero: NUMERO_PAGO },
-            { key: "daviplata", icon: "❤️", nombre: "Daviplata", numero: NUMERO_PAGO },
-          ].map((m) => (
-            <div key={m.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, borderRadius: "14px", padding: "14px 16px", border: `1px solid ${C.border}`, marginBottom: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <span style={{ fontSize: "20px" }}>{m.icon}</span>
-                <div>
-                  <p style={{ margin: "0 0 2px", fontSize: "13px", fontWeight: 700, color: C.text }}>{m.nombre}</p>
-                  <p style={{ margin: 0, fontSize: "14px", color: C.goldLight, fontFamily: "'DM Mono', monospace" }}>{m.numero}</p>
-                </div>
-              </div>
-              <button onClick={() => copiar(m.numero, m.key)} style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "8px 12px", color: copiado === m.key ? C.gold : C.muted, fontSize: "12px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
-                {copiado === m.key ? "¡Copiado! ✓" : "Copiar 📋"}
-              </button>
-            </div>
-          ))}
-          <p style={{ margin: "10px 0 0", fontSize: "11.5px", color: C.mutedDim, lineHeight: 1.6 }}>
-            Envía tu pago a cualquiera de estos números a nombre de Proyectos Santiago Gómez.
-          </p>
-        </div>
-
-        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}`, display: "flex", flexDirection: "column" }}>
-          <p style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 800, color: C.text }}>¿Ya realizaste tu abono?</p>
-          <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted, lineHeight: 1.6, flex: 1 }}>
-            Envía tu comprobante por WhatsApp y nosotros lo registramos.
-          </p>
-          <button onClick={enviarComprobanteGenerico} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", background: `linear-gradient(135deg, ${C.whatsapp}, ${C.whatsappDark})`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", animation: "latido 1.8s ease-in-out infinite", marginBottom: "10px" }}>
-            <span style={{ fontSize: "17px" }}>📲</span> Enviar comprobante
-          </button>
-          <p style={{ margin: 0, fontSize: "11.5px", color: C.mutedDim }}>
-            ℹ️ Incluye tu número de boleta en el mensaje.<br />
-            Nos vemos en el sorteo. 🍀
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-
   // ══ Fecha del sorteo (al final, según lo pedido) ══
   const seccionFechaSorteo = (
     <section key="fechaSorteo" style={{ marginBottom: "44px" }}>
@@ -472,7 +458,6 @@ export default function PublicoClient() {
   const SECCIONES: Record<(typeof ORDEN_SECCIONES)[number], React.ReactNode> = {
     eligeValor: seccionEligeValor,
     premios: seccionPremios,
-    mediosPago: seccionMediosPago,
     comoFunciona: seccionComoFunciona,
     beneficios: seccionBeneficios,
     fechaSorteo: seccionFechaSorteo,
@@ -481,7 +466,7 @@ export default function PublicoClient() {
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "'DM Sans', 'Segoe UI', sans-serif", color: C.text }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&family=Caveat:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         input:focus { outline: none; }
@@ -496,8 +481,6 @@ export default function PublicoClient() {
         .prg-hero-title-accent { color: #D9AD52; font-size: 1.12em; display: inline-block; }
         .prg-hero-sub { text-transform: uppercase; letter-spacing: 0.3px; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
         .prg-hero-badge-label { text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
-        .prg-hero-sign { position: absolute; top: 28px; right: 28px; z-index: 2; background: linear-gradient(160deg, #6b4a2c, #43290f); border: 2px solid rgba(228,201,131,0.55); border-radius: 10px 26px 14px 22px; padding: 14px 20px; transform: rotate(4deg); box-shadow: 0 10px 26px rgba(0,0,0,0.4); text-align: center; }
-        .prg-hero-sign-text { margin: 4px 0 0; font-family: 'Caveat', cursive; font-size: 19px; color: #F3E7C9; line-height: 1.15; font-weight: 700; }
         .prg-reserva-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .prg-side-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .prg-premios-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -509,7 +492,7 @@ export default function PublicoClient() {
           .prg-pasos-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (min-width: 860px) {
-          .prg-reserva-grid { grid-template-columns: 1.3fr 1fr; align-items: start; }
+          .prg-reserva-grid { grid-template-columns: 1.3fr 1fr; }
           .prg-pago-grid { grid-template-columns: 1fr 1fr; }
           .prg-hero { min-height: 540px; }
         }
@@ -520,7 +503,6 @@ export default function PublicoClient() {
         @media (max-width: 700px) {
           .prg-nav-links { display: none; }
           .prg-beneficios-grid { grid-template-columns: 1fr; }
-          .prg-hero-sign { display: none; }
           .prg-hero-overlay { background: linear-gradient(180deg, rgba(11,31,23,0.55) 0%, rgba(11,31,23,0.92) 62%, rgba(11,31,23,0.98) 100%); }
           .prg-hero { min-height: 380px; align-items: flex-end; }
         }
@@ -577,10 +559,6 @@ export default function PublicoClient() {
               </div>
             ))}
           </div>
-        </div>
-        <div className="prg-hero-sign">
-          <span style={{ fontSize: "18px" }}>⛰️</span>
-          <p className="prg-hero-sign-text">Tu sueño<br />hecho realidad</p>
         </div>
       </section>
 
