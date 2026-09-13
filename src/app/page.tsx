@@ -1,4 +1,4 @@
-import TemplateClient from "./TemplateClient";
+import PublicoClient from "./PublicoClient";
 
 // Ver nota en src/app/vendedor/page.tsx: esta ruta tampoco se debe cachear
 // en el borde/CDN, para que siempre se sirva el HTML/JS de la versión
@@ -7,5 +7,5 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default function Home() {
-  return <TemplateClient />;
+  return <PublicoClient />;
 }
