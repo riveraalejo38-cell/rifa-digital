@@ -22,7 +22,7 @@ import { useState } from "react";
 // datos (Raffle.isActive = true). Si el nombre, el premio, el precio de la
 // boleta o la fecha del sorteo cambian más adelante, hay que actualizar
 // estas líneas también.
-const RAFFLE_NAME = "ColRifas";
+const RAFFLE_NAME = "Rifa Santiago Gómez";
 const RAFFLE_DESCRIPTION = "¡Participa y gana grandes premios!";
 const RAFFLE_PRIZE = "Camioneta + 2 Motos + $10.000.000 en efectivo";
 const TICKET_PRICE = 80000;
