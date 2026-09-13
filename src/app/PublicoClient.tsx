@@ -1,26 +1,547 @@
 "use client";
 import { useState } from "react";
-const RAFFLE_NAME="ColRifas", TICKET_PRICE=80000, TOTAL_TICKETS=10000, WHATSAPP_NEGOCIO="573148008489";
-const DRAW_DATE=new Date("2026-12-12T20:00:00-05:00");
-type CheckResult={number:number;available:boolean;ticketPrice:number}|null;
-type Reserva={number:number;status:string;ticketPrice:number;token:string}|null;
-const peso=(v:number)=>"$"+v.toLocaleString("es-CO");
-export default function PublicoClient(){
- const [numeroInput,setNumeroInput]=useState(""),[checking,setChecking]=useState(false),[checkError,setCheckError]=useState(""),[checkResult,setCheckResult]=useState<CheckResult>(null),[nombre,setNombre]=useState(""),[telefono,setTelefono]=useState(""),[ciudad,setCiudad]=useState(""),[reservando,setReservando]=useState(false),[reservaError,setReservaError]=useState(""),[reserva,setReserva]=useState<Reserva>(null),[copiado,setCopiado]=useState(false);
- const fecha=DRAW_DATE.toLocaleDateString("es-CO",{day:"2-digit",month:"short",timeZone:"America/Bogota"}).replace(".","").toUpperCase(),hora=DRAW_DATE.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:"America/Bogota"});
- const enlace=(token:string)=>typeof window==="undefined"?"":`${window.location.origin}/boleta/${token}`;
- const verificarNumero=async()=>{const term=numeroInput.trim();if(!term)return;setChecking(true);setCheckError("");setCheckResult(null);setReserva(null);try{const r=await fetch(`/api/public/ticket-status?number=${encodeURIComponent(term)}`,{cache:"no-store"}),d=await r.json();if(d.success)setCheckResult({number:d.number,available:d.available,ticketPrice:d.ticketPrice});else setCheckError(d.error||"No se pudo verificar el número")}catch{setCheckError("Error de conexión. Intenta de nuevo.")}finally{setChecking(false)}};
- const otroNumero=()=>{setCheckResult(null);setCheckError("");setNumeroInput("");setReserva(null);setReservaError("");setCopiado(false)};
- const reservar=async()=>{if(!checkResult)return;if(!nombre.trim())return setReservaError("Ingresa tu nombre completo");if(!telefono.trim())return setReservaError("Ingresa tu número de teléfono");setReservando(true);setReservaError("");try{const r=await fetch("/api/public/reservar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({number:checkResult.number,name:nombre.trim(),phone:telefono.trim(),city:ciudad.trim()})}),d=await r.json();if(d.success)setReserva(d.ticket);else setReservaError(d.error||"No se pudo completar la reserva")}catch{setReservaError("Error de conexión. Intenta de nuevo.")}finally{setReservando(false)}};
- const whatsapp=()=>{if(!reserva)return;const n=String(reserva.number).padStart(4,"0"),m=`¡Hola! Quiero confirmar la compra de mi boleta *${n}* de ${RAFFLE_NAME}. Ya les envío el comprobante de pago.\n\nMi boleta: ${enlace(reserva.token)}`;window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(m)}`,"_blank")};
- const copiar=async()=>{if(!reserva)return;try{await navigator.clipboard.writeText(enlace(reserva.token));setCopiado(true);setTimeout(()=>setCopiado(false),2200)}catch{window.prompt("Copia este enlace de tu boleta:",enlace(reserva.token))}};
- return <main className="rifa-page"><style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500;700&display=swap');*{box-sizing:border-box}html{scroll-behavior:smooth}.rifa-page{overflow:hidden;background:#003326;color:#fff;font-family:'DM Sans',sans-serif}.shell{width:min(1160px,calc(100% - 40px));margin:auto}.nav{position:absolute;z-index:4;inset:0 0 auto;padding:13px 0}.navin{display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}.brand img{width:47px;height:47px;border-radius:10px;object-fit:cover}.brand span{font-size:12px;line-height:1.05;font-weight:800}.links{display:flex;align-items:center;gap:26px}.links a{color:#fff;text-decoration:none;font-size:13px;font-weight:600}.links .wa{border-radius:999px;padding:12px 19px;color:#192718;background:linear-gradient(135deg,#ffdc76,#d89a2d);font-weight:800}.hero{min-height:515px;padding:112px 0 56px;display:flex;align-items:center;background:linear-gradient(90deg,rgba(0,25,18,.98) 0%,rgba(0,31,22,.83) 31%,rgba(0,30,22,.18) 62%),linear-gradient(0deg,#003326,transparent 28%),url('/premios/hero-cascada.png') center/cover no-repeat}.hero-copy{max-width:482px}.eyebrow{margin:0 0 8px;color:#ffd257;font-size:13px;font-weight:800;letter-spacing:3px}.hero h1{margin:0;font-size:clamp(41px,5.25vw,64px);font-weight:800;line-height:.94;letter-spacing:-1.8px}.hero h1 strong{display:block;color:#f8c54b}.lead{margin:14px 0 16px;font-size:18px;line-height:1.3}.hero-features{display:flex;gap:20px}.hero-features span{display:flex;align-items:center;gap:7px;max-width:108px;font-size:11px;font-weight:700;line-height:1.15}.hero-features b{font-size:22px}.reserve-wrap{padding:0 0 27px;background:#003326}.reserve-box{display:grid;grid-template-columns:1.38fr .54fr .5fr;gap:13px;padding:13px;border:1px solid rgba(255,216,116,.43);border-radius:17px;background:#003126;box-shadow:0 18px 34px rgba(0,0,0,.25)}.purchase{padding:5px}.reserve-title{margin:0 0 3px;font-size:19px;font-weight:800}.reserve-title b{color:#ffdc70;font-size:25px}.reserve-note,.reserve-help{margin:0 0 10px;color:#e5eee8;font-size:12px}.reserve-help{display:block;margin-top:9px}.reserve-help a{color:#ffda6c;font-weight:800;text-decoration:none}.numberrow{display:flex;gap:10px}.numberinput{font:700 18px 'DM Mono',monospace;letter-spacing:3px}.primary,.secondary{min-height:48px;border:0;border-radius:10px;padding:0 17px;cursor:pointer;font:800 13px 'DM Sans',sans-serif}.primary{color:#1b281b;background:linear-gradient(135deg,#ffdf78,#d9992c)}.secondary{border:1px solid rgba(255,255,255,.45);color:#fff;background:transparent}.draw-card,.price-card{display:flex;flex-direction:column;justify-content:center;min-height:112px;padding:12px 15px;border:1px solid rgba(255,255,255,.2);border-radius:11px}.draw-card span,.price-card span{font-size:10px;font-weight:800;letter-spacing:.8px}.draw-card strong{margin:5px 0;font:800 21px/1 'DM Mono',monospace;color:#ffdc70}.draw-card small{font-size:11px}.price-card{align-items:center;color:#172917;text-align:center;background:linear-gradient(145deg,#ffdc7c,#c98722)}.price-card b{margin-top:4px;font-size:29px;line-height:1}.alert{margin:9px 0;padding:10px 12px;border-radius:9px;font-size:12px}.error{color:#ffd2d2;background:#762d2d}.unavailable{color:#ffe6ac;background:#5e4219}.found{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:9px 0;padding:10px;border:1px solid #eabd4f;border-radius:10px;background:#214c39}.found small,.label{font-size:10px;font-weight:800}.found strong{display:block;font:700 24px 'DM Mono',monospace}.available{padding:5px 8px;border-radius:999px;background:#4f753b;font-size:10px;font-weight:800}.label{display:block;margin:8px 0}.stack{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}input{width:100%;min-height:48px;padding:0 14px;border:1px solid #5e8170;border-radius:10px;background:#fff;color:#163326;font:500 14px 'DM Sans',sans-serif}.help{margin:10px 0;color:#d4e4d9;font-size:12px;line-height:1.4}.full{width:100%}.textbutton{border:0;background:transparent;color:#ffdb71;font-size:12px;font-weight:700;cursor:pointer}.ready{grid-column:1/-1;padding:12px;text-align:center}.ready h2{margin:4px 0;font-size:27px}.price{margin:6px 0;color:#dce8df}.price b{color:#ffda70}.ticketimage{display:block;width:min(100%,420px);margin:14px auto;border-radius:12px}.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.outline{border:1px solid #f0c75d;color:#ffdc70}.section{padding:31px 0}.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.section h2,.how h2{margin:0;font-size:27px;line-height:1;font-weight:800}.gold{color:#f7c348}.intro{margin:6px 0 0;color:#dce7e0;font-size:13px}.showall{border:1px solid rgba(255,255,255,.48);border-radius:999px;padding:9px 15px;color:#fff;text-decoration:none;font-size:11px;font-weight:700}.prizegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.prize,.more-prizes{position:relative;display:flex;align-items:end;aspect-ratio:1/1;overflow:hidden;padding:12px;border:1px solid rgba(255,255,255,.42);border-radius:10px;background:#183126 center/cover no-repeat}.prize:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,18,12,.93),transparent 70%)}.prize div{position:relative;z-index:1}.mt15{background-image:url('/premios/mt15.jpg')}.frontier{background-image:url('/premios/frontier.jpg')}.nmax{background-image:url('/premios/nmax.jpg')}.tag{display:block;margin-bottom:4px;color:#ffda69;font-size:10px;font-weight:800}.prize h3{margin:0;font-size:16px;line-height:1.05}.prize p{margin:3px 0 0;font-size:10px}.more-prizes{justify-content:center;align-items:center;color:#182719;text-align:center;background:linear-gradient(145deg,#fff,#f1e5c9)}.more-prizes b{display:block;font-size:42px}.more-prizes span{display:block;font-size:17px;font-weight:800;line-height:1.02}.cash{display:flex;justify-content:center;align-items:center;gap:11px;margin-top:11px;padding:10px;border:1px solid rgba(255,216,105,.5);border-radius:10px}.cash span{font-size:10px;font-weight:800;letter-spacing:1px}.cash strong{font-size:24px;color:#ffda63}.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;padding:19px 0 3px;border-top:1px solid rgba(255,255,255,.18)}.trust div{display:flex;justify-content:center;align-items:center;gap:8px;font-size:12px;line-height:1.2}.trust b{font-size:22px;color:#ffdb70}.how{padding:31px 0;background:#faf7ef;color:#182b21}.how .intro{color:#53675c}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}.step{text-align:center}.stepnum{display:inline-flex;justify-content:center;align-items:center;width:45px;height:45px;border-radius:50%;background:#003326;color:#ffda6d;font:700 14px 'DM Mono',monospace}.step h3{margin:8px 0 4px;font-size:13px}.step p{margin:0;color:#596b60;font-size:11px;line-height:1.35}.payment{padding:0 0 31px;background:#faf7ef;color:#182b21}.paymentbox{display:grid;grid-template-columns:1.12fr .88fr;overflow:hidden;border-radius:13px;background:#fff;box-shadow:0 10px 27px rgba(0,0,0,.12)}.paymentcopy{padding:25px}.paymentcopy h2{margin:0;font-size:23px}.paymentcopy p{color:#55685c;font-size:13px;line-height:1.45}.paymentpoints{display:grid;align-content:center;gap:10px;padding:22px;background:#003326;color:#fff}.paymentpoint{font-size:12px}.payment-note{margin-top:10px!important;color:#617268!important;font-size:11px!important}footer{padding:28px 0;background:#00271e;color:#bcd0c2;text-align:center;font-size:12px;line-height:1.5}footer a{color:#ffda6d;text-decoration:none;font-weight:700}@media(max-width:760px){.shell{width:min(100% - 24px,540px)}.nav{padding:10px 0}.brand img{width:38px;height:38px}.brand span{font-size:10px}.links{gap:0}.links a:not(.wa){display:none}.links .wa{padding:9px 12px;font-size:11px}.hero{min-height:500px;padding:100px 0 32px;align-items:end;background-position:58% center}.hero h1{max-width:335px;font-size:42px}.eyebrow{font-size:10px;letter-spacing:2px}.lead{margin:10px 0;font-size:15px}.hero-features{gap:11px}.hero-features span{max-width:88px;font-size:9px}.hero-features b{font-size:17px}.reserve-wrap{padding-bottom:21px}.reserve-box{grid-template-columns:1fr 1fr;gap:8px;padding:9px}.purchase{grid-column:1/-1}.reserve-title{font-size:17px}.reserve-note{font-size:11px}.numberrow{gap:7px}.numberrow .primary{padding:0 12px}.draw-card,.price-card{min-height:82px;padding:9px}.draw-card strong{font-size:17px}.price-card b{font-size:23px}.section{padding:29px 0}.section h2{font-size:22px}.showall{padding:7px 9px;font-size:10px}.prizegrid{grid-template-columns:1fr 1fr;gap:8px}.prize,.more-prizes{padding:9px}.prize h3{font-size:13px}.prize p{font-size:9px}.cash{flex-direction:column;gap:3px;text-align:center}.trust{grid-template-columns:1fr 1fr;gap:13px 8px}.trust div{justify-content:flex-start;font-size:11px}.stack{grid-template-columns:1fr}.actions{display:grid;grid-template-columns:1fr 1fr}.actions .primary{grid-column:1/-1}.how{padding:29px 0}.steps{grid-template-columns:1fr 1fr;gap:19px 10px}.paymentbox{grid-template-columns:1fr}.paymentcopy,.paymentpoints{padding:21px}}`}</style>
- <style>{`.hero{position:relative}.dream-sign{position:absolute;right:12%;top:118px;width:192px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:7px solid #4c2a16;border-radius:7px;background:repeating-linear-gradient(0deg,#472615 0 5px,#2d170c 6px 9px);box-shadow:0 8px 20px #0009;color:#fff1d3;text-align:center;font-family:cursive;transform:rotate(-3deg)}.dream-sign span{font-size:29px;line-height:1.02}.dream-sign b{margin-top:11px;color:#f4bd36;font:700 28px sans-serif}@media(max-width:760px){.dream-sign{right:14px;top:105px;width:107px;min-height:91px;border-width:4px}.dream-sign span{font-size:16px}.dream-sign b{margin-top:5px;font-size:18px}}`}</style>
- <header className="nav"><div className="shell navin"><a className="brand" href="#inicio"><img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez"/><span>PROYECTOS<br/>SANTIAGO GÓMEZ</span></a><nav className="links"><a href="#inicio">Inicio</a><a href="#premios">Premios</a><a href="#como-funciona">Cómo participar</a><a href="#pagos">Medios de pago</a><a className="wa" href={`https://wa.me/${WHATSAPP_NEGOCIO}`} target="_blank" rel="noreferrer">◉ Escríbenos</a></nav></div></header>
- <section className="hero" id="inicio"><div className="shell hero-copy"><p className="eyebrow">GRAN RIFA</p><h1>TU PRÓXIMA <strong>AVENTURA</strong> PUEDE SER REAL</h1><p className="lead">UNA CAMIONETA, DOS MOTOS<br/>Y MUCHOS PREMIOS MÁS</p><div className="hero-features"><span><b>♛</b> Grandes premios</span><span><b>♢</b> 100% confiable</span><span><b>♧</b> Miles de participantes</span></div></div><div className="dream-sign"><span>Tu sueño<br/>hecho realidad</span><b>⌁</b></div></section>
- <section className="reserve-wrap" id="elige-tu-numero"><div className="shell"><div className="reserve-box">{!reserva&&<div className="purchase"><p className="reserve-title"><b>▣</b> ELIGE TU NÚMERO</p><p className="reserve-note">Escribe el número de boleta que quieres (0 a 9999).</p>{!checkResult&&<><div className="numberrow"><input className="numberinput" inputMode="numeric" placeholder="Ej: 0512" value={numeroInput} onChange={e=>setNumeroInput(e.target.value.replace(/\D/g,"").slice(0,4))} onKeyDown={e=>e.key==="Enter"&&verificarNumero()}/><button className="primary" onClick={verificarNumero} disabled={checking||!numeroInput}>{checking?"VERIFICANDO...":"Verificar"}</button></div>{checkError&&<p className="alert error">⚠ {checkError}</p>}<span className="reserve-help">Cada persona puede reservar hasta 4 boletas con el mismo teléfono. ¿Eres vendedor? <a href="/login">Inicia sesión aquí.</a></span></>}{checkResult&&!checkResult.available&&<><p className="alert unavailable">Esta boleta ya no está disponible. Prueba con otro número.</p><button className="secondary full" onClick={otroNumero}>ELEGIR OTRO NÚMERO</button></>}{checkResult&&checkResult.available&&<><div className="found"><div><small>BOLETA DISPONIBLE</small><strong>{String(checkResult.number).padStart(4,"0")}</strong></div><span className="available">✦ DISPONIBLE</span></div><label className="label">TUS DATOS</label><div className="stack"><input placeholder="Nombre completo" value={nombre} onChange={e=>setNombre(e.target.value)}/><input type="tel" placeholder="Teléfono para confirmar por WhatsApp" value={telefono} onChange={e=>setTelefono(e.target.value)}/><input placeholder="Ciudad (opcional)" value={ciudad} onChange={e=>setCiudad(e.target.value)}/></div><p className="help">Tu boleta queda reservada. Después realiza el abono y envíanos el comprobante por WhatsApp para confirmarla.</p>{reservaError&&<p className="alert error">⚠ {reservaError}</p>}<button className="primary full" onClick={reservar} disabled={reservando}>{reservando?"RESERVANDO...":"RESERVAR MI BOLETA"}</button><button className="textbutton" onClick={otroNumero}>← Elegir otro número</button></>}</div>}<aside className="draw-card"><span>▣ FECHA DEL SORTEO</span><strong>{fecha}</strong><small>{hora}</small></aside><aside className="price-card"><span>VALOR DE LA BOLETA</span><b>{peso(TICKET_PRICE)}</b></aside>{reserva&&<div className="ready" id="boleta-lista"><p className="eyebrow">✓ ¡TU BOLETA ESTÁ LISTA!</p><h2>Boleta #{String(reserva.number).padStart(4,"0")}</h2><p className="price">Valor a pagar: <b>{peso(reserva.ticketPrice)}</b></p><a href={`/boleta/${reserva.token}`} target="_blank" rel="noreferrer"><img className="ticketimage" src={`/api/boleta/${reserva.token}/imagen`} alt="Tu boleta"/></a><div className="actions"><a className="secondary" href={`/boleta/${reserva.token}`} target="_blank" rel="noreferrer">VER BOLETA</a><button className="secondary outline" onClick={copiar}>{copiado?"✓ ENLACE COPIADO":"COPIAR ENLACE"}</button><button className="primary" onClick={whatsapp}>📲 ENVIAR COMPROBANTE</button></div><button className="textbutton" onClick={otroNumero}>Reservar otra boleta</button></div>}</div></div></section>
- <section className="section prizes" id="premios"><div className="shell"><div className="section-head"><div><h2>NUESTROS <span className="gold">PREMIOS</span></h2><p className="intro">Vehículos de alto nivel y muchos premios más</p></div><a className="showall" href="#premios">Ver todos los premios →</a></div><div className="prizegrid"><article className="prize mt15"><div><span className="tag">🎁 PREMIO MAYOR</span><h3>YAMAHA MT-15</h3><p>Potencia que te mueve.</p></div></article><article className="prize frontier"><div><span className="tag">🎁 OBSEQUIO</span><h3>NISSAN FRONTIER 2024</h3><p>Robusta, confiable, lista para nuevas aventuras.</p></div></article><article className="prize nmax"><div><span className="tag">🎁 PREMIO ADICIONAL</span><h3>YAMAHA NMAX</h3><p>Estilo y libertad en cada kilómetro.</p></div></article><article className="more-prizes"><div><b>🎁</b><span>Y MÁS<br/>PREMIOS SORPRESA</span></div></article></div><div className="cash"><span>PREMIO EN EFECTIVO</span><strong>$10 MILLONES</strong><span>EN EFECTIVO</span></div><div className="trust"><div><b>♧</b>Miles de personas<br/>ya hacen parte</div><div><b>♢</b>Transacción segura<br/>y confiable</div><div><b>♡</b>Apoyas grandes<br/>proyectos</div><div><b>✦</b>Más oportunidades<br/>para todos</div></div></div></section>
- <section className="how" id="como-funciona"><div className="shell"><h2>¿CÓMO FUNCIONA?</h2><p className="intro">Es muy fácil, sigue estos pasos y asegura tu participación.</p><div className="steps"><article className="step"><div className="stepnum">01</div><h3>Elige tu número</h3><p>Reserva tu boleta de forma rápida.</p></article><article className="step"><div className="stepnum">02</div><h3>Realiza tu abono</h3><p>Usa nuestros medios de pago.</p></article><article className="step"><div className="stepnum">03</div><h3>Envía el comprobante</h3><p>Por WhatsApp para confirmar.</p></article><article className="step"><div className="stepnum">04</div><h3>¡Participa y gana!</h3><p>La suerte puede ser tuya.</p></article></div></div></section>
- <section className="payment" id="pagos"><div className="shell paymentbox"><div className="paymentcopy"><p className="eyebrow">MEDIOS DE PAGO</p><h2>¿Ya realizaste tu abono?</h2><p>Envía tu comprobante por WhatsApp y nosotros lo registramos. Incluye tu número de boleta en el mensaje.</p><button className="primary" onClick={()=>window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent("Hola, quiero conocer los medios de pago de la rifa.")}`,"_blank")}>◉ Solicitar medios de pago</button><p className="payment-note">Los datos de pago se entregan directamente por nuestro canal oficial.</p></div><div className="paymentpoints"><div className="paymentpoint">✓ Reserva tu número favorito</div><div className="paymentpoint">✓ Recibe tu boleta con enlace único</div><div className="paymentpoint">✓ Envía tu comprobante por WhatsApp</div></div></div></section>
- <footer><div className="shell">PROYECTOS SANTIAGO GÓMEZ · {RAFFLE_NAME}<br/>¿Eres vendedor? <a href="/login">Inicia sesión aquí</a>.</div></footer></main>;
+
+// Página pública de venta: cualquier visitante que entre al dominio puede
+// escribir el número de boleta que quiere, ver si está disponible y
+// separarla ahí mismo, sin necesitar un vendedor. A propósito esta página
+// SOLO reserva (no recibe abonos/pagos): el cliente separa el número y
+// después envía el comprobante de pago por WhatsApp; el vendedor o admin
+// registra el abono/pago ya confirmado en su panel.
+//
+// El diseño de esta página sigue tal cual el lienzo que Alejo aprobó
+// (public/plantilla-rifa-oficial.png): encabezado con menú, sección de
+// premios, "cómo funciona" y medios de pago. Lo único que se hizo aquí fue
+// darle vida a esas secciones — la lógica de verificar/reservar/confirmar
+// que ya funcionaba no se tocó.
+
+// Datos de la rifa activa — coinciden con lo que hay hoy en la base de
+// datos (Raffle.isActive = true). Si el nombre, el premio, el precio de la
+// boleta o la fecha del sorteo cambian más adelante, hay que actualizar
+// estas líneas también.
+const RAFFLE_NAME = "ColRifas";
+const RAFFLE_DESCRIPTION = "¡Participa y gana grandes premios!";
+const RAFFLE_PRIZE = "Camioneta + 2 Motos + $10.000.000 en efectivo";
+const TICKET_PRICE = 80000;
+const TOTAL_TICKETS = 10000;
+const DRAW_DATE = new Date("2026-12-12T20:00:00-05:00");
+
+// Número de WhatsApp del negocio: a este llegan las consultas ("Escríbenos"),
+// los comprobantes de pago, y es el mismo número que se muestra como Nequi
+// y Daviplata en "Medios de pago" (así lo pidió Alejo — no maneja cuenta
+// bancaria todavía).
+const WHATSAPP_NEGOCIO = "573148008489";
+const NUMERO_PAGO = "314 800 8489";
+
+const formatPeso = (v: number) => "$" + v.toLocaleString("es-CO");
+
+type CheckResult = { number: number; available: boolean; ticketPrice: number } | null;
+type ReservaExito = { number: number; status: string; ticketPrice: number; token: string } | null;
+
+export default function PublicoClient() {
+  const [numeroInput, setNumeroInput] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [checkError, setCheckError] = useState("");
+  const [checkResult, setCheckResult] = useState<CheckResult>(null);
+
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [ciudad, setCiudad] = useState("");
+  const [reservando, setReservando] = useState(false);
+  const [reservaError, setReservaError] = useState("");
+  const [reservaExito, setReservaExito] = useState<ReservaExito>(null);
+
+  const [copiado, setCopiado] = useState<string | null>(null);
+
+  const fechaSorteo = DRAW_DATE.toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
+
+  // Antes esto era una cuenta regresiva (días/horas/min/seg) que se
+  // actualizaba cada segundo. Por pedido suyo, esos mismos recuadros
+  // muestran la fecha del sorteo ya fija (día/mes/año/hora), sin
+  // contador en vivo.
+  const diaSorteo = String(DRAW_DATE.getDate()).padStart(2, "0");
+  const mesSorteo = DRAW_DATE.toLocaleDateString("es-CO", { month: "short" }).replace(".", "").toUpperCase();
+  const anioSorteo = String(DRAW_DATE.getFullYear());
+  const horas24Sorteo = DRAW_DATE.getHours();
+  const horas12Sorteo = horas24Sorteo % 12 === 0 ? 12 : horas24Sorteo % 12;
+  const minutosSorteo = String(DRAW_DATE.getMinutes()).padStart(2, "0");
+  const horaSorteo = `${horas12Sorteo}:${minutosSorteo} ${horas24Sorteo >= 12 ? "PM" : "AM"}`;
+
+  const verificarNumero = async () => {
+    const term = numeroInput.trim();
+    if (!term) return;
+    setChecking(true);
+    setCheckError("");
+    setCheckResult(null);
+    setReservaExito(null);
+    setReservaError("");
+    setNombre("");
+    setTelefono("");
+    setCiudad("");
+    try {
+      const res = await fetch(`/api/public/ticket-status?number=${encodeURIComponent(term)}`, { cache: "no-store" });
+      const data = await res.json();
+      if (data.success) {
+        setCheckResult({ number: data.number, available: data.available, ticketPrice: data.ticketPrice });
+      } else {
+        setCheckError(data.error || "No se pudo verificar el número");
+      }
+    } catch {
+      setCheckError("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const otroNumero = () => {
+    setCheckResult(null);
+    setCheckError("");
+    setNumeroInput("");
+    setReservaExito(null);
+    setReservaError("");
+  };
+
+  const handleReservar = async () => {
+    if (!checkResult) return;
+    if (!nombre.trim()) {
+      setReservaError("Ingresa tu nombre completo");
+      return;
+    }
+    if (!telefono.trim()) {
+      setReservaError("Ingresa tu número de teléfono");
+      return;
+    }
+    setReservando(true);
+    setReservaError("");
+    try {
+      const res = await fetch("/api/public/reservar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          number: checkResult.number,
+          name: nombre.trim(),
+          phone: telefono.trim(),
+          city: ciudad.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReservaExito(data.ticket);
+      } else {
+        setReservaError(data.error || "No se pudo completar la reserva");
+      }
+    } catch {
+      setReservaError("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setReservando(false);
+    }
+  };
+
+  const linkBoleta = (token: string) =>
+    typeof window !== "undefined" ? `${window.location.origin}/boleta/${token}` : "";
+
+  const compartirWhatsApp = () => {
+    if (!reservaExito) return;
+    const numero = String(reservaExito.number).padStart(4, "0");
+    const mensaje = `¡Hola! Quiero confirmar la compra de mi boleta *${numero}* de ${RAFFLE_NAME} (${RAFFLE_PRIZE}). Ya les envío el comprobante de pago.\n\nMi boleta: ${linkBoleta(reservaExito.token)}`;
+    window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
+  // Botón "Escríbenos" del encabezado — consulta general, sin boleta de por medio.
+  const escribenos = () => {
+    const mensaje = `¡Hola! Quiero más información sobre ${RAFFLE_NAME} (${RAFFLE_PRIZE}).`;
+    window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
+  // Botón "Enviar comprobante" de Medios de pago — disponible en todo
+  // momento (no solo justo después de reservar), para quien ya apartó su
+  // boleta antes y vuelve más tarde a mandar el pago.
+  const enviarComprobanteGenerico = () => {
+    const mensaje = `¡Hola! Ya realicé mi abono para mi boleta de ${RAFFLE_NAME}. Les envío mi comprobante de pago.\n\n(Mi número de boleta es: )`;
+    window.open(`https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
+  const copiar = async (texto: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(texto);
+      setCopiado(key);
+      setTimeout(() => setCopiado((c) => (c === key ? null : c)), 1800);
+    } catch {
+      // Si el navegador bloquea el portapapeles, no pasa nada grave —
+      // el número igual queda visible para copiarlo a mano.
+    }
+  };
+
+  const C = {
+    bg: "#0B1F17",
+    card: "#142B21",
+    border: "#28405A",
+    gold: "#D9AD52",
+    goldDark: "#B58A2E",
+    goldLight: "#E4C983",
+    text: "#FFFFFF",
+    muted: "#8FA6BD",
+    mutedDim: "#7C93AC",
+    danger: "#F87171",
+    whatsapp: "#25D366",
+    whatsappDark: "#128C4A",
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "'DM Sans', 'Segoe UI', sans-serif", color: C.text }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        input:focus { outline: none; }
+        @keyframes brillo { 0%, 100% { box-shadow: 0 0 30px rgba(217,173,82,0.10); } 50% { box-shadow: 0 0 46px rgba(217,173,82,0.22); } }
+        @keyframes latido { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(37,211,102,0.4); } 50% { transform: scale(1.03); box-shadow: 0 0 22px rgba(37,211,102,0.5); } }
+        .prg-nav-links { display: flex; gap: 26px; }
+        .prg-hero-grid { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; }
+        .prg-reserva-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .prg-side-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .prg-premios-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .prg-beneficios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .prg-pasos-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .prg-pago-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 700px) {
+          .prg-premios-grid { grid-template-columns: 1fr 1fr; }
+          .prg-pasos-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (min-width: 860px) {
+          .prg-hero-grid { grid-template-columns: 1.05fr 0.95fr; }
+          .prg-reserva-grid { grid-template-columns: 1.3fr 1fr; align-items: start; }
+          .prg-pago-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (min-width: 980px) {
+          .prg-premios-grid { grid-template-columns: repeat(4, 1fr); }
+          .prg-pasos-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 700px) {
+          .prg-nav-links { display: none; }
+          .prg-beneficios-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+
+      {/* ══ Encabezado ══ */}
+      <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(11,31,23,0.95)", borderBottom: `1px solid ${C.border}`, backdropFilter: "blur(6px)" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <a href="#inicio" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "34px", height: "34px", borderRadius: "9px", objectFit: "cover", border: `1.5px solid ${C.border}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <p style={{ margin: 0, fontSize: "12px", fontWeight: 800, color: C.text, letterSpacing: "0.5px", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
+          </a>
+          <nav className="prg-nav-links">
+            <a href="#inicio" style={{ fontSize: "13px", fontWeight: 600, color: C.text, textDecoration: "none" }}>Inicio</a>
+            <a href="#premios" style={{ fontSize: "13px", fontWeight: 600, color: C.muted, textDecoration: "none" }}>Premios</a>
+            <a href="#como-participar" style={{ fontSize: "13px", fontWeight: 600, color: C.muted, textDecoration: "none" }}>Cómo participar</a>
+            <a href="#medios-pago" style={{ fontSize: "13px", fontWeight: 600, color: C.muted, textDecoration: "none" }}>Medios de pago</a>
+            <a href="#contacto" style={{ fontSize: "13px", fontWeight: 600, color: C.muted, textDecoration: "none" }}>Contacto</a>
+          </nav>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <a href="/login" style={{ fontSize: "12px", fontWeight: 600, color: C.muted, textDecoration: "none", whiteSpace: "nowrap" }}>Vendedores →</a>
+            <button onClick={escribenos} style={{ display: "flex", alignItems: "center", gap: "6px", background: `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "999px", padding: "9px 16px", color: "#FFFFFF", fontSize: "12.5px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+              💬 Escríbenos
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "36px 20px 0" }}>
+
+        {/* ══ Hero ══ */}
+        <section id="inicio" className="prg-hero-grid" style={{ marginBottom: "40px" }}>
+          <div>
+            <p style={{ margin: "0 0 10px", fontSize: "12px", color: C.gold, fontWeight: 800, letterSpacing: "2px" }}>GRAN RIFA</p>
+            <h1 style={{ margin: "0 0 14px", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 800, lineHeight: 1.15 }}>
+              Tu próxima <span style={{ color: C.gold }}>aventura</span> puede ser real
+            </h1>
+            <p style={{ margin: "0 0 22px", fontSize: "15px", color: C.muted, fontWeight: 500, lineHeight: 1.6 }}>
+              {RAFFLE_PRIZE} — y muchos premios más.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "18px" }}>
+              {[
+                { icon: "🏆", label: "Grandes premios" },
+                { icon: "🛡️", label: "100% confiable" },
+                { icon: "👥", label: "Miles de participantes" },
+              ].map((b) => (
+                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "18px" }}>{b.icon}</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: C.text }}>{b.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/premios/hero-grupo.jpg" alt={RAFFLE_PRIZE} style={{ width: "100%", height: "auto", borderRadius: "24px", display: "block", border: `1.5px solid ${C.border}` }} />
+        </section>
+
+        {/* ══ Elige tu número + fecha/valor ══ */}
+        <section className="prg-reserva-grid" style={{ marginBottom: "44px" }}>
+          {/* Verificar / elegir número */}
+          {!reservaExito && (
+            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+              <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 700, color: C.text, letterSpacing: "0.5px" }}>ELIGE TU NÚMERO</p>
+              <p style={{ margin: "0 0 16px", fontSize: "13px", color: C.muted }}>Escribe el número de boleta que quieres (0 a {TOTAL_TICKETS - 1}).</p>
+
+              {!checkResult && (
+                <>
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Ej: 0512"
+                      value={numeroInput}
+                      onChange={(e) => setNumeroInput(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      onKeyDown={(e) => e.key === "Enter" && verificarNumero()}
+                      autoComplete="off"
+                      style={{ flex: "1 1 160px", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "14px", padding: "14px 18px", fontSize: "18px", color: C.text, fontFamily: "'DM Mono', monospace", letterSpacing: "2px" }}
+                    />
+                    <button onClick={verificarNumero} disabled={checking || !numeroInput}
+                      style={{ background: checking || !numeroInput ? C.border : `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "14px", padding: "14px 22px", color: checking || !numeroInput ? C.muted : "#FFFFFF", fontSize: "14px", fontWeight: 700, cursor: checking || !numeroInput ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                      {checking ? "..." : "Verificar"}
+                    </button>
+                  </div>
+                  {checkError && <p style={{ color: C.danger, fontSize: "13px", margin: "12px 0 0", fontWeight: 500 }}>⚠ {checkError}</p>}
+                  <p style={{ margin: "16px 0 0", fontSize: "12px", color: C.mutedDim, lineHeight: 1.6 }}>
+                    Cada persona puede reservar hasta 4 boletas con el mismo teléfono.<br />
+                    ¿Eres vendedor? <a href="/login" style={{ color: C.goldLight, fontWeight: 600 }}>Inicia sesión aquí</a>.
+                  </p>
+                </>
+              )}
+
+              {checkResult && !checkResult.available && (
+                <div>
+                  <div style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)", borderRadius: "16px", padding: "18px", marginBottom: "14px" }}>
+                    <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: "1.5px" }}>BOLETA {String(checkResult.number).padStart(4, "0")}</p>
+                    <p style={{ margin: 0, fontSize: "15px", color: "#FFFFFF", fontWeight: 700 }}>Uy, esa boleta ya no está disponible</p>
+                  </div>
+                  <button onClick={otroNumero} style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "13px", color: C.goldLight, fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                    Probar otro número
+                  </button>
+                </div>
+              )}
+
+              {checkResult && checkResult.available && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: C.bg, borderRadius: "14px", padding: "14px 18px", border: `1.5px solid ${C.gold}`, marginBottom: "16px" }}>
+                    <div>
+                      <p style={{ margin: "0 0 2px", fontSize: "10px", color: C.muted, fontWeight: 700, letterSpacing: "1px" }}>BOLETA</p>
+                      <p style={{ margin: 0, fontSize: "28px", fontWeight: 800, color: C.text, fontFamily: "'DM Mono', monospace", letterSpacing: "3px" }}>{String(checkResult.number).padStart(4, "0")}</p>
+                    </div>
+                    <span style={{ background: "rgba(217,173,82,0.15)", color: C.gold, borderRadius: "999px", padding: "6px 14px", fontSize: "12px", fontWeight: 700 }}>✦ Disponible</span>
+                  </div>
+
+                  <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 700, color: C.text }}>TUS DATOS</p>
+                  <input type="text" placeholder="Nombre completo" value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="off"
+                    style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "10px" }} />
+                  <input type="tel" placeholder="Teléfono (para el comprobante por WhatsApp)" value={telefono} onChange={(e) => setTelefono(e.target.value)} autoComplete="off"
+                    style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "10px" }} />
+                  <input type="text" placeholder="Ciudad (opcional)" value={ciudad} onChange={(e) => setCiudad(e.target.value)} autoComplete="off"
+                    style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "16px" }} />
+                  <p style={{ color: C.muted, fontSize: "13px", marginBottom: "12px", fontWeight: 500 }}>
+                    Tu boleta queda apartada. El pago se confirma después, enviando el comprobante por WhatsApp.
+                  </p>
+                  {reservaError && <p style={{ color: C.danger, fontSize: "13px", marginBottom: "12px", fontWeight: 500 }}>⚠ {reservaError}</p>}
+
+                  <button onClick={handleReservar} disabled={reservando}
+                    style={{ width: "100%", background: `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: 700, cursor: reservando ? "not-allowed" : "pointer", fontFamily: "inherit", marginBottom: "10px" }}>
+                    {reservando ? "Reservando..." : "Reservar esta boleta"}
+                  </button>
+                  <button onClick={otroNumero} style={{ width: "100%", background: "none", border: "none", padding: "4px", color: C.goldLight, fontSize: "13px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    ← Elegir otro número
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Confirmación de reserva */}
+          {reservaExito && (
+            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+              <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "18px", padding: "24px", marginBottom: "18px", textAlign: "center", animation: "brillo 3s ease-in-out infinite" }}>
+                <p style={{ margin: "0 0 6px", fontSize: "12px", color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "1.5px" }}>✓ ¡BOLETA RESERVADA!</p>
+                <p style={{ margin: 0, fontSize: "44px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>{String(reservaExito.number).padStart(4, "0")}</p>
+              </div>
+
+              <div style={{ background: C.bg, borderRadius: "12px", padding: "14px", marginBottom: "18px", textAlign: "center" }}>
+                <p style={{ margin: 0, fontSize: "11px", color: C.muted, fontWeight: 600 }}>VALOR A PAGAR</p>
+                <p style={{ margin: "4px 0 0", fontSize: "20px", fontWeight: 700, color: C.text }}>{formatPeso(reservaExito.ticketPrice)}</p>
+              </div>
+
+              <p style={{ margin: "0 0 14px", fontSize: "13px", color: C.muted, lineHeight: 1.6 }}>
+                Tu boleta quedó apartada. Ahora haz el pago y envíanos el comprobante por WhatsApp para confirmarla — tu vendedor la registra apenas lo reciba.
+              </p>
+
+              <a href={`/boleta/${reservaExito.token}`} target="_blank" rel="noopener noreferrer"
+                style={{ width: "100%", boxSizing: "border-box", background: C.bg, border: `1.5px solid ${C.gold}`, borderRadius: "12px", padding: "15px", color: C.gold, fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
+                <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
+              </a>
+              <button onClick={compartirWhatsApp} style={{ width: "100%", background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", animation: "latido 1.6s ease-in-out infinite" }}>
+                <span style={{ fontSize: "17px" }}>📲</span> CONFIRMAR MI BOLETA
+              </button>
+              <button onClick={otroNumero} style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "13px", color: C.goldLight, fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                Reservar otra boleta
+              </button>
+            </div>
+          )}
+
+          {/* Fecha del sorteo + valor de la boleta */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ background: C.card, borderRadius: "20px", padding: "20px", border: `1.5px solid ${C.border}` }}>
+              <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "1.5px", color: C.muted, fontWeight: 700, textAlign: "center" }}>📅 FECHA DEL SORTEO</p>
+              <div className="prg-side-grid">
+                {[
+                  { valor: diaSorteo, label: "DÍA" },
+                  { valor: mesSorteo, label: "MES" },
+                  { valor: anioSorteo, label: "AÑO" },
+                  { valor: horaSorteo, label: "HORA" },
+                ].map((item) => (
+                  <div key={item.label} style={{ background: C.bg, borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: `1px solid ${C.border}` }}>
+                    <p style={{ margin: "0 0 2px", fontSize: "17px", fontWeight: 800, color: C.gold, fontFamily: "'DM Mono', monospace" }}>{item.valor}</p>
+                    <p style={{ margin: 0, fontSize: "9px", color: C.mutedDim, fontWeight: 700, letterSpacing: "1px" }}>{item.label}</p>
+                  </div>
+                ))}
+              </div>
+              <p style={{ margin: "12px 0 0", fontSize: "11px", color: C.mutedDim, textAlign: "center" }}>{fechaSorteo}</p>
+            </div>
+
+            <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "20px", padding: "20px", textAlign: "center" }}>
+              <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(255,255,255,0.85)", fontWeight: 700, letterSpacing: "1.5px" }}>🎫 VALOR DE LA BOLETA</p>
+              <p style={{ margin: 0, fontSize: "30px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{formatPeso(TICKET_PRICE)}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ Nuestros premios ══ */}
+        <section id="premios" style={{ marginBottom: "44px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "18px" }}>
+            <div>
+              <h2 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: 800 }}>Nuestros <span style={{ color: C.gold }}>premios</span></h2>
+              <p style={{ margin: 0, fontSize: "13px", color: C.muted }}>Vehículos de alto nivel y muchos premios más.</p>
+            </div>
+          </div>
+          <div className="prg-premios-grid">
+            {[
+              { img: "/premios/mt15.jpg", tag: "PREMIO MAYOR", nombre: "Yamaha MT-15", desc: "Potencia que te mueve." },
+              { img: "/premios/frontier.jpg", tag: "OBSEQUIO", nombre: "Nissan Frontier", desc: "Robusta, confiable, lista para nuevas aventuras." },
+              { img: "/premios/nmax.jpg", tag: "PREMIO ADICIONAL", nombre: "Yamaha Nmax", desc: "Estilo y libertad en cada kilómetro." },
+            ].map((p) => (
+              <div key={p.nombre} style={{ background: C.card, borderRadius: "18px", overflow: "hidden", border: `1.5px solid ${C.border}` }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.img} alt={p.nombre} style={{ width: "100%", aspectRatio: "4 / 3", objectFit: "cover", display: "block" }} />
+                <div style={{ padding: "14px" }}>
+                  <p style={{ margin: "0 0 6px", fontSize: "10px", fontWeight: 800, color: C.gold, letterSpacing: "1px" }}>🎁 {p.tag}</p>
+                  <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: 800, color: C.text }}>{p.nombre}</p>
+                  <p style={{ margin: 0, fontSize: "12.5px", color: C.muted }}>{p.desc}</p>
+                </div>
+              </div>
+            ))}
+            <div style={{ background: "#1B3A2A", borderRadius: "18px", border: `1.5px dashed ${C.gold}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", textAlign: "center", minHeight: "160px" }}>
+              <span style={{ fontSize: "34px", marginBottom: "8px" }}>🎁</span>
+              <p style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: C.goldLight }}>Y MÁS PREMIOS<br />SORPRESA</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ Beneficios ══ */}
+        <section style={{ marginBottom: "44px", background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+          <div className="prg-beneficios-grid">
+            {[
+              { icon: "👥", texto: "Miles de personas ya hacen parte" },
+              { icon: "🛡️", texto: "Transacción segura y confiable" },
+              { icon: "❤️", texto: "Apoyas grandes proyectos" },
+              { icon: "🌿", texto: "Más oportunidades para todos" },
+            ].map((b) => (
+              <div key={b.texto} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <span style={{ fontSize: "22px" }}>{b.icon}</span>
+                <span style={{ fontSize: "13.5px", fontWeight: 600, color: C.text }}>{b.texto}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ Cómo funciona ══ */}
+        <section id="como-participar" style={{ marginBottom: "44px" }}>
+          <h2 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: 800 }}>¿Cómo funciona?</h2>
+          <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted }}>Es muy fácil, sigue estos pasos y asegura tu participación.</p>
+          <div className="prg-pasos-grid">
+            {[
+              { n: "01", icon: "🎫", titulo: "Elige tu número", desc: "Reserva tu boleta de forma rápida." },
+              { n: "02", icon: "💳", titulo: "Realiza tu abono", desc: "Usa nuestros medios de pago." },
+              { n: "03", icon: "📤", titulo: "Envía el comprobante", desc: "Por WhatsApp para confirmar." },
+              { n: "04", icon: "✅", titulo: "¡Participa y gana!", desc: "La suerte puede ser tuya." },
+            ].map((p) => (
+              <div key={p.n} style={{ background: C.card, borderRadius: "18px", padding: "20px", border: `1.5px solid ${C.border}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                  <span style={{ fontSize: "11px", fontWeight: 800, color: C.mutedDim }}>{p.n}</span>
+                  <span style={{ width: "36px", height: "36px", borderRadius: "50%", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", border: `1px solid ${C.border}` }}>{p.icon}</span>
+                </div>
+                <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 800, color: C.text }}>{p.titulo}</p>
+                <p style={{ margin: 0, fontSize: "12.5px", color: C.muted }}>{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ Medios de pago + ya realizaste tu abono ══ */}
+        <section id="medios-pago" style={{ marginBottom: "44px" }}>
+          <div className="prg-pago-grid">
+            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+              <p style={{ margin: "0 0 16px", fontSize: "14px", fontWeight: 800, color: C.text, letterSpacing: "0.5px" }}>MEDIOS DE PAGO</p>
+              {[
+                { key: "nequi", icon: "💜", nombre: "Nequi", numero: NUMERO_PAGO },
+                { key: "daviplata", icon: "❤️", nombre: "Daviplata", numero: NUMERO_PAGO },
+              ].map((m) => (
+                <div key={m.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, borderRadius: "14px", padding: "14px 16px", border: `1px solid ${C.border}`, marginBottom: "10px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <span style={{ fontSize: "20px" }}>{m.icon}</span>
+                    <div>
+                      <p style={{ margin: "0 0 2px", fontSize: "13px", fontWeight: 700, color: C.text }}>{m.nombre}</p>
+                      <p style={{ margin: 0, fontSize: "14px", color: C.goldLight, fontFamily: "'DM Mono', monospace" }}>{m.numero}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => copiar(m.numero, m.key)} style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "8px 12px", color: copiado === m.key ? C.gold : C.muted, fontSize: "12px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                    {copiado === m.key ? "¡Copiado! ✓" : "Copiar 📋"}
+                  </button>
+                </div>
+              ))}
+              <p style={{ margin: "10px 0 0", fontSize: "11.5px", color: C.mutedDim, lineHeight: 1.6 }}>
+                Envía tu pago a cualquiera de estos números a nombre de Proyectos Santiago Gómez.
+              </p>
+            </div>
+
+            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}`, display: "flex", flexDirection: "column" }}>
+              <p style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 800, color: C.text }}>¿Ya realizaste tu abono?</p>
+              <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted, lineHeight: 1.6, flex: 1 }}>
+                Envía tu comprobante por WhatsApp y nosotros lo registramos.
+              </p>
+              <button onClick={enviarComprobanteGenerico} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", background: `linear-gradient(135deg, ${C.whatsapp}, ${C.whatsappDark})`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", animation: "latido 1.8s ease-in-out infinite", marginBottom: "10px" }}>
+                <span style={{ fontSize: "17px" }}>📲</span> Enviar comprobante
+              </button>
+              <p style={{ margin: 0, fontSize: "11.5px", color: C.mutedDim }}>
+                ℹ️ Incluye tu número de boleta en el mensaje.<br />
+                Nos vemos en el sorteo. 🍀
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* ══ Pie de página ══ */}
+      <footer id="contacto" style={{ borderTop: `1px solid ${C.border}`, padding: "32px 20px", textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "10px" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-santiago-gomez.jpg" alt="Proyectos Santiago Gómez" style={{ width: "30px", height: "30px", borderRadius: "8px", objectFit: "cover", border: `1.5px solid ${C.border}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <p style={{ margin: 0, fontSize: "12px", fontWeight: 800, color: C.text, letterSpacing: "0.5px", textAlign: "left", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
+        </div>
+        <p style={{ margin: "0 0 14px", fontSize: "13px", color: C.goldLight, fontStyle: "italic" }}>{RAFFLE_DESCRIPTION}</p>
+        <button onClick={escribenos} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "none", border: `1.5px solid ${C.border}`, borderRadius: "999px", padding: "9px 18px", color: C.muted, fontSize: "12.5px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: "16px" }}>
+          💬 Escríbenos por WhatsApp
+        </button>
+        <p style={{ margin: 0, fontSize: "11px", color: C.mutedDim }}>
+          ¿Eres vendedor? <a href="/login" style={{ color: C.goldLight, fontWeight: 600 }}>Inicia sesión aquí</a>.
+        </p>
+      </footer>
+    </div>
+  );
 }
