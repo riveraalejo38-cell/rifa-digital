@@ -13,6 +13,10 @@ import { useState } from "react";
 // premios, "cómo funciona" y medios de pago. Lo único que se hizo aquí fue
 // darle vida a esas secciones — la lógica de verificar/reservar/confirmar
 // que ya funcionaba no se tocó.
+//
+// El orden de las secciones (después del hero) se controla con el arreglo
+// ORDEN_SECCIONES más abajo, dentro del componente — para reordenar la
+// página solo hay que cambiar el orden de esa lista, sin tocar cada bloque.
 
 // Datos de la rifa activa — coinciden con lo que hay hoy en la base de
 // datos (Raffle.isActive = true). Si el nombre, el premio, el precio de la
@@ -186,6 +190,294 @@ export default function PublicoClient() {
     whatsappDark: "#128C4A",
   };
 
+  // ══════════════════════════════════════════════════════════════════
+  // Orden de las secciones de la página (después del hero, antes del
+  // pie de página). Para reorganizar la página basta con cambiar el
+  // orden de esta lista — cada bloque se define más abajo tal cual se
+  // veía antes, solo movido de lugar.
+  // ══════════════════════════════════════════════════════════════════
+  const ORDEN_SECCIONES = [
+    "eligeValor",
+    "premios",
+    "mediosPago",
+    "comoFunciona",
+    "beneficios",
+    "fechaSorteo",
+  ] as const;
+
+  // ══ Elige tu número (con el valor de la boleta al lado) ══
+  const seccionEligeValor = (
+    <section key="eligeValor" className="prg-reserva-grid" style={{ marginBottom: "44px" }}>
+      {/* Verificar / elegir número */}
+      {!reservaExito && (
+        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+          <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 700, color: C.text, letterSpacing: "0.5px" }}>ELIGE TU NÚMERO</p>
+          <p style={{ margin: "0 0 16px", fontSize: "13px", color: C.muted }}>Escribe el número de boleta que quieres (0 a {TOTAL_TICKETS - 1}).</p>
+
+          {!checkResult && (
+            <>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Ej: 0512"
+                  value={numeroInput}
+                  onChange={(e) => setNumeroInput(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  onKeyDown={(e) => e.key === "Enter" && verificarNumero()}
+                  autoComplete="off"
+                  style={{ flex: "1 1 160px", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "14px", padding: "14px 18px", fontSize: "18px", color: C.text, fontFamily: "'DM Mono', monospace", letterSpacing: "2px" }}
+                />
+                <button onClick={verificarNumero} disabled={checking || !numeroInput}
+                  style={{ background: checking || !numeroInput ? C.border : `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "14px", padding: "14px 22px", color: checking || !numeroInput ? C.muted : "#FFFFFF", fontSize: "14px", fontWeight: 700, cursor: checking || !numeroInput ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                  {checking ? "..." : "Verificar"}
+                </button>
+              </div>
+              {checkError && <p style={{ color: C.danger, fontSize: "13px", margin: "12px 0 0", fontWeight: 500 }}>⚠ {checkError}</p>}
+              <p style={{ margin: "16px 0 0", fontSize: "12px", color: C.mutedDim, lineHeight: 1.6 }}>
+                Cada persona puede reservar hasta 4 boletas con el mismo teléfono.<br />
+                ¿Eres vendedor? <a href="/login" style={{ color: C.goldLight, fontWeight: 600 }}>Inicia sesión aquí</a>.
+              </p>
+            </>
+          )}
+
+          {checkResult && !checkResult.available && (
+            <div>
+              <div style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)", borderRadius: "16px", padding: "18px", marginBottom: "14px" }}>
+                <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: "1.5px" }}>BOLETA {String(checkResult.number).padStart(4, "0")}</p>
+                <p style={{ margin: 0, fontSize: "15px", color: "#FFFFFF", fontWeight: 700 }}>Uy, esa boleta ya no está disponible</p>
+              </div>
+              <button onClick={otroNumero} style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "13px", color: C.goldLight, fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                Probar otro número
+              </button>
+            </div>
+          )}
+
+          {checkResult && checkResult.available && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: C.bg, borderRadius: "14px", padding: "14px 18px", border: `1.5px solid ${C.gold}`, marginBottom: "16px" }}>
+                <div>
+                  <p style={{ margin: "0 0 2px", fontSize: "10px", color: C.muted, fontWeight: 700, letterSpacing: "1px" }}>BOLETA</p>
+                  <p style={{ margin: 0, fontSize: "28px", fontWeight: 800, color: C.text, fontFamily: "'DM Mono', monospace", letterSpacing: "3px" }}>{String(checkResult.number).padStart(4, "0")}</p>
+                </div>
+                <span style={{ background: "rgba(217,173,82,0.15)", color: C.gold, borderRadius: "999px", padding: "6px 14px", fontSize: "12px", fontWeight: 700 }}>✦ Disponible</span>
+              </div>
+
+              <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 700, color: C.text }}>TUS DATOS</p>
+              <input type="text" placeholder="Nombre completo" value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="off"
+                style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "10px" }} />
+              <input type="tel" placeholder="Teléfono (para el comprobante por WhatsApp)" value={telefono} onChange={(e) => setTelefono(e.target.value)} autoComplete="off"
+                style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "10px" }} />
+              <input type="text" placeholder="Ciudad (opcional)" value={ciudad} onChange={(e) => setCiudad(e.target.value)} autoComplete="off"
+                style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "16px" }} />
+              <p style={{ color: C.muted, fontSize: "13px", marginBottom: "12px", fontWeight: 500 }}>
+                Tu boleta queda apartada. El pago se confirma después, enviando el comprobante por WhatsApp.
+              </p>
+              {reservaError && <p style={{ color: C.danger, fontSize: "13px", marginBottom: "12px", fontWeight: 500 }}>⚠ {reservaError}</p>}
+
+              <button onClick={handleReservar} disabled={reservando}
+                style={{ width: "100%", background: `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: 700, cursor: reservando ? "not-allowed" : "pointer", fontFamily: "inherit", marginBottom: "10px" }}>
+                {reservando ? "Reservando..." : "Reservar esta boleta"}
+              </button>
+              <button onClick={otroNumero} style={{ width: "100%", background: "none", border: "none", padding: "4px", color: C.goldLight, fontSize: "13px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                ← Elegir otro número
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Confirmación de reserva */}
+      {reservaExito && (
+        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+          <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "18px", padding: "24px", marginBottom: "18px", textAlign: "center", animation: "brillo 3s ease-in-out infinite" }}>
+            <p style={{ margin: "0 0 6px", fontSize: "12px", color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "1.5px" }}>✓ ¡BOLETA RESERVADA!</p>
+            <p style={{ margin: 0, fontSize: "44px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>{String(reservaExito.number).padStart(4, "0")}</p>
+          </div>
+
+          <div style={{ background: C.bg, borderRadius: "12px", padding: "14px", marginBottom: "18px", textAlign: "center" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: C.muted, fontWeight: 600 }}>VALOR A PAGAR</p>
+            <p style={{ margin: "4px 0 0", fontSize: "20px", fontWeight: 700, color: C.text }}>{formatPeso(reservaExito.ticketPrice)}</p>
+          </div>
+
+          <p style={{ margin: "0 0 14px", fontSize: "13px", color: C.muted, lineHeight: 1.6 }}>
+            Tu boleta quedó apartada. Ahora haz el pago y envíanos el comprobante por WhatsApp para confirmarla — tu vendedor la registra apenas lo reciba.
+          </p>
+
+          <a href={`/boleta/${reservaExito.token}`} target="_blank" rel="noopener noreferrer"
+            style={{ width: "100%", boxSizing: "border-box", background: C.bg, border: `1.5px solid ${C.gold}`, borderRadius: "12px", padding: "15px", color: C.gold, fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
+            <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
+          </a>
+          <button onClick={compartirWhatsApp} style={{ width: "100%", background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", animation: "latido 1.6s ease-in-out infinite" }}>
+            <span style={{ fontSize: "17px" }}>📲</span> CONFIRMAR MI BOLETA
+          </button>
+          <button onClick={otroNumero} style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "13px", color: C.goldLight, fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+            Reservar otra boleta
+          </button>
+        </div>
+      )}
+
+      {/* Valor de la boleta (al lado de elige tu número) */}
+      <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "20px", padding: "20px", textAlign: "center", alignSelf: "start" }}>
+        <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(255,255,255,0.85)", fontWeight: 700, letterSpacing: "1.5px" }}>🎫 VALOR DE LA BOLETA</p>
+        <p style={{ margin: 0, fontSize: "30px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{formatPeso(TICKET_PRICE)}</p>
+      </div>
+    </section>
+  );
+
+  // ══ Nuestros premios ══
+  const seccionPremios = (
+    <section key="premios" id="premios" style={{ marginBottom: "44px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "18px" }}>
+        <div>
+          <h2 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: 800 }}>Nuestros <span style={{ color: C.gold }}>premios</span></h2>
+          <p style={{ margin: 0, fontSize: "13px", color: C.muted }}>Vehículos de alto nivel y muchos premios más.</p>
+        </div>
+      </div>
+      <div className="prg-premios-grid">
+        {[
+          { img: "/premios/mt15.jpg", tag: "PREMIO MAYOR", nombre: "Yamaha MT-15", desc: "Potencia que te mueve." },
+          { img: "/premios/frontier.jpg", tag: "OBSEQUIO", nombre: "Nissan Frontier", desc: "Robusta, confiable, lista para nuevas aventuras." },
+          { img: "/premios/nmax.jpg", tag: "PREMIO ADICIONAL", nombre: "Yamaha Nmax", desc: "Estilo y libertad en cada kilómetro." },
+        ].map((p) => (
+          <div key={p.nombre} style={{ background: C.card, borderRadius: "18px", overflow: "hidden", border: `1.5px solid ${C.border}` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.img} alt={p.nombre} style={{ width: "100%", aspectRatio: "4 / 3", objectFit: "cover", display: "block" }} />
+            <div style={{ padding: "14px" }}>
+              <p style={{ margin: "0 0 6px", fontSize: "10px", fontWeight: 800, color: C.gold, letterSpacing: "1px" }}>🎁 {p.tag}</p>
+              <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: 800, color: C.text }}>{p.nombre}</p>
+              <p style={{ margin: 0, fontSize: "12.5px", color: C.muted }}>{p.desc}</p>
+            </div>
+          </div>
+        ))}
+        <div style={{ background: "#1B3A2A", borderRadius: "18px", border: `1.5px dashed ${C.gold}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", textAlign: "center", minHeight: "160px" }}>
+          <span style={{ fontSize: "34px", marginBottom: "8px" }}>🎁</span>
+          <p style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: C.goldLight }}>Y MÁS PREMIOS<br />SORPRESA</p>
+        </div>
+      </div>
+    </section>
+  );
+
+  // ══ Beneficios ══
+  const seccionBeneficios = (
+    <section key="beneficios" style={{ marginBottom: "44px", background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+      <div className="prg-beneficios-grid">
+        {[
+          { icon: "👥", texto: "Miles de personas ya hacen parte" },
+          { icon: "🛡️", texto: "Transacción segura y confiable" },
+          { icon: "❤️", texto: "Apoyas grandes proyectos" },
+          { icon: "🌿", texto: "Más oportunidades para todos" },
+        ].map((b) => (
+          <div key={b.texto} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span style={{ fontSize: "22px" }}>{b.icon}</span>
+            <span style={{ fontSize: "13.5px", fontWeight: 600, color: C.text }}>{b.texto}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  // ══ Cómo funciona ══
+  const seccionComoFunciona = (
+    <section key="comoFunciona" id="como-participar" style={{ marginBottom: "44px" }}>
+      <h2 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: 800 }}>¿Cómo funciona?</h2>
+      <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted }}>Es muy fácil, sigue estos pasos y asegura tu participación.</p>
+      <div className="prg-pasos-grid">
+        {[
+          { n: "01", icon: "🎫", titulo: "Elige tu número", desc: "Reserva tu boleta de forma rápida." },
+          { n: "02", icon: "💳", titulo: "Realiza tu abono", desc: "Usa nuestros medios de pago." },
+          { n: "03", icon: "📤", titulo: "Envía el comprobante", desc: "Por WhatsApp para confirmar." },
+          { n: "04", icon: "✅", titulo: "¡Participa y gana!", desc: "La suerte puede ser tuya." },
+        ].map((p) => (
+          <div key={p.n} style={{ background: C.card, borderRadius: "18px", padding: "20px", border: `1.5px solid ${C.border}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <span style={{ fontSize: "11px", fontWeight: 800, color: C.mutedDim }}>{p.n}</span>
+              <span style={{ width: "36px", height: "36px", borderRadius: "50%", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", border: `1px solid ${C.border}` }}>{p.icon}</span>
+            </div>
+            <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 800, color: C.text }}>{p.titulo}</p>
+            <p style={{ margin: 0, fontSize: "12.5px", color: C.muted }}>{p.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  // ══ Medios de pago + ya realizaste tu abono ══
+  const seccionMediosPago = (
+    <section key="mediosPago" id="medios-pago" style={{ marginBottom: "44px" }}>
+      <div className="prg-pago-grid">
+        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
+          <p style={{ margin: "0 0 16px", fontSize: "14px", fontWeight: 800, color: C.text, letterSpacing: "0.5px" }}>MEDIOS DE PAGO</p>
+          {[
+            { key: "nequi", icon: "💜", nombre: "Nequi", numero: NUMERO_PAGO },
+            { key: "daviplata", icon: "❤️", nombre: "Daviplata", numero: NUMERO_PAGO },
+          ].map((m) => (
+            <div key={m.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, borderRadius: "14px", padding: "14px 16px", border: `1px solid ${C.border}`, marginBottom: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <span style={{ fontSize: "20px" }}>{m.icon}</span>
+                <div>
+                  <p style={{ margin: "0 0 2px", fontSize: "13px", fontWeight: 700, color: C.text }}>{m.nombre}</p>
+                  <p style={{ margin: 0, fontSize: "14px", color: C.goldLight, fontFamily: "'DM Mono', monospace" }}>{m.numero}</p>
+                </div>
+              </div>
+              <button onClick={() => copiar(m.numero, m.key)} style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "8px 12px", color: copiado === m.key ? C.gold : C.muted, fontSize: "12px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                {copiado === m.key ? "¡Copiado! ✓" : "Copiar 📋"}
+              </button>
+            </div>
+          ))}
+          <p style={{ margin: "10px 0 0", fontSize: "11.5px", color: C.mutedDim, lineHeight: 1.6 }}>
+            Envía tu pago a cualquiera de estos números a nombre de Proyectos Santiago Gómez.
+          </p>
+        </div>
+
+        <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}`, display: "flex", flexDirection: "column" }}>
+          <p style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 800, color: C.text }}>¿Ya realizaste tu abono?</p>
+          <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted, lineHeight: 1.6, flex: 1 }}>
+            Envía tu comprobante por WhatsApp y nosotros lo registramos.
+          </p>
+          <button onClick={enviarComprobanteGenerico} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", background: `linear-gradient(135deg, ${C.whatsapp}, ${C.whatsappDark})`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", animation: "latido 1.8s ease-in-out infinite", marginBottom: "10px" }}>
+            <span style={{ fontSize: "17px" }}>📲</span> Enviar comprobante
+          </button>
+          <p style={{ margin: 0, fontSize: "11.5px", color: C.mutedDim }}>
+            ℹ️ Incluye tu número de boleta en el mensaje.<br />
+            Nos vemos en el sorteo. 🍀
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+
+  // ══ Fecha del sorteo (al final, según lo pedido) ══
+  const seccionFechaSorteo = (
+    <section key="fechaSorteo" style={{ marginBottom: "44px" }}>
+      <div style={{ background: C.card, borderRadius: "20px", padding: "20px", border: `1.5px solid ${C.border}`, maxWidth: "480px", margin: "0 auto" }}>
+        <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "1.5px", color: C.muted, fontWeight: 700, textAlign: "center" }}>📅 FECHA DEL SORTEO</p>
+        <div className="prg-side-grid">
+          {[
+            { valor: diaSorteo, label: "DÍA" },
+            { valor: mesSorteo, label: "MES" },
+            { valor: anioSorteo, label: "AÑO" },
+            { valor: horaSorteo, label: "HORA" },
+          ].map((item) => (
+            <div key={item.label} style={{ background: C.bg, borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: `1px solid ${C.border}` }}>
+              <p style={{ margin: "0 0 2px", fontSize: "17px", fontWeight: 800, color: C.gold, fontFamily: "'DM Mono', monospace" }}>{item.valor}</p>
+              <p style={{ margin: 0, fontSize: "9px", color: C.mutedDim, fontWeight: 700, letterSpacing: "1px" }}>{item.label}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{ margin: "12px 0 0", fontSize: "11px", color: C.mutedDim, textAlign: "center" }}>{fechaSorteo}</p>
+      </div>
+    </section>
+  );
+
+  const SECCIONES: Record<(typeof ORDEN_SECCIONES)[number], React.ReactNode> = {
+    eligeValor: seccionEligeValor,
+    premios: seccionPremios,
+    mediosPago: seccionMediosPago,
+    comoFunciona: seccionComoFunciona,
+    beneficios: seccionBeneficios,
+    fechaSorteo: seccionFechaSorteo,
+  };
+
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "'DM Sans', 'Segoe UI', sans-serif", color: C.text }}>
       <style>{`
@@ -293,257 +585,9 @@ export default function PublicoClient() {
       </section>
 
       <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "36px 20px 0" }}>
-
-        {/* ══ Elige tu número + fecha/valor ══ */}
-        <section className="prg-reserva-grid" style={{ marginBottom: "44px" }}>
-          {/* Verificar / elegir número */}
-          {!reservaExito && (
-            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
-              <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 700, color: C.text, letterSpacing: "0.5px" }}>ELIGE TU NÚMERO</p>
-              <p style={{ margin: "0 0 16px", fontSize: "13px", color: C.muted }}>Escribe el número de boleta que quieres (0 a {TOTAL_TICKETS - 1}).</p>
-
-              {!checkResult && (
-                <>
-                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="Ej: 0512"
-                      value={numeroInput}
-                      onChange={(e) => setNumeroInput(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                      onKeyDown={(e) => e.key === "Enter" && verificarNumero()}
-                      autoComplete="off"
-                      style={{ flex: "1 1 160px", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "14px", padding: "14px 18px", fontSize: "18px", color: C.text, fontFamily: "'DM Mono', monospace", letterSpacing: "2px" }}
-                    />
-                    <button onClick={verificarNumero} disabled={checking || !numeroInput}
-                      style={{ background: checking || !numeroInput ? C.border : `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "14px", padding: "14px 22px", color: checking || !numeroInput ? C.muted : "#FFFFFF", fontSize: "14px", fontWeight: 700, cursor: checking || !numeroInput ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
-                      {checking ? "..." : "Verificar"}
-                    </button>
-                  </div>
-                  {checkError && <p style={{ color: C.danger, fontSize: "13px", margin: "12px 0 0", fontWeight: 500 }}>⚠ {checkError}</p>}
-                  <p style={{ margin: "16px 0 0", fontSize: "12px", color: C.mutedDim, lineHeight: 1.6 }}>
-                    Cada persona puede reservar hasta 4 boletas con el mismo teléfono.<br />
-                    ¿Eres vendedor? <a href="/login" style={{ color: C.goldLight, fontWeight: 600 }}>Inicia sesión aquí</a>.
-                  </p>
-                </>
-              )}
-
-              {checkResult && !checkResult.available && (
-                <div>
-                  <div style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)", borderRadius: "16px", padding: "18px", marginBottom: "14px" }}>
-                    <p style={{ margin: "0 0 4px", fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: "1.5px" }}>BOLETA {String(checkResult.number).padStart(4, "0")}</p>
-                    <p style={{ margin: 0, fontSize: "15px", color: "#FFFFFF", fontWeight: 700 }}>Uy, esa boleta ya no está disponible</p>
-                  </div>
-                  <button onClick={otroNumero} style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "13px", color: C.goldLight, fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                    Probar otro número
-                  </button>
-                </div>
-              )}
-
-              {checkResult && checkResult.available && (
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: C.bg, borderRadius: "14px", padding: "14px 18px", border: `1.5px solid ${C.gold}`, marginBottom: "16px" }}>
-                    <div>
-                      <p style={{ margin: "0 0 2px", fontSize: "10px", color: C.muted, fontWeight: 700, letterSpacing: "1px" }}>BOLETA</p>
-                      <p style={{ margin: 0, fontSize: "28px", fontWeight: 800, color: C.text, fontFamily: "'DM Mono', monospace", letterSpacing: "3px" }}>{String(checkResult.number).padStart(4, "0")}</p>
-                    </div>
-                    <span style={{ background: "rgba(217,173,82,0.15)", color: C.gold, borderRadius: "999px", padding: "6px 14px", fontSize: "12px", fontWeight: 700 }}>✦ Disponible</span>
-                  </div>
-
-                  <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 700, color: C.text }}>TUS DATOS</p>
-                  <input type="text" placeholder="Nombre completo" value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="off"
-                    style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "10px" }} />
-                  <input type="tel" placeholder="Teléfono (para el comprobante por WhatsApp)" value={telefono} onChange={(e) => setTelefono(e.target.value)} autoComplete="off"
-                    style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "10px" }} />
-                  <input type="text" placeholder="Ciudad (opcional)" value={ciudad} onChange={(e) => setCiudad(e.target.value)} autoComplete="off"
-                    style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "12px 16px", fontSize: "14px", color: C.text, fontFamily: "inherit", fontWeight: 500, marginBottom: "16px" }} />
-                  <p style={{ color: C.muted, fontSize: "13px", marginBottom: "12px", fontWeight: 500 }}>
-                    Tu boleta queda apartada. El pago se confirma después, enviando el comprobante por WhatsApp.
-                  </p>
-                  {reservaError && <p style={{ color: C.danger, fontSize: "13px", marginBottom: "12px", fontWeight: 500 }}>⚠ {reservaError}</p>}
-
-                  <button onClick={handleReservar} disabled={reservando}
-                    style={{ width: "100%", background: `linear-gradient(135deg, ${C.gold}, ${C.goldDark})`, border: "none", borderRadius: "12px", padding: "14px", color: "#FFFFFF", fontSize: "15px", fontWeight: 700, cursor: reservando ? "not-allowed" : "pointer", fontFamily: "inherit", marginBottom: "10px" }}>
-                    {reservando ? "Reservando..." : "Reservar esta boleta"}
-                  </button>
-                  <button onClick={otroNumero} style={{ width: "100%", background: "none", border: "none", padding: "4px", color: C.goldLight, fontSize: "13px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    ← Elegir otro número
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Confirmación de reserva */}
-          {reservaExito && (
-            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
-              <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "18px", padding: "24px", marginBottom: "18px", textAlign: "center", animation: "brillo 3s ease-in-out infinite" }}>
-                <p style={{ margin: "0 0 6px", fontSize: "12px", color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "1.5px" }}>✓ ¡BOLETA RESERVADA!</p>
-                <p style={{ margin: 0, fontSize: "44px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace", letterSpacing: "6px" }}>{String(reservaExito.number).padStart(4, "0")}</p>
-              </div>
-
-              <div style={{ background: C.bg, borderRadius: "12px", padding: "14px", marginBottom: "18px", textAlign: "center" }}>
-                <p style={{ margin: 0, fontSize: "11px", color: C.muted, fontWeight: 600 }}>VALOR A PAGAR</p>
-                <p style={{ margin: "4px 0 0", fontSize: "20px", fontWeight: 700, color: C.text }}>{formatPeso(reservaExito.ticketPrice)}</p>
-              </div>
-
-              <p style={{ margin: "0 0 14px", fontSize: "13px", color: C.muted, lineHeight: 1.6 }}>
-                Tu boleta quedó apartada. Ahora haz el pago y envíanos el comprobante por WhatsApp para confirmarla — tu vendedor la registra apenas lo reciba.
-              </p>
-
-              <a href={`/boleta/${reservaExito.token}`} target="_blank" rel="noopener noreferrer"
-                style={{ width: "100%", boxSizing: "border-box", background: C.bg, border: `1.5px solid ${C.gold}`, borderRadius: "12px", padding: "15px", color: C.gold, fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", textDecoration: "none" }}>
-                <span style={{ fontSize: "17px" }}>🎟️</span> VER MI BOLETA
-              </a>
-              <button onClick={compartirWhatsApp} style={{ width: "100%", background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", marginBottom: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", animation: "latido 1.6s ease-in-out infinite" }}>
-                <span style={{ fontSize: "17px" }}>📲</span> CONFIRMAR MI BOLETA
-              </button>
-              <button onClick={otroNumero} style={{ width: "100%", background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: "12px", padding: "13px", color: C.goldLight, fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                Reservar otra boleta
-              </button>
-            </div>
-          )}
-
-          {/* Fecha del sorteo + valor de la boleta */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ background: C.card, borderRadius: "20px", padding: "20px", border: `1.5px solid ${C.border}` }}>
-              <p style={{ margin: "0 0 14px", fontSize: "11px", letterSpacing: "1.5px", color: C.muted, fontWeight: 700, textAlign: "center" }}>📅 FECHA DEL SORTEO</p>
-              <div className="prg-side-grid">
-                {[
-                  { valor: diaSorteo, label: "DÍA" },
-                  { valor: mesSorteo, label: "MES" },
-                  { valor: anioSorteo, label: "AÑO" },
-                  { valor: horaSorteo, label: "HORA" },
-                ].map((item) => (
-                  <div key={item.label} style={{ background: C.bg, borderRadius: "12px", padding: "12px 4px", textAlign: "center", border: `1px solid ${C.border}` }}>
-                    <p style={{ margin: "0 0 2px", fontSize: "17px", fontWeight: 800, color: C.gold, fontFamily: "'DM Mono', monospace" }}>{item.valor}</p>
-                    <p style={{ margin: 0, fontSize: "9px", color: C.mutedDim, fontWeight: 700, letterSpacing: "1px" }}>{item.label}</p>
-                  </div>
-                ))}
-              </div>
-              <p style={{ margin: "12px 0 0", fontSize: "11px", color: C.mutedDim, textAlign: "center" }}>{fechaSorteo}</p>
-            </div>
-
-            <div style={{ background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldDark} 100%)`, borderRadius: "20px", padding: "20px", textAlign: "center" }}>
-              <p style={{ margin: "0 0 6px", fontSize: "11px", color: "rgba(255,255,255,0.85)", fontWeight: 700, letterSpacing: "1.5px" }}>🎫 VALOR DE LA BOLETA</p>
-              <p style={{ margin: 0, fontSize: "30px", fontWeight: 800, color: "#FFFFFF", fontFamily: "'DM Mono', monospace" }}>{formatPeso(TICKET_PRICE)}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ══ Nuestros premios ══ */}
-        <section id="premios" style={{ marginBottom: "44px" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "18px" }}>
-            <div>
-              <h2 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: 800 }}>Nuestros <span style={{ color: C.gold }}>premios</span></h2>
-              <p style={{ margin: 0, fontSize: "13px", color: C.muted }}>Vehículos de alto nivel y muchos premios más.</p>
-            </div>
-          </div>
-          <div className="prg-premios-grid">
-            {[
-              { img: "/premios/mt15.jpg", tag: "PREMIO MAYOR", nombre: "Yamaha MT-15", desc: "Potencia que te mueve." },
-              { img: "/premios/frontier.jpg", tag: "OBSEQUIO", nombre: "Nissan Frontier", desc: "Robusta, confiable, lista para nuevas aventuras." },
-              { img: "/premios/nmax.jpg", tag: "PREMIO ADICIONAL", nombre: "Yamaha Nmax", desc: "Estilo y libertad en cada kilómetro." },
-            ].map((p) => (
-              <div key={p.nombre} style={{ background: C.card, borderRadius: "18px", overflow: "hidden", border: `1.5px solid ${C.border}` }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.img} alt={p.nombre} style={{ width: "100%", aspectRatio: "4 / 3", objectFit: "cover", display: "block" }} />
-                <div style={{ padding: "14px" }}>
-                  <p style={{ margin: "0 0 6px", fontSize: "10px", fontWeight: 800, color: C.gold, letterSpacing: "1px" }}>🎁 {p.tag}</p>
-                  <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: 800, color: C.text }}>{p.nombre}</p>
-                  <p style={{ margin: 0, fontSize: "12.5px", color: C.muted }}>{p.desc}</p>
-                </div>
-              </div>
-            ))}
-            <div style={{ background: "#1B3A2A", borderRadius: "18px", border: `1.5px dashed ${C.gold}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", textAlign: "center", minHeight: "160px" }}>
-              <span style={{ fontSize: "34px", marginBottom: "8px" }}>🎁</span>
-              <p style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: C.goldLight }}>Y MÁS PREMIOS<br />SORPRESA</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ══ Beneficios ══ */}
-        <section style={{ marginBottom: "44px", background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
-          <div className="prg-beneficios-grid">
-            {[
-              { icon: "👥", texto: "Miles de personas ya hacen parte" },
-              { icon: "🛡️", texto: "Transacción segura y confiable" },
-              { icon: "❤️", texto: "Apoyas grandes proyectos" },
-              { icon: "🌿", texto: "Más oportunidades para todos" },
-            ].map((b) => (
-              <div key={b.texto} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <span style={{ fontSize: "22px" }}>{b.icon}</span>
-                <span style={{ fontSize: "13.5px", fontWeight: 600, color: C.text }}>{b.texto}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ══ Cómo funciona ══ */}
-        <section id="como-participar" style={{ marginBottom: "44px" }}>
-          <h2 style={{ margin: "0 0 4px", fontSize: "22px", fontWeight: 800 }}>¿Cómo funciona?</h2>
-          <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted }}>Es muy fácil, sigue estos pasos y asegura tu participación.</p>
-          <div className="prg-pasos-grid">
-            {[
-              { n: "01", icon: "🎫", titulo: "Elige tu número", desc: "Reserva tu boleta de forma rápida." },
-              { n: "02", icon: "💳", titulo: "Realiza tu abono", desc: "Usa nuestros medios de pago." },
-              { n: "03", icon: "📤", titulo: "Envía el comprobante", desc: "Por WhatsApp para confirmar." },
-              { n: "04", icon: "✅", titulo: "¡Participa y gana!", desc: "La suerte puede ser tuya." },
-            ].map((p) => (
-              <div key={p.n} style={{ background: C.card, borderRadius: "18px", padding: "20px", border: `1.5px solid ${C.border}` }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                  <span style={{ fontSize: "11px", fontWeight: 800, color: C.mutedDim }}>{p.n}</span>
-                  <span style={{ width: "36px", height: "36px", borderRadius: "50%", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", border: `1px solid ${C.border}` }}>{p.icon}</span>
-                </div>
-                <p style={{ margin: "0 0 4px", fontSize: "14px", fontWeight: 800, color: C.text }}>{p.titulo}</p>
-                <p style={{ margin: 0, fontSize: "12.5px", color: C.muted }}>{p.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ══ Medios de pago + ya realizaste tu abono ══ */}
-        <section id="medios-pago" style={{ marginBottom: "44px" }}>
-          <div className="prg-pago-grid">
-            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}` }}>
-              <p style={{ margin: "0 0 16px", fontSize: "14px", fontWeight: 800, color: C.text, letterSpacing: "0.5px" }}>MEDIOS DE PAGO</p>
-              {[
-                { key: "nequi", icon: "💜", nombre: "Nequi", numero: NUMERO_PAGO },
-                { key: "daviplata", icon: "❤️", nombre: "Daviplata", numero: NUMERO_PAGO },
-              ].map((m) => (
-                <div key={m.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, borderRadius: "14px", padding: "14px 16px", border: `1px solid ${C.border}`, marginBottom: "10px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <span style={{ fontSize: "20px" }}>{m.icon}</span>
-                    <div>
-                      <p style={{ margin: "0 0 2px", fontSize: "13px", fontWeight: 700, color: C.text }}>{m.nombre}</p>
-                      <p style={{ margin: 0, fontSize: "14px", color: C.goldLight, fontFamily: "'DM Mono', monospace" }}>{m.numero}</p>
-                    </div>
-                  </div>
-                  <button onClick={() => copiar(m.numero, m.key)} style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: "10px", padding: "8px 12px", color: copiado === m.key ? C.gold : C.muted, fontSize: "12px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
-                    {copiado === m.key ? "¡Copiado! ✓" : "Copiar 📋"}
-                  </button>
-                </div>
-              ))}
-              <p style={{ margin: "10px 0 0", fontSize: "11.5px", color: C.mutedDim, lineHeight: 1.6 }}>
-                Envía tu pago a cualquiera de estos números a nombre de Proyectos Santiago Gómez.
-              </p>
-            </div>
-
-            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}`, display: "flex", flexDirection: "column" }}>
-              <p style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 800, color: C.text }}>¿Ya realizaste tu abono?</p>
-              <p style={{ margin: "0 0 18px", fontSize: "13px", color: C.muted, lineHeight: 1.6, flex: 1 }}>
-                Envía tu comprobante por WhatsApp y nosotros lo registramos.
-              </p>
-              <button onClick={enviarComprobanteGenerico} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", width: "100%", background: `linear-gradient(135deg, ${C.whatsapp}, ${C.whatsappDark})`, border: "none", borderRadius: "12px", padding: "15px", color: "#FFFFFF", fontWeight: 800, fontSize: "14px", cursor: "pointer", fontFamily: "inherit", animation: "latido 1.8s ease-in-out infinite", marginBottom: "10px" }}>
-                <span style={{ fontSize: "17px" }}>📲</span> Enviar comprobante
-              </button>
-              <p style={{ margin: 0, fontSize: "11.5px", color: C.mutedDim }}>
-                ℹ️ Incluye tu número de boleta en el mensaje.<br />
-                Nos vemos en el sorteo. 🍀
-              </p>
-            </div>
-          </div>
-        </section>
+        {ORDEN_SECCIONES.map((key) => (
+          <span key={key}>{SECCIONES[key]}</span>
+        ))}
       </main>
 
       {/* ══ Pie de página ══ */}
