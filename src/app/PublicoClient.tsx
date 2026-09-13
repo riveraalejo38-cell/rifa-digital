@@ -189,14 +189,23 @@ export default function PublicoClient() {
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "'DM Sans', 'Segoe UI', sans-serif", color: C.text }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@500&family=Caveat:wght@700&display=swap');
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         input:focus { outline: none; }
         @keyframes brillo { 0%, 100% { box-shadow: 0 0 30px rgba(217,173,82,0.10); } 50% { box-shadow: 0 0 46px rgba(217,173,82,0.22); } }
         @keyframes latido { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(37,211,102,0.4); } 50% { transform: scale(1.03); box-shadow: 0 0 22px rgba(37,211,102,0.5); } }
         .prg-nav-links { display: flex; gap: 26px; }
-        .prg-hero-grid { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; }
+        .prg-hero { position: relative; width: 100%; min-height: 420px; overflow: hidden; display: flex; align-items: center; }
+        .prg-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; display: block; }
+        .prg-hero-overlay { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(11,31,23,0.96) 0%, rgba(11,31,23,0.88) 32%, rgba(11,31,23,0.5) 58%, rgba(11,31,23,0.12) 82%, rgba(11,31,23,0.05) 100%); }
+        .prg-hero-content { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 56px 20px; width: 100%; box-sizing: border-box; }
+        .prg-hero-title { margin: 0 0 14px; font-size: clamp(30px, 6vw, 50px); font-weight: 800; line-height: 1.08; text-transform: uppercase; max-width: 560px; text-shadow: 0 2px 10px rgba(0,0,0,0.45); }
+        .prg-hero-title-accent { color: #D9AD52; font-size: 1.12em; display: inline-block; }
+        .prg-hero-sub { text-transform: uppercase; letter-spacing: 0.3px; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+        .prg-hero-badge-label { text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+        .prg-hero-sign { position: absolute; top: 28px; right: 28px; z-index: 2; background: linear-gradient(160deg, #6b4a2c, #43290f); border: 2px solid rgba(228,201,131,0.55); border-radius: 10px 26px 14px 22px; padding: 14px 20px; transform: rotate(4deg); box-shadow: 0 10px 26px rgba(0,0,0,0.4); text-align: center; }
+        .prg-hero-sign-text { margin: 4px 0 0; font-family: 'Caveat', cursive; font-size: 19px; color: #F3E7C9; line-height: 1.15; font-weight: 700; }
         .prg-reserva-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
         .prg-side-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .prg-premios-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -208,9 +217,9 @@ export default function PublicoClient() {
           .prg-pasos-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (min-width: 860px) {
-          .prg-hero-grid { grid-template-columns: 1.05fr 0.95fr; }
           .prg-reserva-grid { grid-template-columns: 1.3fr 1fr; align-items: start; }
           .prg-pago-grid { grid-template-columns: 1fr 1fr; }
+          .prg-hero { min-height: 540px; }
         }
         @media (min-width: 980px) {
           .prg-premios-grid { grid-template-columns: repeat(4, 1fr); }
@@ -219,6 +228,9 @@ export default function PublicoClient() {
         @media (max-width: 700px) {
           .prg-nav-links { display: none; }
           .prg-beneficios-grid { grid-template-columns: 1fr; }
+          .prg-hero-sign { display: none; }
+          .prg-hero-overlay { background: linear-gradient(180deg, rgba(11,31,23,0.55) 0%, rgba(11,31,23,0.92) 62%, rgba(11,31,23,0.98) 100%); }
+          .prg-hero { min-height: 380px; align-items: flex-end; }
         }
       `}</style>
 
@@ -246,34 +258,41 @@ export default function PublicoClient() {
         </div>
       </header>
 
-      <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "36px 20px 0" }}>
-
-        {/* ══ Hero ══ */}
-        <section id="inicio" className="prg-hero-grid" style={{ marginBottom: "40px" }}>
-          <div>
-            <p style={{ margin: "0 0 10px", fontSize: "12px", color: C.gold, fontWeight: 800, letterSpacing: "2px" }}>GRAN RIFA</p>
-            <h1 style={{ margin: "0 0 14px", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 800, lineHeight: 1.15 }}>
-              Tu próxima <span style={{ color: C.gold }}>aventura</span> puede ser real
-            </h1>
-            <p style={{ margin: "0 0 22px", fontSize: "15px", color: C.muted, fontWeight: 500, lineHeight: 1.6 }}>
-              {RAFFLE_PRIZE} — y muchos premios más.
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "18px" }}>
-              {[
-                { icon: "🏆", label: "Grandes premios" },
-                { icon: "🛡️", label: "100% confiable" },
-                { icon: "👥", label: "Miles de participantes" },
-              ].map((b) => (
-                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "18px" }}>{b.icon}</span>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: C.text }}>{b.label}</span>
-                </div>
-              ))}
-            </div>
+      {/* ══ Hero ══ */}
+      <section id="inicio" className="prg-hero">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/premios/hero-cascada.png" alt={RAFFLE_PRIZE} className="prg-hero-img" />
+        <div className="prg-hero-overlay" />
+        <div className="prg-hero-content">
+          <p style={{ margin: "0 0 10px", fontSize: "12px", color: C.gold, fontWeight: 800, letterSpacing: "2px", textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>GRAN RIFA</p>
+          <h1 className="prg-hero-title">
+            Tu próxima<br />
+            <span className="prg-hero-title-accent">aventura</span><br />
+            puede ser real
+          </h1>
+          <p className="prg-hero-sub" style={{ margin: "0 0 22px", fontSize: "14px", color: C.text, fontWeight: 700, lineHeight: 1.6, maxWidth: "440px" }}>
+            {RAFFLE_PRIZE} — y muchos premios más.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "18px" }}>
+            {[
+              { icon: "🏆", label: "Grandes premios" },
+              { icon: "🛡️", label: "100% confiable" },
+              { icon: "👥", label: "Miles de participantes" },
+            ].map((b) => (
+              <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "18px" }}>{b.icon}</span>
+                <span className="prg-hero-badge-label" style={{ fontSize: "13px", fontWeight: 700, color: C.text }}>{b.label}</span>
+              </div>
+            ))}
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/premios/hero-grupo.jpg" alt={RAFFLE_PRIZE} style={{ width: "100%", height: "auto", borderRadius: "24px", display: "block", border: `1.5px solid ${C.border}` }} />
-        </section>
+        </div>
+        <div className="prg-hero-sign">
+          <span style={{ fontSize: "18px" }}>⛰️</span>
+          <p className="prg-hero-sign-text">Tu sueño<br />hecho realidad</p>
+        </div>
+      </section>
+
+      <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "36px 20px 0" }}>
 
         {/* ══ Elige tu número + fecha/valor ══ */}
         <section className="prg-reserva-grid" style={{ marginBottom: "44px" }}>
