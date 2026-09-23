@@ -610,10 +610,15 @@ export default function PublicoClient() {
 
       {/* ══ Pie de página ══ */}
       <footer id="contacto" style={{ borderTop: `1px solid ${C.border}`, padding: "32px 20px", textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "10px" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ width: "30px", height: "30px", borderRadius: "8px", objectFit: "cover", border: `1.5px solid ${C.border}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-          <p style={{ margin: 0, fontSize: "12px", fontWeight: 800, color: C.text, letterSpacing: "0.5px", textAlign: "left", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+          {/* Mismo tratamiento que el logo del encabezado/hero: mix-blend-mode:screen
+              sobre un fondo sólido igual al de la página, para que se vea el tono
+              dorado real del logo. Reemplaza el logo circular viejo + texto que
+              tenía el pie de página antes. */}
+          <span style={{ display: "inline-block", lineHeight: 0, background: C.bg }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "56px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
+          </span>
         </div>
         <p style={{ margin: "0 0 14px", fontSize: "13px", color: C.goldLight, fontStyle: "italic" }}>{RAFFLE_DESCRIPTION}</p>
         <button onClick={escribenos} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "none", border: `1.5px solid ${C.border}`, borderRadius: "999px", padding: "9px 18px", color: C.muted, fontSize: "12.5px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: "16px" }}>
