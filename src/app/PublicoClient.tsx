@@ -479,6 +479,8 @@ export default function PublicoClient() {
         @keyframes latido { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(37,211,102,0.4); } 50% { transform: scale(1.03); box-shadow: 0 0 22px rgba(37,211,102,0.5); } }
         .prg-nav-links { display: flex; gap: 26px; }
         .prg-watermark { display: none; }
+        .prg-hero-logo-card { display: inline-block; background: #142B21; border: 1.5px solid #28405A; border-radius: 16px; padding: 14px 20px; margin-bottom: 16px; }
+        .prg-hero-logo { height: clamp(80px, 12vw, 130px); width: auto; object-fit: contain; display: block; mix-blend-mode: screen; }
         @media (min-width: 1400px) {
           .prg-watermark {
             display: block; position: absolute; top: 50%; right: calc(-50vw + 590px);
@@ -550,6 +552,10 @@ export default function PublicoClient() {
         <img src="/premios/hero-cascada.png" alt={RAFFLE_PRIZE} className="prg-hero-img" />
         <div className="prg-hero-overlay" />
         <div className="prg-hero-content">
+          <div className="prg-hero-logo-card">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" className="prg-hero-logo" />
+          </div>
           <p style={{ margin: "0 0 10px", fontSize: "12px", color: C.gold, fontWeight: 800, letterSpacing: "2px", textShadow: "0 1px 6px rgba(0,0,0,0.5)" }}>GRAN RIFA</p>
           <h1 className="prg-hero-title">
             Tu próxima<br />
