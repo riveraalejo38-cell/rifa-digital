@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_TITLE,
-    images: [{ url: "/logo-santiago-gomez.jpg", width: 800, height: 800, alt: SITE_TITLE }],
+    images: [{ url: "/logo-santiago-gomez.jpg", width: 1254, height: 1254, alt: SITE_TITLE }],
     locale: "es_CO",
     type: "website",
   },
