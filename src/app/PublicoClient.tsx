@@ -482,22 +482,13 @@ export default function PublicoClient() {
         .prg-hero-logo-wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0; max-width: 1100px; margin: 0 auto; padding: 56px 20px 0; box-sizing: border-box; pointer-events: none; }
         .prg-hero-logo {
           height: clamp(170px, 32vw, 280px); width: auto; object-fit: contain; display: block;
-          -webkit-mask-image: url(/logo-wordmark-santiago-gomez.png); mask-image: url(/logo-wordmark-santiago-gomez.png);
-          -webkit-mask-size: contain; mask-size: contain;
-          -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-          -webkit-mask-position: center; mask-position: center;
-          mask-mode: luminance; -webkit-mask-type: luminance;
+          mix-blend-mode: screen;
         }
         @media (min-width: 1400px) {
           .prg-watermark {
             display: block; position: absolute; top: 50%; right: calc(-50vw + 590px);
             transform: translateY(-50%); height: 300px; width: auto; object-fit: contain;
-            opacity: 0.16; pointer-events: none; z-index: 0;
-            -webkit-mask-image: url(/logo-wordmark-santiago-gomez.png); mask-image: url(/logo-wordmark-santiago-gomez.png);
-            -webkit-mask-size: contain; mask-size: contain;
-            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-            -webkit-mask-position: center; mask-position: center;
-            mask-mode: luminance; -webkit-mask-type: luminance;
+            opacity: 0.16; pointer-events: none; z-index: 0; mix-blend-mode: screen;
           }
         }
         .prg-hero { position: relative; width: 100%; min-height: 420px; overflow: hidden; display: flex; align-items: center; }
@@ -539,23 +530,20 @@ export default function PublicoClient() {
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(11,31,23,0.95)", borderBottom: `1px solid ${C.border}`, backdropFilter: "blur(6px)" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="#inicio" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            {/* Se usa un mask-image (en vez de mix-blend-mode) para recortar
-                el fondo negro del logo: así las letras se ven exactamente
-                con su color real del archivo, sin mezclarse con lo que haya
-                detrás. Antes, con mix-blend-mode, el tono de las letras
-                cambiaba según el fondo (se veían más plateadas aquí en el
-                encabezado y más doradas sobre la foto del hero); con la
-                máscara se ve siempre el mismo tono en todas partes, sin
-                tocar el archivo del logo. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{
-              height: "145px", width: "auto", objectFit: "contain", display: "block",
-              WebkitMaskImage: "url(/logo-wordmark-santiago-gomez.png)", maskImage: "url(/logo-wordmark-santiago-gomez.png)",
-              WebkitMaskSize: "contain", maskSize: "contain",
-              WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center", maskPosition: "center",
-              maskMode: "luminance",
-            }} />
+            {/* El span de atrás le da al logo un fondo sólido y parejo (del
+                mismo color base de la página) para que el mix-blend-mode
+                funcione bien: el encabezado usa fondo semitransparente +
+                desenfoque (backdrop-filter) para el efecto "vidrio" al hacer
+                scroll, y ese desenfoque hace que el negro del logo no se
+                funda del todo. Con un fondo sólido parejo y casi negro
+                detrás, mix-blend-mode:screen muestra el color real y dorado
+                del logo tal cual está en el archivo (sin aclararlo ni
+                oscurecerlo), igual que en el logo del hero (que también
+                queda sobre un fondo muy oscuro), sin tocar el archivo. */}
+            <span style={{ display: "inline-block", lineHeight: 0, background: C.bg }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+            </span>
           </a>
           <nav className="prg-nav-links">
             <a href="#inicio" style={{ fontSize: "13px", fontWeight: 600, color: C.text, textDecoration: "none" }}>Inicio</a>
