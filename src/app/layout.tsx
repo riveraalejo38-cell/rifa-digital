@@ -20,30 +20,36 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
+  // El favicon (ícono de la pestaña del navegador) y el apple-touch-icon son
+  // recortes cuadrados del logo nuevo (letras "RIFAS Santiago GÓMEZ"),
+  // centrados y con buen margen para que se vean bien incluso pequeños.
+  // El archivo original del logo (public/logo-wordmark-santiago-gomez.png)
+  // no se tocó; estos son copias recortadas solo para este uso.
   icons: {
-    icon: "/logo-santiago-gomez.png",
-    shortcut: "/logo-santiago-gomez.png",
-    apple: "/logo-santiago-gomez.png",
+    icon: "/favicon-santiago-gomez.png",
+    shortcut: "/favicon-santiago-gomez.png",
+    apple: "/apple-touch-icon-santiago-gomez.png",
   },
-  // Sin esto, cuando alguien comparte el link por WhatsApp/Facebook/etc., la
-  // vista previa (tarjeta con imagen) no tiene de dónde sacar el logo del
-  // negocio y termina mostrando el ícono por defecto del proyecto (el de
-  // Next.js/Vercel que venía de fábrica). Con openGraph definido, la tarjeta
-  // usa el logo real.
+  // Sin esto, cuando alguien comparte el link por WhatsApp/Facebook/etc., o
+  // cuando aparece en resultados de Google, la vista previa (tarjeta con
+  // imagen) no tiene de dónde sacar el logo del negocio y termina mostrando
+  // el ícono por defecto del proyecto (el de Next.js/Vercel que venía de
+  // fábrica) o un logo viejo. Con openGraph definido, la tarjeta usa el
+  // logo nuevo real.
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_TITLE,
-    images: [{ url: "/logo-santiago-gomez.png", width: 1254, height: 1254, alt: SITE_TITLE }],
+    images: [{ url: "/og-santiago-gomez.png", width: 1200, height: 630, alt: SITE_TITLE }],
     locale: "es_CO",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ["/logo-santiago-gomez.png"],
+    images: ["/og-santiago-gomez.png"],
   },
 };
 
