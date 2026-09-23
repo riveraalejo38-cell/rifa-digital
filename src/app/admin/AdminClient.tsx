@@ -319,18 +319,13 @@ export default function AdminClient() {
       {/* Header */}
       <div style={{ background: "#142B21", borderBottom: "1px solid rgba(217,173,82,0.2)", padding: "0 38px", height: "84px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          {/* Se usa un mask-image para recortar el fondo negro del logo: así
-              las letras se ven con su color real, igual en todas las
-              pantallas del sitio, sin tocar el archivo. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{
-            height: "64px", width: "auto", objectFit: "contain", display: "block",
-            WebkitMaskImage: "url(/logo-wordmark-santiago-gomez.png)", maskImage: "url(/logo-wordmark-santiago-gomez.png)",
-            WebkitMaskSize: "contain", maskSize: "contain",
-            WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
-            WebkitMaskPosition: "center", maskPosition: "center",
-            maskMode: "luminance",
-          }} />
+          {/* El span de atrás le da al logo un fondo sólido parejo (el mismo
+              color del encabezado) para que mix-blend-mode:screen muestre el
+              color real y dorado del logo tal cual está en el archivo. */}
+          <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "64px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+          </span>
           <div>
             <p style={{ margin: 0, fontSize: "13px", color: "#57708A", fontWeight: "500" }}>Panel Administrador</p>
           </div>
