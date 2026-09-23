@@ -63,7 +63,7 @@ export default function LoginPage() {
               color real y dorado del logo tal cual está en el archivo. */}
           <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21", margin: "0 auto 12px" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "92px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "112px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
           </span>
           <p style={{ color: "#7C93AC", fontSize: "14px", margin: 0 }}>
             Panel de Control
