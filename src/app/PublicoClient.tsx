@@ -207,7 +207,12 @@ export default function PublicoClient() {
   // ══ Elige tu número (con el valor de la boleta al lado) ══
   const seccionEligeValor = (
     <section key="eligeValor" style={{ marginBottom: "44px" }}>
-    <div className="prg-reserva-grid" style={{ marginBottom: "16px" }}>
+    <div className="prg-reserva-grid" style={{ marginBottom: "16px", position: "relative" }}>
+      {/* Marca de agua: el mismo logo, grande y tenue, detrás de esta
+          sección — solo visible en pantallas anchas donde sobra espacio
+          a la derecha del contenido. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-wordmark-santiago-gomez.png" alt="" aria-hidden="true" className="prg-watermark" />
       {/* Verificar / elegir número */}
       {!reservaExito && (
         <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1.5px solid ${C.border}`, display: "flex", flexDirection: "column" }}>
@@ -473,6 +478,14 @@ export default function PublicoClient() {
         @keyframes brillo { 0%, 100% { box-shadow: 0 0 30px rgba(217,173,82,0.10); } 50% { box-shadow: 0 0 46px rgba(217,173,82,0.22); } }
         @keyframes latido { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(37,211,102,0.4); } 50% { transform: scale(1.03); box-shadow: 0 0 22px rgba(37,211,102,0.5); } }
         .prg-nav-links { display: flex; gap: 26px; }
+        .prg-watermark { display: none; }
+        @media (min-width: 1400px) {
+          .prg-watermark {
+            display: block; position: absolute; top: 50%; right: calc(-50vw + 590px);
+            transform: translateY(-50%); height: 300px; width: auto; object-fit: contain;
+            opacity: 0.16; pointer-events: none; z-index: 0; mix-blend-mode: screen;
+          }
+        }
         .prg-hero { position: relative; width: 100%; min-height: 420px; overflow: hidden; display: flex; align-items: center; }
         .prg-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; display: block; }
         .prg-hero-overlay { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(11,31,23,0.96) 0%, rgba(11,31,23,0.88) 32%, rgba(11,31,23,0.5) 58%, rgba(11,31,23,0.12) 82%, rgba(11,31,23,0.05) 100%); }
@@ -511,10 +524,9 @@ export default function PublicoClient() {
       {/* ══ Encabezado ══ */}
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(11,31,23,0.95)", borderBottom: `1px solid ${C.border}`, backdropFilter: "blur(6px)" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <a href="#inicio" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+          <a href="#inicio" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ width: "34px", height: "34px", borderRadius: "9px", objectFit: "cover", border: `1.5px solid ${C.border}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <p style={{ margin: 0, fontSize: "12px", fontWeight: 800, color: C.text, letterSpacing: "0.5px", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "100px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
           </a>
           <nav className="prg-nav-links">
             <a href="#inicio" style={{ fontSize: "13px", fontWeight: 600, color: C.text, textDecoration: "none" }}>Inicio</a>
