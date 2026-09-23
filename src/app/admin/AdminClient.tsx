@@ -317,14 +317,17 @@ export default function AdminClient() {
       </div>
 
       {/* Header */}
-      <div style={{ background: "#142B21", borderBottom: "1px solid rgba(217,173,82,0.2)", padding: "0 38px", height: "84px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: "#142B21", borderBottom: "1px solid rgba(217,173,82,0.2)", padding: "16px 38px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           {/* El span de atrás le da al logo un fondo sólido parejo (el mismo
               color del encabezado) para que mix-blend-mode:screen muestre el
-              color real y dorado del logo tal cual está en el archivo. */}
+              color real y dorado del logo tal cual está en el archivo. Mismo
+              tamaño (145px) que el logo del encabezado de la página pública,
+              por eso el encabezado ya no tiene una altura fija: crece con el
+              logo, igual que allá. */}
           <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "76px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
           </span>
           <div>
             <p style={{ margin: 0, fontSize: "13px", color: "#57708A", fontWeight: "500" }}>Panel Administrador</p>
