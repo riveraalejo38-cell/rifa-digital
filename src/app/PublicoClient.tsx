@@ -482,13 +482,13 @@ export default function PublicoClient() {
         .prg-hero-logo-wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0; max-width: 1100px; margin: 0 auto; padding: 56px 20px 0; box-sizing: border-box; pointer-events: none; }
         .prg-hero-logo {
           height: clamp(170px, 32vw, 280px); width: auto; object-fit: contain; display: block;
-          mix-blend-mode: screen;
+          mix-blend-mode: screen; filter: saturate(1.18);
         }
         @media (min-width: 1400px) {
           .prg-watermark {
             display: block; position: absolute; top: 50%; right: calc(-50vw + 590px);
             transform: translateY(-50%); height: 300px; width: auto; object-fit: contain;
-            opacity: 0.16; pointer-events: none; z-index: 0; mix-blend-mode: screen;
+            opacity: 0.16; pointer-events: none; z-index: 0; mix-blend-mode: screen; filter: saturate(1.18);
           }
         }
         .prg-hero { position: relative; width: 100%; min-height: 420px; overflow: hidden; display: flex; align-items: center; }
@@ -542,7 +542,7 @@ export default function PublicoClient() {
                 queda sobre un fondo muy oscuro), sin tocar el archivo. */}
             <span style={{ display: "inline-block", lineHeight: 0, background: C.bg }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+              <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
             </span>
           </a>
           <nav className="prg-nav-links">
