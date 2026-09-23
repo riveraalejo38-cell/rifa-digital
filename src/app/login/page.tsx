@@ -58,18 +58,13 @@ export default function LoginPage() {
         boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
       }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          {/* Se usa un mask-image para recortar el fondo negro del logo: así
-              las letras se ven con su color real, igual en todas las
-              pantallas del sitio, sin tocar el archivo. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{
-            height: "92px", width: "auto", objectFit: "contain", display: "block", margin: "0 auto 12px",
-            WebkitMaskImage: "url(/logo-wordmark-santiago-gomez.png)", maskImage: "url(/logo-wordmark-santiago-gomez.png)",
-            WebkitMaskSize: "contain", maskSize: "contain",
-            WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
-            WebkitMaskPosition: "center", maskPosition: "center",
-            maskMode: "luminance",
-          }} />
+          {/* El span de atrás le da al logo un fondo sólido parejo (el mismo
+              color de la tarjeta) para que mix-blend-mode:screen muestre el
+              color real y dorado del logo tal cual está en el archivo. */}
+          <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21", margin: "0 auto 12px" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "92px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+          </span>
           <p style={{ color: "#7C93AC", fontSize: "14px", margin: 0 }}>
             Panel de Control
           </p>
