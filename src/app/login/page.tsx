@@ -58,9 +58,7 @@ export default function LoginPage() {
         boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
       }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <h1 style={{ color: "#D9AD52", fontSize: "26px", fontWeight: "800", margin: "0 0 4px", letterSpacing: "0.5px" }}>
-            PROYECTOS SANTIAGO GÓMEZ
-          </h1>
+          <img src="/logo-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ width: "84px", height: "84px", borderRadius: "50%", objectFit: "cover", margin: "0 auto 12px", display: "block" }} />
           <p style={{ color: "#7C93AC", fontSize: "14px", margin: 0 }}>
             Panel de Control
           </p>
