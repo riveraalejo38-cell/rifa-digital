@@ -51,6 +51,13 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ["/og-santiago-gomez.png"],
   },
+  // Etiqueta de verificación de Google Search Console — confirma ante Google
+  // que este sitio es suyo, para que pueda rastrearlo/indexarlo y muestre el
+  // ícono/logo nuevo en los resultados de búsqueda. No se puede quitar sin
+  // perder la verificación.
+  verification: {
+    google: "9Bvhfx7Mcrfi3YGjPUIdvuvqwUthBwPEiPq1fHPvddY",
+  },
 };
 
 export default function RootLayout({
