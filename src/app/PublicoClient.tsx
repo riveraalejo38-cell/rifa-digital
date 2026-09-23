@@ -480,7 +480,7 @@ export default function PublicoClient() {
         .prg-nav-links { display: flex; gap: 26px; }
         .prg-watermark { display: none; }
         .prg-hero-logo-wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0; max-width: 1100px; margin: 0 auto; padding: 56px 20px 0; box-sizing: border-box; pointer-events: none; }
-        .prg-hero-logo { height: clamp(120px, 22vw, 190px); width: auto; object-fit: contain; display: block; mix-blend-mode: screen; }
+        .prg-hero-logo { height: clamp(170px, 32vw, 280px); width: auto; object-fit: contain; display: block; mix-blend-mode: screen; }
         @media (min-width: 1400px) {
           .prg-watermark {
             display: block; position: absolute; top: 50%; right: calc(-50vw + 590px);
@@ -563,7 +563,7 @@ export default function PublicoClient() {
           <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" className="prg-hero-logo" />
         </div>
         <div className="prg-hero-content">
-          <p style={{ margin: "0 0 10px", fontSize: "12px", color: C.gold, fontWeight: 800, letterSpacing: "2px", textShadow: "0 1px 6px rgba(0,0,0,0.5)", marginTop: "clamp(140px, 24vw, 210px)" }}>GRAN RIFA</p>
+          <p style={{ margin: "0 0 10px", fontSize: "12px", color: C.gold, fontWeight: 800, letterSpacing: "2px", textShadow: "0 1px 6px rgba(0,0,0,0.5)", marginTop: "clamp(190px, 35vw, 300px)" }}>GRAN RIFA</p>
           <h1 className="prg-hero-title">
             Tu próxima<br />
             <span className="prg-hero-title-accent">aventura</span><br />
