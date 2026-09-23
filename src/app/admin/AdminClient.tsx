@@ -324,7 +324,7 @@ export default function AdminClient() {
               color real y dorado del logo tal cual está en el archivo. */}
           <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "64px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "76px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
           </span>
           <div>
             <p style={{ margin: 0, fontSize: "13px", color: "#57708A", fontWeight: "500" }}>Panel Administrador</p>
