@@ -537,7 +537,7 @@ export default function PublicoClient() {
                 solo se ven las letras, sin tocar el archivo del logo. */}
             <span style={{ display: "inline-block", lineHeight: 0, background: C.bg }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "120px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+              <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
             </span>
           </a>
           <nav className="prg-nav-links">
