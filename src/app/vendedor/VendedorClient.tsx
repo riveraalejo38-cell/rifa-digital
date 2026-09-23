@@ -375,15 +375,17 @@ export default function VendedorClient() {
       `}</style>
 
       {/* Header */}
-      <div style={{ background: "#142B21", borderBottom: "1px solid #28405A", padding: "0 32px", height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
+      <div style={{ background: "#142B21", borderBottom: "1px solid #28405A", padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {/* El span de atrás le da al logo un fondo sólido parejo (el mismo
               color del encabezado) para que mix-blend-mode:screen muestre el
               color real y dorado del logo tal cual está en el archivo, igual
-              que en login y en el panel admin. */}
+              que en login y en el panel admin. Mismo tamaño (145px) que los
+              demás encabezados, por eso ya no tiene una altura fija: crece
+              con el logo. */}
           <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "64px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
           </span>
           <div>
             <p style={{ margin: 0, fontSize: "11px", color: "#8FA6BD", fontWeight: "500" }}>Panel Vendedor</p>
