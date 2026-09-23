@@ -97,102 +97,111 @@ export default function VendedoresPage() {
     new Date(fecha).toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F2F4F7", fontFamily: "'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#0B1F17", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+      `}</style>
 
-      {/* Header */}
-      <div style={{ background: "#1C1C2E", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: "18px", fontWeight: "800", color: "#FFFFFF", letterSpacing: "2px" }}>COLRIFAS</h1>
-          <p style={{ margin: 0, fontSize: "11px", color: "#6B7280" }}>Gestión de Vendedores</p>
+      {/* Header — mismo tono (verde/dorado) y mismo logo (letras) que el resto
+          del sistema; altura automática por el logo de 145px, igual que en
+          AdminClient/VendedorClient/Reclamos/login. */}
+      <div style={{ background: "#142B21", borderBottom: "1px solid rgba(217,173,82,0.2)", padding: "16px 38px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <span style={{ display: "inline-block", lineHeight: 0, background: "#142B21" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ height: "145px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen", filter: "saturate(1.18)" }} />
+          </span>
+          <p style={{ margin: 0, fontSize: "13px", color: "#57708A", fontWeight: "500" }}>Gestión de Vendedores</p>
         </div>
-        <a href="/admin" style={{ color: "#6B7280", fontSize: "13px", textDecoration: "none" }}>← Volver al panel</a>
+        <a href="/admin" style={{ color: "#7C93AC", fontSize: "16px", textDecoration: "none", fontWeight: "500", padding: "9px 19px", borderRadius: "10px", border: "1px solid #28405A" }}>← Volver al panel</a>
       </div>
 
-      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "24px 16px" }}>
+      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "32px 16px 60px" }}>
 
         {/* Título y botón */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700", color: "#1C1C2E" }}>Vendedores</h2>
-            <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#6B7280" }}>{vendedores.length} vendedor(es) registrado(s)</p>
+            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700", color: "#FFFFFF" }}>Vendedores</h2>
+            <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#7C93AC" }}>{vendedores.length} vendedor(es) registrado(s)</p>
           </div>
-          <button onClick={() => { setShowModal(true); setMessage(""); }} style={{ background: "#3B5998", border: "none", borderRadius: "10px", padding: "12px 20px", color: "#FFFFFF", fontWeight: "700", fontSize: "14px", cursor: "pointer" }}>
+          <button onClick={() => { setShowModal(true); setMessage(""); }} style={{ background: "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "10px", padding: "12px 20px", color: "#0B1F17", fontWeight: "800", fontSize: "14px", cursor: "pointer", fontFamily: "inherit" }}>
             + Nuevo usuario
           </button>
         </div>
 
         {message && !showModal && (
-          <div style={{ background: "#FEF9C3", color: "#854D0E", borderRadius: "10px", padding: "12px 16px", fontSize: "13px", marginBottom: "16px" }}>
+          <div style={{ background: "rgba(252,211,77,0.12)", color: "#FCD34D", borderRadius: "10px", padding: "12px 16px", fontSize: "13px", marginBottom: "16px" }}>
             {message}
           </div>
         )}
 
         {/* Lista de vendedores */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#6B7280" }}>Cargando...</div>
+          <div style={{ textAlign: "center", padding: "40px", color: "#57708A" }}>Cargando...</div>
         ) : vendedores.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#6B7280", background: "#FFFFFF", borderRadius: "16px" }}>
+          <div style={{ textAlign: "center", padding: "40px", color: "#57708A", background: "#142B21", borderRadius: "16px", border: "1px solid rgba(217,173,82,0.16)" }}>
             No hay vendedores registrados aún
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {vendedores.map((v) => (
-              <div key={v.id} style={{ background: "#FFFFFF", borderRadius: "16px", padding: "20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={v.id} style={{ background: "#142B21", borderRadius: "16px", padding: "20px", border: "1px solid rgba(217,173,82,0.16)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: v.isActive ? "#DBEAFE" : "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", fontWeight: "700", color: v.isActive ? "#3B5998" : "#9CA3AF" }}>
+                  <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: v.isActive ? "rgba(217,173,82,0.15)" : "rgba(124,147,172,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", fontWeight: "700", color: v.isActive ? "#D9AD52" : "#57708A" }}>
                     {v.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#1C1C2E" }}>
+                    <p style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#FFFFFF" }}>
                       {v.name}
                       {v.role === "ADMIN" && (
-                        <span style={{ marginLeft: "8px", background: "#EDE9FE", color: "#6D28D9", borderRadius: "999px", padding: "2px 9px", fontSize: "11px", fontWeight: "700", verticalAlign: "middle" }}>
+                        <span style={{ marginLeft: "8px", background: "rgba(125,211,252,0.15)", color: "#7DD3FC", borderRadius: "999px", padding: "2px 9px", fontSize: "11px", fontWeight: "700", verticalAlign: "middle" }}>
                           Administrador
                         </span>
                       )}
                     </p>
-                    <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#6B7280" }}>@{v.username}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: "11px", color: "#9CA3AF" }}>Desde {formatFecha(v.createdAt)}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: "13px", color: "#7C93AC" }}>@{v.username}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: "11px", color: "#57708A" }}>Desde {formatFecha(v.createdAt)}</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{
-                    background: v.isActive ? "#D1FAE5" : "#FEF2F2",
-                    color: v.isActive ? "#2D6A4F" : "#DC2626",
+                    background: v.isActive ? "rgba(5,150,105,0.15)" : "rgba(239,68,68,0.15)",
+                    color: v.isActive ? "#6EE7B7" : "#F87171",
                     borderRadius: "999px", padding: "4px 12px", fontSize: "12px", fontWeight: "700"
                   }}>
                     {v.isActive ? "Activo" : "Inactivo"}
                   </span>
                   <button onClick={() => toggleActivo(v.id, v.isActive)} style={{
-                    background: v.isActive ? "#FEF2F2" : "#D1FAE5",
-                    border: "none", borderRadius: "8px", padding: "8px 14px",
-                    color: v.isActive ? "#DC2626" : "#2D6A4F",
-                    fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                    background: v.isActive ? "rgba(239,68,68,0.1)" : "rgba(5,150,105,0.15)",
+                    border: v.isActive ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(110,231,183,0.4)",
+                    borderRadius: "8px", padding: "8px 14px",
+                    color: v.isActive ? "#F87171" : "#6EE7B7",
+                    fontSize: "13px", cursor: "pointer", fontWeight: "700", fontFamily: "inherit"
                   }}>
                     {v.isActive ? "Desactivar" : "Activar"}
                   </button>
                   {confirmId === v.id ? (
                     <>
-                      <span style={{ fontSize: "12px", color: "#6B7280" }}>¿Seguro?</span>
+                      <span style={{ fontSize: "12px", color: "#7C93AC" }}>¿Seguro?</span>
                       <button onClick={() => eliminarVendedor(v.id)} disabled={deletingId === v.id} style={{
                         background: "#DC2626", border: "none", borderRadius: "8px", padding: "8px 14px",
-                        color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                        color: "#FFFFFF", fontSize: "13px", cursor: "pointer", fontWeight: "600", fontFamily: "inherit"
                       }}>
                         {deletingId === v.id ? "Borrando..." : "Sí, borrar"}
                       </button>
                       <button onClick={() => setConfirmId(null)} style={{
-                        background: "#F3F4F6", border: "none", borderRadius: "8px", padding: "8px 14px",
-                        color: "#6B7280", fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                        background: "transparent", border: "1px solid #28405A", borderRadius: "8px", padding: "8px 14px",
+                        color: "#7C93AC", fontSize: "13px", cursor: "pointer", fontWeight: "600", fontFamily: "inherit"
                       }}>
                         Cancelar
                       </button>
                     </>
                   ) : (
                     <button onClick={() => setConfirmId(v.id)} style={{
-                      background: "#F3F4F6",
-                      border: "none", borderRadius: "8px", padding: "8px 14px",
-                      color: "#6B7280",
-                      fontSize: "13px", cursor: "pointer", fontWeight: "600"
+                      background: "transparent",
+                      border: "1px solid #28405A", borderRadius: "8px", padding: "8px 14px",
+                      color: "#7C93AC",
+                      fontSize: "13px", cursor: "pointer", fontWeight: "600", fontFamily: "inherit"
                     }}>
                       Borrar
                     </button>
@@ -206,44 +215,44 @@ export default function VendedoresPage() {
 
       {/* Modal nuevo vendedor */}
       {showModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "20px" }}>
-          <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(11,31,23,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: "20px" }}>
+          <div style={{ background: "#142B21", border: "1px solid rgba(217,173,82,0.16)", borderRadius: "20px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.35)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#1C1C2E" }}>Nuevo usuario</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: "#F2F4F7", border: "none", borderRadius: "8px", padding: "8px 12px", color: "#6B7280", cursor: "pointer", fontSize: "16px" }}>✕</button>
+              <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#FFFFFF" }}>Nuevo usuario</h2>
+              <button onClick={() => setShowModal(false)} style={{ background: "#0B1F17", border: "none", borderRadius: "8px", padding: "8px 12px", color: "#7C93AC", cursor: "pointer", fontSize: "16px", fontFamily: "inherit" }}>✕</button>
             </div>
             <input type="text" placeholder="Nombre completo" value={name}
               onChange={(e) => setName(e.target.value)}
-              style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
+              style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "10px", padding: "12px 14px", color: "#FFFFFF", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
             />
             <input type="text" placeholder="Usuario (para iniciar sesión)" value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
+              style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "10px", padding: "12px 14px", color: "#FFFFFF", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
             />
             <input type="password" placeholder="Contraseña" value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "100%", background: "#F2F4F7", border: "1px solid #E5E7EB", borderRadius: "10px", padding: "12px 14px", color: "#1C1C2E", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px" }}
+              style={{ width: "100%", background: "#142B21", border: "1.5px solid #28405A", borderRadius: "10px", padding: "12px 14px", color: "#FFFFFF", fontSize: "15px", outline: "none", boxSizing: "border-box", marginBottom: "10px", fontFamily: "inherit" }}
             />
             <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
               <button type="button" onClick={() => setRole("VENDEDOR")} style={{
-                flex: 1, borderRadius: "10px", padding: "10px", fontSize: "13px", fontWeight: "700", cursor: "pointer",
-                border: role === "VENDEDOR" ? "2px solid #3B5998" : "1px solid #E5E7EB",
-                background: role === "VENDEDOR" ? "#EEF2FF" : "#FFFFFF",
-                color: role === "VENDEDOR" ? "#3B5998" : "#6B7280",
+                flex: 1, borderRadius: "10px", padding: "10px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
+                border: role === "VENDEDOR" ? "2px solid #D9AD52" : "1px solid #28405A",
+                background: role === "VENDEDOR" ? "rgba(217,173,82,0.12)" : "transparent",
+                color: role === "VENDEDOR" ? "#D9AD52" : "#7C93AC",
               }}>
                 Vendedor
               </button>
               <button type="button" onClick={() => setRole("ADMIN")} style={{
-                flex: 1, borderRadius: "10px", padding: "10px", fontSize: "13px", fontWeight: "700", cursor: "pointer",
-                border: role === "ADMIN" ? "2px solid #6D28D9" : "1px solid #E5E7EB",
-                background: role === "ADMIN" ? "#F5F3FF" : "#FFFFFF",
-                color: role === "ADMIN" ? "#6D28D9" : "#6B7280",
+                flex: 1, borderRadius: "10px", padding: "10px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
+                border: role === "ADMIN" ? "2px solid #7DD3FC" : "1px solid #28405A",
+                background: role === "ADMIN" ? "rgba(125,211,252,0.12)" : "transparent",
+                color: role === "ADMIN" ? "#7DD3FC" : "#7C93AC",
               }}>
                 Administrador
               </button>
             </div>
-            {message && <p style={{ color: "#DC2626", fontSize: "13px", marginBottom: "12px" }}>{message}</p>}
-            <button onClick={crearVendedor} disabled={saving} style={{ width: "100%", background: "#3B5998", border: "none", borderRadius: "10px", padding: "14px", color: "#FFFFFF", fontWeight: "700", fontSize: "15px", cursor: "pointer" }}>
+            {message && <p style={{ color: "#F87171", fontSize: "13px", marginBottom: "12px" }}>{message}</p>}
+            <button onClick={crearVendedor} disabled={saving} style={{ width: "100%", background: saving ? "#28405A" : "linear-gradient(135deg, #D9AD52, #B58A2E)", border: "none", borderRadius: "10px", padding: "14px", color: saving ? "#7C93AC" : "#0B1F17", fontWeight: "800", fontSize: "15px", cursor: saving ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
               {saving ? "Creando..." : role === "ADMIN" ? "Crear administrador" : "Crear vendedor"}
             </button>
           </div>
