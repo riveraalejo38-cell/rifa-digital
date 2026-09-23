@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   icons: {
-    icon: "/logo-santiago-gomez.jpg",
-    shortcut: "/logo-santiago-gomez.jpg",
-    apple: "/logo-santiago-gomez.jpg",
+    icon: "/logo-santiago-gomez.png",
+    shortcut: "/logo-santiago-gomez.png",
+    apple: "/logo-santiago-gomez.png",
   },
   // Sin esto, cuando alguien comparte el link por WhatsApp/Facebook/etc., la
   // vista previa (tarjeta con imagen) no tiene de dónde sacar el logo del
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_TITLE,
-    images: [{ url: "/logo-santiago-gomez.jpg", width: 1254, height: 1254, alt: SITE_TITLE }],
+    images: [{ url: "/logo-santiago-gomez.png", width: 1254, height: 1254, alt: SITE_TITLE }],
     locale: "es_CO",
     type: "website",
   },
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: ["/logo-santiago-gomez.jpg"],
+    images: ["/logo-santiago-gomez.png"],
   },
 };
 

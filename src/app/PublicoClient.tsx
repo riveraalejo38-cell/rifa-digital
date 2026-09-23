@@ -511,9 +511,10 @@ export default function PublicoClient() {
       {/* ══ Encabezado ══ */}
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(11,31,23,0.95)", borderBottom: `1px solid ${C.border}`, backdropFilter: "blur(6px)" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <a href="#inicio" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+          <a href="#inicio" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-santiago-gomez-wordmark.png" alt="Rifas Santiago Gómez" style={{ height: "38px", width: "auto" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img src="/logo-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ width: "34px", height: "34px", borderRadius: "9px", objectFit: "cover", border: `1.5px solid ${C.border}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <p style={{ margin: 0, fontSize: "12px", fontWeight: 800, color: C.text, letterSpacing: "0.5px", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
           </a>
           <nav className="prg-nav-links">
             <a href="#inicio" style={{ fontSize: "13px", fontWeight: 600, color: C.text, textDecoration: "none" }}>Inicio</a>
@@ -569,9 +570,10 @@ export default function PublicoClient() {
 
       {/* ══ Pie de página ══ */}
       <footer id="contacto" style={{ borderTop: `1px solid ${C.border}`, padding: "32px 20px", textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "10px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-santiago-gomez-wordmark.png" alt="Rifas Santiago Gómez" style={{ height: "34px", width: "auto" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <img src="/logo-santiago-gomez.png" alt="Proyectos Santiago Gómez" style={{ width: "30px", height: "30px", borderRadius: "8px", objectFit: "cover", border: `1.5px solid ${C.border}` }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <p style={{ margin: 0, fontSize: "12px", fontWeight: 800, color: C.text, letterSpacing: "0.5px", textAlign: "left", lineHeight: 1.2 }}>PROYECTOS<br />SANTIAGO GÓMEZ</p>
         </div>
         <p style={{ margin: "0 0 14px", fontSize: "13px", color: C.goldLight, fontStyle: "italic" }}>{RAFFLE_DESCRIPTION}</p>
         <button onClick={escribenos} style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "none", border: `1.5px solid ${C.border}`, borderRadius: "999px", padding: "9px 18px", color: C.muted, fontSize: "12.5px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: "16px" }}>
