@@ -527,8 +527,18 @@ export default function PublicoClient() {
       <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(11,31,23,0.95)", borderBottom: `1px solid ${C.border}`, backdropFilter: "blur(6px)" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="#inicio" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "100px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+            {/* El span de atrás le da al logo un fondo sólido y parejo (del
+                mismo color base de la página) para que el mix-blend-mode
+                funcione bien: el encabezado usa fondo semitransparente +
+                desenfoque (backdrop-filter) para el efecto "vidrio" al hacer
+                scroll, y ese desenfoque hace que el negro del logo no se
+                funda del todo —quedaba un cuadro verdoso apenas visible—.
+                Con un fondo sólido parejo detrás, la mezcla es perfecta y
+                solo se ven las letras, sin tocar el archivo del logo. */}
+            <span style={{ display: "inline-block", lineHeight: 0, background: C.bg }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-wordmark-santiago-gomez.png" alt="Rifas Santiago Gómez" style={{ height: "120px", width: "auto", objectFit: "contain", display: "block", mixBlendMode: "screen" }} />
+            </span>
           </a>
           <nav className="prg-nav-links">
             <a href="#inicio" style={{ fontSize: "13px", fontWeight: 600, color: C.text, textDecoration: "none" }}>Inicio</a>
